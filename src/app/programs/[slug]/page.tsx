@@ -49,6 +49,15 @@ export default function ProgramDetailPage({ params }: PageProps) {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
+            {program.coverImage && (
+              <div 
+                className="w-full h-64 sm:h-80 rounded-xl overflow-hidden bg-cover bg-center border border-brand-border relative"
+                style={{ backgroundImage: `url(${program.coverImage})` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/50 to-transparent" />
+              </div>
+            )}
+
             <div className="flex flex-wrap gap-2 items-center">
               <Badge variant={program.status === "active" ? "success" : program.status === "upcoming" ? "warning" : "default"}>
                 {program.status === "active"

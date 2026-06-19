@@ -104,9 +104,12 @@ export default function ProgramsPage() {
             transition={{ duration: 0.4, delay: idx * 0.05 }}
           >
             <Card className="h-full flex flex-col justify-between bg-white border border-brand-border">
-              {/* Cover placeholder */}
-              <div className="relative h-44 bg-brand-navy flex items-center justify-center overflow-hidden border-b border-brand-border">
-                <div className="absolute inset-0 bg-brand-dark bg-sci-grid opacity-30" />
+              {/* Cover image / placeholder */}
+              <div 
+                className="relative h-44 bg-brand-navy flex items-center justify-center overflow-hidden border-b border-brand-border bg-cover bg-center"
+                style={program.coverImage ? { backgroundImage: `url(${program.coverImage})` } : undefined}
+              >
+                <div className="absolute inset-0 bg-brand-dark/45 bg-sci-grid opacity-40" />
                 <span className="text-xs font-extrabold text-brand-dark bg-white border border-brand-border px-3 py-1.5 rounded-md z-10 uppercase tracking-widest shadow-xs">
                   {language === "ar" ? program.category.ar : program.category.en}
                 </span>
