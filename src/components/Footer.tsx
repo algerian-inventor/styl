@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Mail, Phone, MapPin, Award } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePrototypeState } from "@/context/PrototypeStateContext";
 
 // Brand icons declarations as inline SVGs
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -28,6 +29,7 @@ const YoutubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export const Footer: React.FC = () => {
   const { t, language } = useLanguage();
+  const { siteSettings } = usePrototypeState();
   const pathname = usePathname();
 
   // Hide footer on admin dashboards
@@ -47,7 +49,7 @@ export const Footer: React.FC = () => {
               </span>
               <div className="flex flex-col leading-tight">
                 <span className="text-sm font-extrabold text-white">
-                  {language === "ar" ? "رابطة الشباب العلمية" : "STLY Constantine"}
+                  {language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}
                 </span>
                 <span className="text-xs text-brand-green font-bold">
                   {language === "ar" ? "قسنطينة" : "Constantine"}
@@ -55,7 +57,7 @@ export const Footer: React.FC = () => {
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              {t("about.desc1")} {t("about.desc2")}
+              {language === "ar" ? siteSettings.sloganAr : siteSettings.sloganEn}
             </p>
             <div className="flex gap-3 text-slate-400">
               <a href="#" className="hover:text-brand-green transition-colors" aria-label="Facebook">
@@ -146,15 +148,15 @@ export const Footer: React.FC = () => {
             <ul className="space-y-3 text-xs text-slate-400">
               <li className="flex gap-2 items-start">
                 <MapPin className="h-4 w-4 text-brand-green flex-shrink-0" />
-                <span>{t("contact.address")}</span>
+                <span>{language === "ar" ? siteSettings.addressAr : siteSettings.addressEn}</span>
               </li>
               <li className="flex gap-2 items-center">
                 <Phone className="h-4 w-4 text-brand-green flex-shrink-0" />
-                <span>031 92 48 10</span>
+                <span>{siteSettings.phone}</span>
               </li>
               <li className="flex gap-2 items-center">
                 <Mail className="h-4 w-4 text-brand-green flex-shrink-0" />
-                <span>contact@stly.dz</span>
+                <span>{siteSettings.email}</span>
               </li>
             </ul>
           </div>
@@ -162,11 +164,11 @@ export const Footer: React.FC = () => {
 
         <div className="border-t border-slate-800 mt-12 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-slate-400 gap-4">
           <p>
-            &copy; {new Date().getFullYear()} {t("hero.title")}. {language === "ar" ? "جميع الحقوق محفوظة." : "All rights reserved."}
+            &copy; {new Date().getFullYear()} {language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}. {language === "ar" ? "جميع الحقوق محفوظة." : "All rights reserved."}
           </p>
           <div className="flex items-center gap-1">
             <Award className="h-4 w-4 text-brand-green" />
-            <span>{language === "ar" ? "الرابطة العلمية والتقنية للشباب بقسنطينة" : "STLY Constantine"}</span>
+            <span>{language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}</span>
           </div>
         </div>
       </div>

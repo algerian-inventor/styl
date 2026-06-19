@@ -4,11 +4,13 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Award, Compass, Heart, Users, Target } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePrototypeState } from "@/context/PrototypeStateContext";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Card, CardContent } from "@/components/ui/Card";
 
 export default function AboutPage() {
   const { t, language } = useLanguage();
+  const { siteSettings } = usePrototypeState();
 
   const values = [
     {
@@ -61,8 +63,8 @@ export default function AboutPage() {
           </p>
           <p className="text-sm text-brand-muted leading-relaxed">
             {language === "ar"
-              ? "الرابطة العلمية والتقنية للشباب بقسنطينة هي منظمة شبانية معتمدة غير ربحية، تأسست لتشكل جسراً يربط بين الفضول العلمي والتطبيقات التكنولوجية. نوفر بيئة حاضنة للشباب تمكنهم من التفاعل مع العلوم الحديثة وتطوير مهارات ملموسة تفتح لهم آفاقاً واسعة في دراستهم الجامعية وحياتهم المهنية."
-              : "STLY Constantine is an approved non-profit youth organization, founded to act as a bridge between scientific curiosity and technological implementation. We provide a space for young people to interact with sciences and develop skills that open opportunities in their university and career paths."}
+              ? `${siteSettings.leagueNameAr} هي منظمة شبانية معتمدة غير ربحية، تأسست لتشكل جسراً يربط بين الفضول العلمي والتطبيقات التكنولوجية. نوفر بيئة حاضنة للشباب تمكنهم من التفاعل مع العلوم الحديثة وتطوير مهارات ملموسة تفتح لهم آفاقاً واسعة في دراستهم الجامعية وحياتهم المهنية.`
+              : `${siteSettings.leagueNameEn} is an approved non-profit youth organization, founded to act as a bridge between scientific curiosity and technological implementation. We provide a space for young people to interact with sciences and develop skills that open opportunities in their university and career paths.`}
           </p>
           <p className="text-sm text-brand-muted leading-relaxed">
             {language === "ar"

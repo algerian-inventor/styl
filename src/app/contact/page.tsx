@@ -20,7 +20,7 @@ interface FAQItem {
 
 export default function ContactPage() {
   const { t, language } = useLanguage();
-  const { submitContactMessage } = usePrototypeState();
+  const { submitContactMessage, siteSettings } = usePrototypeState();
 
   const [isMessageSent, setIsMessageSent] = useState(false);
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(null);
@@ -118,7 +118,7 @@ export default function ContactPage() {
                 </span>
                 <div>
                   <h5 className="font-extrabold text-brand-dark">{language === "ar" ? "العنوان" : "Address"}</h5>
-                  <p className="text-brand-muted">{t("contact.address")}</p>
+                  <p className="text-brand-muted">{language === "ar" ? siteSettings.addressAr : siteSettings.addressEn}</p>
                 </div>
               </div>
 
@@ -128,7 +128,7 @@ export default function ContactPage() {
                 </span>
                 <div>
                   <h5 className="font-extrabold text-brand-dark">{t("contact.phone")}</h5>
-                  <p className="text-brand-muted">031 92 48 10</p>
+                  <p className="text-brand-muted">{siteSettings.phone}</p>
                 </div>
               </div>
 
@@ -138,7 +138,7 @@ export default function ContactPage() {
                 </span>
                 <div>
                   <h5 className="font-extrabold text-brand-dark">{t("contact.email")}</h5>
-                  <p className="text-brand-muted">contact@stly.dz</p>
+                  <p className="text-brand-muted">{siteSettings.email}</p>
                 </div>
               </div>
 

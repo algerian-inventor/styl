@@ -27,6 +27,32 @@ export interface Toast {
   type: "success" | "error" | "info";
 }
 
+export interface SiteSettings {
+  leagueNameAr: string;
+  leagueNameEn: string;
+  sloganAr: string;
+  sloganEn: string;
+  email: string;
+  phone: string;
+  addressAr: string;
+  addressEn: string;
+  primaryColor: "navy" | "teal" | "purple" | "orange";
+  heroBannerUrl?: string;
+}
+
+const defaultSettings: SiteSettings = {
+  leagueNameAr: "الرابطة العلمية والتقنية للشباب – قسنطينة",
+  leagueNameEn: "Scientific and Technical Youth League – Constantine",
+  sloganAr: "نحو جيل يقود المستقبل بالعلم والابتكار",
+  sloganEn: "Towards a generation leading the future with science and innovation",
+  email: "contact@stly.dz",
+  phone: "031 92 48 10",
+  addressAr: "حي سيدي مبروك السفلي، قسنطينة، الجزائر",
+  addressEn: "Sidi Mabrouk El Sifli, Constantine, Algeria",
+  primaryColor: "navy",
+  heroBannerUrl: "",
+};
+
 interface PrototypeStateContextProps {
   articles: Article[];
   events: Event[];
@@ -38,6 +64,10 @@ interface PrototypeStateContextProps {
   partners: Partner[];
   isAdminAuthenticated: boolean;
   toasts: Toast[];
+  siteSettings: SiteSettings;
+
+  // Customizer actions
+  updateSiteSettings: (settings: Partial<SiteSettings>) => void;
 
   // Toast actions
   addToast: (message: string, type?: "success" | "error" | "info") => void;
@@ -93,6 +123,9 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
   const [toasts, setToasts] = useState<Toast[]>([]);
   const toastIdRef = React.useRef(0);
 
+  // Settings State
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(defaultSettings);
+
   // Initialize data on mount
   useEffect(() => {
     const loadState = <T,>(key: string, defaults: T[]): T[] => {
@@ -124,6 +157,16 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     ]));
     setGalleryItems(loadState("stly_gallery", defaultGallery));
     setPartners(loadState("stly_partners", defaultPartners));
+
+    // Load customizer settings
+    const storedSettings = localStorage.getItem("stly_site_settings");
+    if (storedSettings) {
+      try {
+        setSiteSettings(JSON.parse(storedSettings));
+      } catch (e) {
+        console.error("Error parsing settings from localStorage", e);
+      }
+    }
 
     const auth = localStorage.getItem("stly_admin_auth");
     if (auth === "true") {
@@ -172,6 +215,37 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     if (!isHydrated) return;
     localStorage.setItem("stly_partners", JSON.stringify(partners));
   }, [partners, isHydrated]);
+
+  // Save Customizer settings
+  useEffect(() => {
+    if (!isHydrated) return;
+    localStorage.setItem("stly_site_settings", JSON.stringify(siteSettings));
+  }, [siteSettings, isHydrated]);
+
+  // Inject Theme Color variables in root document
+  useEffect(() => {
+    if (!isHydrated) return;
+    const colors = {
+      navy: { primary: "#062B55", primaryLight: "#0d4682" },
+      teal: { primary: "#0D9488", primaryLight: "#14b8a6" },
+      purple: { primary: "#7C3AED", primaryLight: "#8b5cf6" },
+      orange: { primary: "#D97706", primaryLight: "#f59e0b" },
+    };
+    const theme = colors[siteSettings.primaryColor] || colors.navy;
+    if (typeof window !== "undefined") {
+      document.documentElement.style.setProperty("--color-brand-navy", theme.primary);
+      document.documentElement.style.setProperty("--color-brand-navy-light", theme.primaryLight);
+    }
+  }, [siteSettings.primaryColor, isHydrated]);
+
+  // Settings Actions
+  const updateSiteSettings = (settings: Partial<SiteSettings>) => {
+    setSiteSettings((prev) => ({ ...prev, ...settings }));
+    addToast(
+      language === "ar" ? "تم حفظ إعدادات المظهر بنجاح!" : "Appearance settings saved successfully!",
+      "success"
+    );
+  };
 
   // Toast actions
   const addToast = (message: string, type: "success" | "error" | "info" = "success") => {
@@ -483,6 +557,8 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
         partners,
         isAdminAuthenticated,
         toasts,
+        siteSettings,
+        updateSiteSettings,
         addToast,
         removeToast,
         addArticle,

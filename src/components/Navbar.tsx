@@ -5,10 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Globe, User } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePrototypeState } from "@/context/PrototypeStateContext";
 import { Button } from "@/components/ui/Button";
 
 export const Navbar: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
+  const { siteSettings } = usePrototypeState();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -51,8 +53,8 @@ export const Navbar: React.FC = () => {
                 STLY
               </span>
               <div className="flex flex-col leading-tight">
-                <span className="text-xs font-extrabold text-brand-navy">
-                  {language === "ar" ? "رابطة الشباب العلمية" : "STLY Constantine"}
+                <span className="text-xs font-extrabold text-brand-navy line-clamp-1 max-w-[150px] sm:max-w-none">
+                  {language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}
                 </span>
                 <span className="text-[10px] text-brand-green font-bold">
                   {language === "ar" ? "قسنطينة" : "Constantine"}

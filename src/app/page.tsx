@@ -25,7 +25,7 @@ import { fields, iconMap } from "@/data/fields";
 
 export default function HomePage() {
   const { t, language, dir } = useLanguage();
-  const { programs, events, articles, galleryItems, partners } = usePrototypeState();
+  const { programs, events, articles, galleryItems, partners, siteSettings } = usePrototypeState();
 
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
@@ -46,10 +46,21 @@ export default function HomePage() {
   return (
     <div className="w-full">
       {/* 2. HERO SECTION */}
-      <section className="relative min-h-[85vh] flex items-center bg-brand-dark overflow-hidden py-16 bg-sci-grid">
+      <section 
+        className="relative min-h-[85vh] flex items-center bg-brand-dark overflow-hidden py-16 bg-sci-grid"
+        style={siteSettings.heroBannerUrl ? {
+          backgroundImage: `linear-gradient(to bottom, rgba(11, 31, 51, 0.75), rgba(11, 31, 51, 0.85)), url(${siteSettings.heroBannerUrl})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center"
+        } : undefined}
+      >
         {/* Decorative subtle abstract elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-navy/35 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-green/10 rounded-full blur-3xl pointer-events-none" />
+        {!siteSettings.heroBannerUrl && (
+          <>
+            <div className="absolute top-0 right-0 w-96 h-96 bg-brand-navy/35 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-green/10 rounded-full blur-3xl pointer-events-none" />
+          </>
+        )}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
           <div className="max-w-3xl text-start space-y-6">
@@ -68,7 +79,7 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
               className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight"
             >
-              {t("hero.title")}
+              {language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}
             </motion.h1>
 
             <motion.p
@@ -77,7 +88,7 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-lg sm:text-xl text-brand-green font-bold"
             >
-              {t("hero.slogan")}
+              {language === "ar" ? siteSettings.sloganAr : siteSettings.sloganEn}
             </motion.p>
 
             <motion.p
@@ -599,7 +610,7 @@ export default function HomePage() {
                   </span>
                   <div>
                     <h5 className="font-bold text-brand-dark">{t("contact.email")}</h5>
-                    <p className="text-xs text-brand-muted">contact@stly.dz</p>
+                    <p className="text-xs text-brand-muted">{siteSettings.email}</p>
                   </div>
                 </div>
                 <div className="flex gap-3 items-center text-sm">
@@ -608,7 +619,7 @@ export default function HomePage() {
                   </span>
                   <div>
                     <h5 className="font-bold text-brand-dark">{t("contact.phone")}</h5>
-                    <p className="text-xs text-brand-muted">031 92 48 10</p>
+                    <p className="text-xs text-brand-muted">{siteSettings.phone}</p>
                   </div>
                 </div>
               </div>
