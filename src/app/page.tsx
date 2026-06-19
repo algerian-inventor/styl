@@ -479,7 +479,15 @@ export default function HomePage() {
                 className="relative h-48 rounded-lg overflow-hidden border border-brand-border group cursor-pointer"
               >
                 {/* Visual Placeholder */}
-                <div className="absolute inset-0 bg-brand-navy bg-sci-grid opacity-75 group-hover:scale-105 transition-all duration-300" />
+                {item.url ? (
+                  <img
+                    src={item.url}
+                    alt={language === "ar" ? item.title.ar : item.title.en}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-brand-navy bg-sci-grid opacity-75 group-hover:scale-105 transition-all duration-300" />
+                )}
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
 
                 <div className="absolute bottom-0 inset-x-0 p-4 text-white z-10 flex flex-col gap-1">

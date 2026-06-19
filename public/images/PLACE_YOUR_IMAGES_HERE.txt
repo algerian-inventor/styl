@@ -1,0 +1,12 @@
+Place all your custom website images (like .jpg, .png, .webp, .svg) inside this folder.
+
+How to name them:
+Keep names simple, lowercase, and use dashes instead of spaces. 
+Example names:
+- hero-banner.jpg
+- robotics-club.png
+- event-1.jpg
+
+How to use them in your HTML/React code:
+<img src="/images/your-file-name.jpg" alt="..." className="..." />
+(Do not include the word "public" in the code path).

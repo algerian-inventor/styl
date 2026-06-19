@@ -83,7 +83,15 @@ export default function GalleryPage() {
             className="group relative h-48 rounded-lg overflow-hidden border border-brand-border cursor-pointer shadow-xs"
           >
             {/* Visual Grid Accents / Mock Image Card */}
-            <div className="absolute inset-0 bg-brand-navy bg-sci-grid opacity-75 group-hover:scale-105 transition-all duration-300" />
+            {item.url ? (
+              <img
+                src={item.url}
+                alt={language === "ar" ? item.title.ar : item.title.en}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-brand-navy bg-sci-grid opacity-75 group-hover:scale-105 transition-all duration-300" />
+            )}
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all" />
 
             {/* Icons indicators */}
