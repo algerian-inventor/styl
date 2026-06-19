@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# STLY Constantine
 
-## Getting Started
+Official high-fidelity web prototype and backend foundation for the **Scientific and Technical Youth League (STLY) – Constantine** (الرابطة العلمية والتقنية للشباب – قسنطينة).
 
-First, run the development server:
+This project is a complete, interactive frontend prototype designed to showcase the organization's public routes, user flows, and administrative dashboard.
 
+---
+
+## 🛠️ Technology Stack
+
+- **Core**: Next.js 16 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS v4, Framer Motion (for animations and custom transitions)
+- **Forms & Validation**: React Hook Form, Zod
+- **Icons**: Lucide React
+- **State Management**: Client-side state managed via React Context (`PrototypeStateContext`) backed by `localStorage` persistence
+
+---
+
+## 📱 Prototype Status & Scope
+
+- **Localization**: Native Arabic RTL (primary) and English LTR (secondary) toggle support. Layouts, margins, alignments, and icons flip automatically depending on the selected language.
+- **Routes Implemented**:
+  - **Public (14 routes)**: Home (`/`), About (`/about`), Scientific Fields (`/fields`), Club Programs (`/programs` and `/programs/[slug]`), Events (`/events` and `/events/[slug]`), News feed (`/news` and `/news/[slug]`), Gallery lightbox (`/gallery`), Partners directory (`/partners`), Membership Application form (`/membership`), Contact & FAQs (`/contact`), and Privacy policy (`/privacy`).
+  - **Admin Panel (12 routes)**: Dashboard home (`/admin`), articles overview, bilingual article creator, events controller, event builder, programs table, registrations manager, membership profile reviews, gallery directory, partners directory, and configuration settings.
+- **Storage Layer**: The prototype relies on client-side React Context and `localStorage` to simulate backend storage. Submissions from membership or event booking forms immediately populate the administration log tables in real-time.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Installation
+Clone the repository and install the dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Setup
+Rename the template `.env.example` file to `.env.local`:
+```bash
+cp .env.example .env.local
+```
+Define your environment variables inside `.env.local` using placeholders:
+- `DATABASE_URL`: PostgreSQL database link (for future integration)
+- `AUTH_SECRET`: Secret key used for admin dashboard sessions
+- `NEXT_PUBLIC_API_URL`: Root URL of the API server
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Run the Development Server
+Start the Next.js development server:
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the prototype.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Build for Production
+Run the production compiler and type checker:
+```bash
+npm run build
+```
 
-## Learn More
+### 5. Code Linter Check
+Run ESLint code standards verification:
+```bash
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔒 Security & Prototype Limitations
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> [!WARNING]
+> **DEMO SECURITY ONLY**
+> The authentication flow and client-side database persistence are mock structures designed for demonstration purposes only.
+> - **Demo Admin Credentials**: `admin@stly.dz` / `demo123`
+> - **State Persistence**: Database operations are cached in `localStorage`. Clearing your browser cache will reset all data tables to their default mock records.
+> - **Production Safety**: Never deploy this version of the authentication flow to a production environment. When connecting a live backend, ensure this gate is replaced with production-grade protocols (e.g., Auth.js / NextAuth or a secure external auth service).
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📝 License
+This project is proprietary. All rights reserved.
