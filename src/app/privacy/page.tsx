@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ShieldAlert, Eye, Lock, FileText } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { SectionHeader } from "@/components/SectionHeader";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 
 export default function PrivacyPage() {
   const { language } = useLanguage();

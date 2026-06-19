@@ -39,6 +39,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const isLoginPage = pathname === "/admin/login";
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(true);
   }, []);
 

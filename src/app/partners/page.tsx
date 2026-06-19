@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Globe, ArrowLeft, ArrowRight } from "lucide-react";
+import { Globe } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -10,11 +10,8 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 export default function PartnersPage() {
-  const { language, dir } = useLanguage();
+  const { language } = useLanguage();
   const { partners } = usePrototypeState();
-
-  const isRtl = dir === "rtl";
-  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">

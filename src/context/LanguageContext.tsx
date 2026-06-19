@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { translations, Language } from "@/data/translations";
 
@@ -43,16 +45,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const t = (path: string): string => {
     const parts = path.split(".");
-    let current: any = translations[language];
+    let current = translations[language] as unknown;
     for (const part of parts) {
-      if (current && typeof current === "object" && part in current) {
-        current = current[part];
+      if (current && typeof current === "object" && part in (current as object)) {
+        current = (current as Record<string, unknown>)[part];
       } else {
         // Fallback to English if translation is missing in current language
-        let fallback: any = translations["en"];
+        let fallback = translations["en"] as unknown;
         for (const fPart of parts) {
-          if (fallback && typeof fallback === "object" && fPart in fallback) {
-            fallback = fallback[fPart];
+          if (fallback && typeof fallback === "object" && fPart in (fallback as object)) {
+            fallback = (fallback as Record<string, unknown>)[fPart];
           } else {
             return path;
           }

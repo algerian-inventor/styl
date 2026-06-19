@@ -9,7 +9,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 
 interface PageProps {
   params: Promise<{ slug: string }>;

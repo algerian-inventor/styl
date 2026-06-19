@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { articles as defaultArticles, Article } from "@/data/articles";
@@ -89,6 +91,7 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const toastIdRef = React.useRef(0);
 
   // Initialize data on mount
   useEffect(() => {
@@ -172,7 +175,8 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
 
   // Toast actions
   const addToast = (message: string, type: "success" | "error" | "info" = "success") => {
-    const id = `toast-${Date.now()}-${Math.random()}`;
+    toastIdRef.current += 1;
+    const id = `toast-${toastIdRef.current}`;
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       removeToast(id);

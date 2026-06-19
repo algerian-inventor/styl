@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, Search, Filter } from "lucide-react";
+import { Calendar, Search } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -17,7 +17,6 @@ export default function ProgramsPage() {
 
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
-  const [activeStatus, setActiveStatus] = useState("all");
 
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? (
@@ -47,10 +46,7 @@ export default function ProgramsPage() {
       activeCategory === "all" ||
       p.category.en.toLowerCase() === activeCategory.toLowerCase();
 
-    const matchesStatus =
-      activeStatus === "all" || p.status === activeStatus;
-
-    return matchesSearch && matchesCategory && matchesStatus;
+    return matchesSearch && matchesCategory;
   });
 
   return (

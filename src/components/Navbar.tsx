@@ -8,7 +8,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/Button";
 
 export const Navbar: React.FC = () => {
-  const { language, setLanguage, t, dir } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
