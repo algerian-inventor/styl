@@ -243,7 +243,7 @@ export default function ContactPage() {
               <div key={idx} className="bg-white border border-brand-border rounded-lg overflow-hidden transition-all shadow-xs">
                 <button
                   onClick={() => toggleFaq(idx)}
-                  className="w-full px-6 py-4 flex items-center justify-between text-right rtl:text-right ltr:text-left text-brand-dark hover:bg-brand-bg/30 font-bold text-xs sm:text-sm cursor-pointer"
+                  className="w-full px-6 py-4 flex items-center justify-between text-start text-brand-dark hover:bg-brand-bg/30 font-bold text-xs sm:text-sm cursor-pointer"
                 >
                   <span>{language === "ar" ? faq.q.ar : faq.q.en}</span>
                   {isOpen ? (

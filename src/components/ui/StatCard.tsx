@@ -22,7 +22,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   colorClass = "text-brand-navy bg-brand-navy/5 border-brand-navy/10",
 }) => {
   return (
-    <div className="bg-white border border-brand-border rounded-lg p-6 shadow-xs flex items-center justify-between transition-all hover:shadow-md">
+    <div className="bg-white border border-brand-border rounded-xl p-6 shadow-xs flex items-center justify-between transition-all hover:shadow-md">
       <div className="space-y-1">
         <span className="text-xs font-semibold text-brand-muted uppercase tracking-wider">
           {title}

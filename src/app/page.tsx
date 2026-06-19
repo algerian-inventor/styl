@@ -52,7 +52,7 @@ export default function HomePage() {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-green/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-          <div className="max-w-3xl text-right rtl:text-right ltr:text-left space-y-6">
+          <div className="max-w-3xl text-start space-y-6">
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -66,7 +66,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-3xl sm:text-5xl font-extrabold text-white leading-tight"
+              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight"
             >
               {t("hero.title")}
             </motion.h1>

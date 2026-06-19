@@ -147,20 +147,28 @@ export default function GalleryPage() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handlePrev();
+                  if (dir === "rtl") {
+                    handleNext();
+                  } else {
+                    handlePrev();
+                  }
                 }}
                 className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/80 text-white cursor-pointer"
-                aria-label="Previous item"
+                aria-label={dir === "rtl" ? "العنصر التالي" : "Previous item"}
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleNext();
+                  if (dir === "rtl") {
+                    handlePrev();
+                  } else {
+                    handleNext();
+                  }
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/80 text-white cursor-pointer"
-                aria-label="Next item"
+                aria-label={dir === "rtl" ? "العنصر السابق" : "Next item"}
               >
                 <ChevronRight className="h-5 w-5" />
               </button>

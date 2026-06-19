@@ -26,7 +26,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       
       {/* Inject custom classes or error styling directly on input child */}
       {React.cloneElement(children, {
-        className: `${(children.props as any).className || ""} w-full px-3.5 py-2 border rounded-md text-sm transition-all bg-white text-brand-dark placeholder-slate-400 focus:ring-2 focus:ring-brand-navy/20 focus:border-brand-navy ${
+        className: `${(children.props as any).className || ""} w-full px-3.5 py-2 border rounded-lg text-sm transition-all bg-white text-brand-dark placeholder-slate-400 focus:ring-2 focus:ring-brand-navy/20 focus:border-brand-navy ${
           error
             ? "border-red-300 focus:ring-red-100 focus:border-red-500"
             : "border-brand-border"

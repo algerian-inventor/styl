@@ -36,8 +36,8 @@ export function DataTable<T extends { id: string | number }>({
   }
 
   return (
-    <div className="w-full overflow-x-auto border border-brand-border rounded-lg bg-white shadow-xs">
-      <table className="w-full text-sm text-right rtl:text-right ltr:text-left text-brand-dark">
+    <div className="w-full overflow-x-auto border border-brand-border rounded-xl bg-white shadow-xs">
+      <table className="w-full text-sm text-start text-brand-dark">
         <thead className="text-xs uppercase bg-brand-bg text-brand-muted border-b border-brand-border">
           <tr>
             {columns.map((column, idx) => (

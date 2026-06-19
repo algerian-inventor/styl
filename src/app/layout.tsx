@@ -4,6 +4,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { PrototypeStateProvider } from "@/context/PrototypeStateContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { ToastContainer } from "@/components/ui/Toast";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -44,6 +45,7 @@ export default function RootLayout({
             <Navbar />
             <main className="flex-grow">{children}</main>
             <Footer />
+            <ToastContainer />
           </PrototypeStateProvider>
         </LanguageProvider>
       </body>

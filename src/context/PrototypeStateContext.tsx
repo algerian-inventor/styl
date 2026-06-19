@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 import { articles as defaultArticles, Article } from "@/data/articles";
 import { events as defaultEvents, Event } from "@/data/events";
 import { programs as defaultPrograms, Program } from "@/data/programs";
@@ -18,6 +19,12 @@ export interface ContactMessage {
   date: string;
 }
 
+export interface Toast {
+  id: string;
+  message: string;
+  type: "success" | "error" | "info";
+}
+
 interface PrototypeStateContextProps {
   articles: Article[];
   events: Event[];
@@ -28,6 +35,11 @@ interface PrototypeStateContextProps {
   galleryItems: GalleryItem[];
   partners: Partner[];
   isAdminAuthenticated: boolean;
+  toasts: Toast[];
+
+  // Toast actions
+  addToast: (message: string, type?: "success" | "error" | "info") => void;
+  removeToast: (id: string) => void;
 
   // CRUD & actions
   addArticle: (article: Omit<Article, "id" | "slug">) => void;
@@ -65,6 +77,7 @@ interface PrototypeStateContextProps {
 const PrototypeStateContext = createContext<PrototypeStateContextProps | undefined>(undefined);
 
 export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { language } = useLanguage();
   const [articles, setArticles] = useState<Article[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -75,6 +88,7 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
   const [partners, setPartners] = useState<Partner[]>([]);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
 
   // Initialize data on mount
   useEffect(() => {
@@ -156,6 +170,19 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     localStorage.setItem("stly_partners", JSON.stringify(partners));
   }, [partners, isHydrated]);
 
+  // Toast actions
+  const addToast = (message: string, type: "success" | "error" | "info" = "success") => {
+    const id = `toast-${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      removeToast(id);
+    }, 4000);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
   // Helper for generating slugs
   const slugify = (text: string) => {
     return text
@@ -174,16 +201,28 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       slug: `${slug}-${Math.floor(Math.random() * 1000)}`,
     };
     setArticles((prev) => [newArt, ...prev]);
+    addToast(
+      language === "ar" ? "تم إضافة المقال بنجاح!" : "Article added successfully!",
+      "success"
+    );
   };
 
   const updateArticle = (id: string, fieldsToUpdate: Partial<Article>) => {
     setArticles((prev) =>
       prev.map((a) => (a.id === id ? { ...a, ...fieldsToUpdate } : a))
     );
+    addToast(
+      language === "ar" ? "تم تحديث المقال بنجاح!" : "Article updated successfully!",
+      "success"
+    );
   };
 
   const deleteArticle = (id: string) => {
     setArticles((prev) => prev.filter((a) => a.id !== id));
+    addToast(
+      language === "ar" ? "تم حذف المقال بنجاح!" : "Article deleted successfully!",
+      "info"
+    );
   };
 
   const addEvent = (evt: Omit<Event, "id" | "slug" | "isClosed">) => {
@@ -195,21 +234,50 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       isClosed: false,
     };
     setEvents((prev) => [newEvt, ...prev]);
+    addToast(
+      language === "ar" ? "تم إضافة الفعالية بنجاح!" : "Event added successfully!",
+      "success"
+    );
   };
 
   const updateEvent = (id: string, fieldsToUpdate: Partial<Event>) => {
     setEvents((prev) =>
       prev.map((e) => (e.id === id ? { ...e, ...fieldsToUpdate } : e))
     );
+    addToast(
+      language === "ar" ? "تم تحديث الفعالية بنجاح!" : "Event updated successfully!",
+      "success"
+    );
   };
 
   const deleteEvent = (id: string) => {
     setEvents((prev) => prev.filter((e) => e.id !== id));
+    addToast(
+      language === "ar" ? "تم حذف الفعالية بنجاح!" : "Event deleted successfully!",
+      "info"
+    );
   };
 
   const toggleEventRegistration = (id: string) => {
+    let closedState = false;
     setEvents((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, isClosed: !e.isClosed } : e))
+      prev.map((e) => {
+        if (e.id === id) {
+          closedState = !e.isClosed;
+          return { ...e, isClosed: closedState };
+        }
+        return e;
+      })
+    );
+    addToast(
+      language === "ar"
+        ? closedState
+          ? "تم إغلاق التسجيل في الفعالية!"
+          : "تم فتح التسجيل في الفعالية!"
+        : closedState
+        ? "Event registration closed!"
+        : "Event registration opened!",
+      "info"
     );
   };
 
@@ -221,16 +289,28 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       slug: `${slug}-${Math.floor(Math.random() * 1000)}`,
     };
     setPrograms((prev) => [newProg, ...prev]);
+    addToast(
+      language === "ar" ? "تم إضافة البرنامج بنجاح!" : "Program added successfully!",
+      "success"
+    );
   };
 
   const updateProgram = (id: string, fieldsToUpdate: Partial<Program>) => {
     setPrograms((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...fieldsToUpdate } : p))
     );
+    addToast(
+      language === "ar" ? "تم تحديث البرنامج بنجاح!" : "Program updated successfully!",
+      "success"
+    );
   };
 
   const deleteProgram = (id: string) => {
     setPrograms((prev) => prev.filter((p) => p.id !== id));
+    addToast(
+      language === "ar" ? "تم حذف البرنامج بنجاح!" : "Program deleted successfully!",
+      "info"
+    );
   };
 
   const submitEventRegistration = (reg: Omit<EventRegistration, "id" | "registrationDate" | "status" | "eventTitle">): string => {
@@ -248,6 +328,12 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       status: "pending",
     };
     setRegistrations((prev) => [newReg, ...prev]);
+    addToast(
+      language === "ar"
+        ? "تم تقديم طلب التسجيل بنجاح! رقم المرجع الخاص بك هو " + refNum
+        : "Registration submitted successfully! Your reference number is " + refNum,
+      "success"
+    );
     return refNum;
   };
 
@@ -255,21 +341,40 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     setRegistrations((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status } : r))
     );
+    addToast(
+      language === "ar"
+        ? `تم تحديث حالة التسجيل إلى: ${status === "confirmed" ? "مؤكد" : status === "rejected" ? "مرفوض" : "قيد الانتظار"}`
+        : `Registration status updated to ${status}`,
+      "info"
+    );
   };
 
   const submitMembershipApplication = (app: Omit<MembershipApplication, "id" | "submissionDate" | "status">) => {
+    const refNum = `APP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const newApp: MembershipApplication = {
       ...app,
-      id: `APP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      id: refNum,
       submissionDate: new Date().toISOString().split("T")[0],
       status: "pending",
     };
     setApplications((prev) => [newApp, ...prev]);
+    addToast(
+      language === "ar"
+        ? "تم تقديم طلب الانضمام للرابطة بنجاح! سنتواصل معك قريباً."
+        : "Membership application submitted successfully! We will contact you soon.",
+      "success"
+    );
   };
 
   const updateApplicationStatus = (id: string, status: MembershipApplication["status"]) => {
     setApplications((prev) =>
       prev.map((a) => (a.id === id ? { ...a, status } : a))
+    );
+    addToast(
+      language === "ar"
+        ? `تم تحديث حالة طلب العضوية إلى: ${status === "accepted" ? "مقبول" : status === "rejected" ? "مرفوض" : "قيد الدراسة"}`
+        : `Application status updated to ${status}`,
+      "info"
     );
   };
 
@@ -280,10 +385,18 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       date: new Date().toISOString().split("T")[0],
     };
     setContactMessages((prev) => [newMsg, ...prev]);
+    addToast(
+      language === "ar" ? "تم إرسال رسالتك بنجاح! شكراً لتواصلك معنا." : "Your message has been sent successfully! Thank you.",
+      "success"
+    );
   };
 
   const deleteContactMessage = (id: string) => {
     setContactMessages((prev) => prev.filter((m) => m.id !== id));
+    addToast(
+      language === "ar" ? "تم حذف الرسالة بنجاح!" : "Message deleted successfully!",
+      "info"
+    );
   };
 
   const addGalleryItem = (item: Omit<GalleryItem, "id">) => {
@@ -292,10 +405,18 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       id: `GAL-${Date.now()}`,
     };
     setGalleryItems((prev) => [newItem, ...prev]);
+    addToast(
+      language === "ar" ? "تم إضافة المادة إلى المعرض!" : "Media item added to gallery!",
+      "success"
+    );
   };
 
   const deleteGalleryItem = (id: string) => {
     setGalleryItems((prev) => prev.filter((i) => i.id !== id));
+    addToast(
+      language === "ar" ? "تم حذف مادة المعرض!" : "Media item deleted from gallery!",
+      "info"
+    );
   };
 
   const addPartner = (part: Omit<Partner, "id">) => {
@@ -304,10 +425,18 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       id: `PART-${Date.now()}`,
     };
     setPartners((prev) => [newPart, ...prev]);
+    addToast(
+      language === "ar" ? "تم إضافة الشريك بنجاح!" : "Partner added successfully!",
+      "success"
+    );
   };
 
   const deletePartner = (id: string) => {
     setPartners((prev) => prev.filter((p) => p.id !== id));
+    addToast(
+      language === "ar" ? "تم حذف الشريك بنجاح!" : "Partner deleted successfully!",
+      "info"
+    );
   };
 
   // Auth operations
@@ -315,14 +444,26 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     if (email === "admin@stly.dz" && pass === "demo123") {
       setIsAdminAuthenticated(true);
       localStorage.setItem("stly_admin_auth", "true");
+      addToast(
+        language === "ar" ? "مرحباً بك مجدداً في لوحة التحكم!" : "Welcome back to the dashboard!",
+        "success"
+      );
       return true;
     }
+    addToast(
+      language === "ar" ? "البريد الإلكتروني أو كلمة المرور غير صحيحة" : "Invalid email or password",
+      "error"
+    );
     return false;
   };
 
   const adminLogout = () => {
     setIsAdminAuthenticated(false);
     localStorage.removeItem("stly_admin_auth");
+    addToast(
+      language === "ar" ? "تم تسجيل الخروج بنجاح" : "Logged out successfully",
+      "info"
+    );
   };
 
   return (
@@ -337,6 +478,9 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
         galleryItems,
         partners,
         isAdminAuthenticated,
+        toasts,
+        addToast,
+        removeToast,
         addArticle,
         updateArticle,
         deleteArticle,

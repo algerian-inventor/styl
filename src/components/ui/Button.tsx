@@ -20,7 +20,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = "inline-flex items-center justify-center font-medium rounded-md transition-all-custom focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+  const baseStyles = "inline-flex items-center justify-center font-medium rounded-lg transition-all-custom focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
   
   const variants = {
     primary: "bg-brand-navy hover:bg-brand-navy-light text-white focus:ring-brand-navy",
@@ -42,10 +42,10 @@ export const Button: React.FC<ButtonProps> = ({
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
-      {isLoading && <Loader2 className="h-4 w-4 animate-spin ltr:mr-2 rtl:ml-2" />}
-      {!isLoading && leftIcon && <span className="ltr:mr-2 rtl:ml-2">{leftIcon}</span>}
+      {isLoading && <Loader2 className="h-4 w-4 animate-spin me-2" />}
+      {!isLoading && leftIcon && <span className="me-2">{leftIcon}</span>}
       {children}
-      {!isLoading && rightIcon && <span className="ltr:ml-2 rtl:mr-2">{rightIcon}</span>}
+      {!isLoading && rightIcon && <span className="ms-2">{rightIcon}</span>}
     </button>
   );
 };

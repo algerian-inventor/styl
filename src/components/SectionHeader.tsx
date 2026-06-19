@@ -13,7 +13,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   align = "center",
   theme = "light",
 }) => {
-  const alignClass = align === "center" ? "text-center items-center" : "text-right rtl:text-right ltr:text-left items-start";
+  const alignClass = align === "center" ? "text-center items-center" : "text-start items-start";
   const titleColor = theme === "light" ? "text-brand-dark" : "text-white";
   const subtitleColor = theme === "light" ? "text-brand-muted" : "text-slate-300";
 
