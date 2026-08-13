@@ -40,6 +40,17 @@ export interface SiteSettings {
   heroBannerUrl?: string;
 }
 
+const initialContactMessages: ContactMessage[] = [
+  {
+    id: "MSG-001",
+    fullName: "سليم بوحوش",
+    email: "salim.b@gmail.com",
+    subject: "طلب رعاية علمية لمعرض إلكترونيات",
+    message: "السلام عليكم، نحن مجموعة من الطلبة ونود التعاون مع الرابطة لتنظيم معرض مصغر للابتكارات الإلكترونية في قسنطينة.",
+    date: "2026-06-18",
+  },
+];
+
 const defaultSettings: SiteSettings = {
   leagueNameAr: "الرابطة العلمية والتقنية للشباب – قسنطينة",
   leagueNameEn: "Scientific and Technical Youth League – Constantine",
@@ -110,14 +121,14 @@ const PrototypeStateContext = createContext<PrototypeStateContextProps | undefin
 
 export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { language } = useLanguage();
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
-  const [applications, setApplications] = useState<MembershipApplication[]>([]);
-  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
-  const [partners, setPartners] = useState<Partner[]>([]);
+  const [articles, setArticles] = useState<Article[]>(defaultArticles);
+  const [events, setEvents] = useState<Event[]>(defaultEvents);
+  const [programs, setPrograms] = useState<Program[]>(defaultPrograms);
+  const [registrations, setRegistrations] = useState<EventRegistration[]>(initialRegistrations);
+  const [applications, setApplications] = useState<MembershipApplication[]>(initialApplications);
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>(initialContactMessages);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(defaultGallery);
+  const [partners, setPartners] = useState<Partner[]>(defaultPartners);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -145,16 +156,7 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     setPrograms(loadState("stly_programs", defaultPrograms));
     setRegistrations(loadState("stly_registrations", initialRegistrations));
     setApplications(loadState("stly_applications", initialApplications));
-    setContactMessages(loadState("stly_contact_messages", [
-      {
-        id: "MSG-001",
-        fullName: "سليم بوحوش",
-        email: "salim.b@gmail.com",
-        subject: "طلب رعاية علمية لمعرض إلكترونيات",
-        message: "السلام عليكم، نحن مجموعة من الطلبة ونود التعاون مع الرابطة لتنظيم معرض مصغر للابتكارات الإلكترونية في قسنطينة.",
-        date: "2026-06-18",
-      }
-    ]));
+    setContactMessages(loadState("stly_contact_messages", initialContactMessages));
     setGalleryItems(loadState("stly_gallery", defaultGallery));
     setPartners(loadState("stly_partners", defaultPartners));
 

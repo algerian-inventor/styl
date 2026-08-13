@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Globe, User, ArrowLeft, ArrowRight } from "lucide-react";
+import { Menu, X, Globe, ArrowLeft, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
 import { Button } from "@/components/ui/Button";
@@ -103,7 +103,7 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden xl:flex items-center gap-3">
             {/* Language Switcher */}
             <button
               onClick={handleLanguageToggle}
@@ -121,20 +121,10 @@ export const Navbar: React.FC = () => {
                 <ArrowIcon className="w-3.5 h-3.5" />
               </Button>
             </Link>
-
-            {/* Admin Portal link */}
-            <Link href="/admin/login" title={t("nav.login")}>
-              <button
-                className="w-10 h-10 rounded-lg flex items-center justify-center text-slate-500 hover:text-brand-navy hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
-                aria-label="Admin login"
-              >
-                <User className="w-4 h-4" />
-              </button>
-            </Link>
           </div>
 
-          {/* Mobile Menu & Language Toggle */}
-          <div className="flex lg:hidden items-center gap-2">
+          {/* Mobile / Tablet Menu & Language Toggle (< 1280px) */}
+          <div className="flex xl:hidden items-center gap-2">
             <button
               onClick={handleLanguageToggle}
               className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 text-xs font-bold flex items-center gap-1 border border-slate-200"
@@ -154,9 +144,9 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer / Menu */}
+      {/* Mobile / Tablet Drawer Menu */}
       {isOpen && (
-        <div className="lg:hidden border-t border-[#DCE3EA] bg-white px-4 pt-3 pb-6 space-y-2 shadow-lg animate-in slide-in-from-top-2 duration-200">
+        <div className="xl:hidden border-t border-[#DCE3EA] bg-white px-4 pt-3 pb-6 space-y-2 shadow-lg animate-in slide-in-from-top-2 duration-200">
           <div className="grid grid-cols-1 gap-1">
             {navLinks.map((link) => {
               const active = isActive(link.href);
@@ -178,7 +168,7 @@ export const Navbar: React.FC = () => {
             })}
           </div>
 
-          <div className="border-t border-[#DCE3EA] pt-4 mt-3 space-y-2.5">
+          <div className="border-t border-[#DCE3EA] pt-4 mt-3">
             <Link
               href="/membership"
               onClick={() => setIsOpen(false)}
@@ -187,17 +177,6 @@ export const Navbar: React.FC = () => {
               <Button variant="secondary" size="lg" className="w-full justify-center gap-2">
                 <span>{t("nav.membership")}</span>
                 <ArrowIcon className="w-4 h-4" />
-              </Button>
-            </Link>
-
-            <Link
-              href="/admin/login"
-              onClick={() => setIsOpen(false)}
-              className="block w-full"
-            >
-              <Button variant="outline" size="md" className="w-full justify-center gap-2">
-                <User className="w-4 h-4" />
-                <span>{t("nav.login")}</span>
               </Button>
             </Link>
           </div>
