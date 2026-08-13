@@ -12,7 +12,13 @@ import { Button } from "@/components/ui/Button";
 
 export default function AdminDashboardPage() {
   const { t, language } = useLanguage();
-  const { articles, events, registrations, applications, contactMessages, galleryItems } = usePrototypeState();
+  const { articles, events, registrations, applications, contactMessages, galleryItems, loadRegistrations, loadApplications, loadContactMessages } = usePrototypeState();
+
+  React.useEffect(() => {
+    loadRegistrations();
+    loadApplications();
+    loadContactMessages();
+  }, [loadRegistrations, loadApplications, loadContactMessages]);
 
   // Metrics definitions
   const publishedArticlesCount = articles.length;

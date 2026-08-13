@@ -12,7 +12,11 @@ import { MembershipApplication } from "@/data/applications";
 
 export default function AdminMembershipPage() {
   const { t, language } = useLanguage();
-  const { applications, updateApplicationStatus } = usePrototypeState();
+  const { applications, updateApplicationStatus, loadApplications } = usePrototypeState();
+
+  React.useEffect(() => {
+    loadApplications();
+  }, [loadApplications]);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

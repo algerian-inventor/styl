@@ -1,13 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { EventRegistration, initialRegistrations } from "@/data/registrations";
-import { Database } from "@/types/database";
-
-export function generateCollisionSafeRef(): string {
-  const year = new Date().getFullYear();
-  const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
-  const random = Math.floor(1000 + Math.random() * 9000);
-  return `REG-${year}-${timestamp}${random}`;
-}
+import { EventRegistration } from "@/data/registrations";
 
 export function mapDBRegistrationToUI(data: Record<string, unknown>): EventRegistration {
   const events = data.events as { title_ar?: string; title_en?: string } | undefined;
@@ -35,11 +27,14 @@ export async function fetchEventRegistrations(): Promise<EventRegistration[]> {
       .select("*, events(title_ar, title_en)")
       .order("created_at", { ascending: false });
 
-    if (error || !data || data.length === 0) return initialRegistrations;
+    if (error || !data) {
+      console.error("Error fetching event registrations:", error);
+      return [];
+    }
     return data.map(mapDBRegistrationToUI);
   } catch (err) {
-    console.error("Error fetching event registrations:", err);
-    return initialRegistrations;
+    console.error("Failed to fetch event registrations:", err);
+    return [];
   }
 }
 
@@ -52,32 +47,37 @@ export async function createEventRegistrationInDB(reg: {
   age: number;
   educationProfession: string;
   motivation: string;
-}): Promise<{ referenceNumber: string; success: boolean }> {
-  const refNum = generateCollisionSafeRef();
+}): Promise<{ referenceNumber: string | null; success: boolean; error?: string }> {
   try {
     const supabase = createClient();
-    const payload: Database["public"]["Tables"]["event_registrations"]["Insert"] = {
-      event_id: reg.eventId,
-      reference_number: refNum,
-      full_name: reg.fullName,
-      email: reg.email,
-      phone: reg.phone,
-      wilaya: reg.wilaya,
-      age: reg.age,
-      education_profession: reg.educationProfession,
-      motivation: reg.motivation,
-      status: "pending" as const,
-      registration_date: new Date().toISOString().split("T")[0],
-    };
+    
+    // Execute atomic PostgreSQL register_for_event RPC function
+    const { data, error } = await supabase.rpc("register_for_event", {
+      p_event_id: reg.eventId,
+      p_full_name: reg.fullName,
+      p_email: reg.email,
+      p_phone: reg.phone,
+      p_wilaya: reg.wilaya,
+      p_age: reg.age,
+      p_education_profession: reg.educationProfession,
+      p_motivation: reg.motivation,
+    });
 
-    const { error } = await supabase.from("event_registrations").insert([payload]);
     if (error) {
-      console.error("Supabase insert error:", error);
+      console.error("RPC registration error:", error);
+      return { referenceNumber: null, success: false, error: error.message };
     }
-    return { referenceNumber: refNum, success: !error };
-  } catch (err) {
+
+    const res = Array.isArray(data) ? data[0] : data;
+    if (res && res.success) {
+      return { referenceNumber: res.reference_number, success: true };
+    } else {
+      return { referenceNumber: null, success: false, error: res?.error_message || "Registration failed" };
+    }
+  } catch (err: unknown) {
     console.error("Error creating event registration:", err);
-    return { referenceNumber: refNum, success: true };
+    const msg = err instanceof Error ? err.message : "Failed to register for event";
+    return { referenceNumber: null, success: false, error: msg };
   }
 }
 
@@ -89,9 +89,13 @@ export async function updateRegistrationStatusInDB(idOrRef: string, status: "pen
       .update({ status })
       .or(`id.eq.${idOrRef},reference_number.eq.${idOrRef}`);
 
-    return !error;
+    if (error) {
+      console.error("Error updating registration status:", error);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error("Error updating registration status:", err);
+    console.error("Failed to update registration status:", err);
     return false;
   }
 }

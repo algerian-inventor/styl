@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { Event, Speaker, ProgramStep, events as defaultEvents } from "@/data/events";
+import { Event, Speaker, ProgramStep } from "@/data/events";
 import { Database, Json } from "@/types/database";
 
 type DBEvent = Database["public"]["Tables"]["events"]["Row"];
@@ -54,20 +54,14 @@ export async function fetchEvents(): Promise<Event[]> {
       .select("*")
       .order("event_date", { ascending: true });
 
-    if (error || !data || data.length === 0) {
-      return defaultEvents.map((evt) => ({
-        ...evt,
-        isClosed: computeEventIsClosed({
-          event_date: evt.date,
-          registration_deadline: evt.registrationDeadline,
-          is_closed_override: evt.isClosed,
-        }),
-      }));
+    if (error || !data) {
+      console.error("Error fetching events:", error);
+      return [];
     }
     return data.map(mapDBEventToUI);
   } catch (err) {
-    console.error("Error fetching events:", err);
-    return defaultEvents;
+    console.error("Failed to fetch events:", err);
+    return [];
   }
 }
 
@@ -81,22 +75,13 @@ export async function fetchEventBySlug(slug: string): Promise<Event | null> {
       .single();
 
     if (error || !data) {
-      const fallback = defaultEvents.find((e) => e.slug === slug);
-      if (!fallback) return null;
-      return {
-        ...fallback,
-        isClosed: computeEventIsClosed({
-          event_date: fallback.date,
-          registration_deadline: fallback.registrationDeadline,
-          is_closed_override: fallback.isClosed,
-        }),
-      };
+      console.error("Error fetching event by slug:", error);
+      return null;
     }
     return mapDBEventToUI(data);
   } catch (err) {
-    console.error("Error fetching event by slug:", err);
-    const fallback = defaultEvents.find((e) => e.slug === slug);
-    return fallback || null;
+    console.error("Failed to fetch event by slug:", err);
+    return null;
   }
 }
 
@@ -127,11 +112,44 @@ export async function createEventInDB(evt: Omit<Event, "id" | "slug" | "isClosed
     };
 
     const { data, error } = await supabase.from("events").insert([payload]).select().single();
-    if (error || !data) throw error;
+    if (error || !data) {
+      console.error("Error creating event in DB:", error);
+      return null;
+    }
     return mapDBEventToUI(data);
   } catch (err) {
-    console.error("Error creating event in DB:", err);
+    console.error("Failed to create event in DB:", err);
     return null;
+  }
+}
+
+export async function updateEventInDB(id: string, fields: Partial<Event>): Promise<boolean> {
+  try {
+    const supabase = createClient();
+    const payload: Partial<Database["public"]["Tables"]["events"]["Update"]> = {};
+    if (fields.title) { payload.title_ar = fields.title.ar; payload.title_en = fields.title.en; }
+    if (fields.summary) { payload.summary_ar = fields.summary.ar; payload.summary_en = fields.summary.en; }
+    if (fields.description) { payload.description_ar = fields.description.ar; payload.description_en = fields.description.en; }
+    if (fields.category) payload.category = fields.category;
+    if (fields.date) payload.event_date = fields.date;
+    if (fields.time) payload.event_time = fields.time;
+    if (fields.registrationDeadline) payload.registration_deadline = fields.registrationDeadline;
+    if (fields.location) { payload.location_ar = fields.location.ar; payload.location_en = fields.location.en; }
+    if (fields.capacity !== undefined) payload.capacity = fields.capacity;
+    if (fields.coverImage !== undefined) payload.cover_image = fields.coverImage;
+    if (fields.speakers) payload.speakers = fields.speakers as unknown as Json;
+    if (fields.program) payload.program_agenda = fields.program as unknown as Json;
+    if (fields.isClosed !== undefined) payload.is_closed_override = fields.isClosed;
+
+    const { error } = await supabase.from("events").update(payload).eq("id", id);
+    if (error) {
+      console.error("Error updating event in DB:", error);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("Failed to update event in DB:", err);
+    return false;
   }
 }
 
@@ -143,9 +161,13 @@ export async function toggleEventRegistrationInDB(id: string, currentlyClosed: b
       .update({ is_closed_override: !currentlyClosed })
       .eq("id", id);
 
-    return !error;
+    if (error) {
+      console.error("Error toggling event status:", error);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error("Error toggling event status:", err);
+    console.error("Failed to toggle event status:", err);
     return false;
   }
 }
@@ -154,9 +176,13 @@ export async function deleteEventInDB(id: string): Promise<boolean> {
   try {
     const supabase = createClient();
     const { error } = await supabase.from("events").delete().eq("id", id);
-    return !error;
+    if (error) {
+      console.error("Error deleting event:", error);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error("Error deleting event:", err);
+    console.error("Failed to delete event:", err);
     return false;
   }
 }

@@ -15,7 +15,11 @@ import { FormField } from "@/components/ui/FormField";
 
 export default function AdminSettingsPage() {
   const { t, language } = useLanguage();
-  const { contactMessages, deleteContactMessage, siteSettings, updateSiteSettings } = usePrototypeState();
+  const { contactMessages, deleteContactMessage, siteSettings, updateSiteSettings, loadContactMessages, addToast } = usePrototypeState();
+
+  useEffect(() => {
+    loadContactMessages();
+  }, [loadContactMessages]);
 
   const [activeTab, setActiveTab] = useState<"general" | "messages">("general");
   const [deleteMsgId, setDeleteMsgId] = useState<string | null>(null);
@@ -60,13 +64,11 @@ export default function AdminSettingsPage() {
     const file = e.target.files?.[0];
     if (file) {
       const { uploadFileToBucket } = await import("@/lib/storage");
-      const { url } = await uploadFileToBucket(file, "site");
+      const { url, error } = await uploadFileToBucket(file, "site");
       if (url) {
         setHeroBannerUrl(url);
       } else {
-        const reader = new FileReader();
-        reader.onloadend = () => setHeroBannerUrl(reader.result as string);
-        reader.readAsDataURL(file);
+        addToast(error || "Failed to upload hero banner", "error");
       }
     }
   };

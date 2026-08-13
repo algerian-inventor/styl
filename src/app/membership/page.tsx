@@ -96,7 +96,7 @@ export default function MembershipPage() {
   };
 
   const onSubmit = async (data: MembershipFormValues) => {
-    await submitMembershipApplication({
+    const success = await submitMembershipApplication({
       fullName: data.fullName,
       dob: data.dob,
       wilaya: data.wilaya,
@@ -109,8 +109,10 @@ export default function MembershipPage() {
       motivation: data.motivation,
       portfolio: data.portfolio,
     });
-    setIsSubmitted(true);
-    reset();
+    if (success) {
+      setIsSubmitted(true);
+      reset();
+    }
   };
 
   return (

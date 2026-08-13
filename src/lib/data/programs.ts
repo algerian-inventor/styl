@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { Program, programs as defaultPrograms } from "@/data/programs";
+import { Program } from "@/data/programs";
 import { Database } from "@/types/database";
 
 type DBProgram = Database["public"]["Tables"]["programs"]["Row"];
@@ -31,11 +31,14 @@ export async function fetchPrograms(): Promise<Program[]> {
       .select("*")
       .order("start_date", { ascending: true });
 
-    if (error || !data || data.length === 0) return defaultPrograms;
+    if (error || !data) {
+      console.error("Error fetching programs:", error);
+      return [];
+    }
     return data.map(mapDBProgramToUI);
   } catch (err) {
-    console.error("Error fetching programs:", err);
-    return defaultPrograms;
+    console.error("Failed to fetch programs:", err);
+    return [];
   }
 }
 
@@ -49,12 +52,13 @@ export async function fetchProgramBySlug(slug: string): Promise<Program | null> 
       .single();
 
     if (error || !data) {
-      return defaultPrograms.find((p) => p.slug === slug) || null;
+      console.error("Error fetching program by slug:", error);
+      return null;
     }
     return mapDBProgramToUI(data);
   } catch (err) {
-    console.error("Error fetching program by slug:", err);
-    return defaultPrograms.find((p) => p.slug === slug) || null;
+    console.error("Failed to fetch program by slug:", err);
+    return null;
   }
 }
 
@@ -82,10 +86,13 @@ export async function createProgramInDB(prog: Omit<Program, "id" | "slug"> & { s
     };
 
     const { data, error } = await supabase.from("programs").insert([payload]).select().single();
-    if (error || !data) throw error;
+    if (error || !data) {
+      console.error("Error creating program in DB:", error);
+      return null;
+    }
     return mapDBProgramToUI(data);
   } catch (err) {
-    console.error("Error creating program in DB:", err);
+    console.error("Failed to create program in DB:", err);
     return null;
   }
 }
@@ -105,9 +112,13 @@ export async function updateProgramInDB(id: string, fields: Partial<Program>): P
     if (fields.details) { payload.details_ar = fields.details.ar; payload.details_en = fields.details.en; }
 
     const { error } = await supabase.from("programs").update(payload).eq("id", id);
-    return !error;
+    if (error) {
+      console.error("Error updating program in DB:", error);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error("Error updating program:", err);
+    console.error("Failed to update program in DB:", err);
     return false;
   }
 }
@@ -116,9 +127,13 @@ export async function deleteProgramInDB(id: string): Promise<boolean> {
   try {
     const supabase = createClient();
     const { error } = await supabase.from("programs").delete().eq("id", id);
-    return !error;
+    if (error) {
+      console.error("Error deleting program:", error);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error("Error deleting program:", err);
+    console.error("Failed to delete program:", err);
     return false;
   }
 }

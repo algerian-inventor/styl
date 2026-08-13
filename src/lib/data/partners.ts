@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { Partner, partners as defaultPartners } from "@/data/partners";
+import { Partner } from "@/data/partners";
 import { Database } from "@/types/database";
 
 type DBPartner = Database["public"]["Tables"]["partners"]["Row"];
@@ -23,11 +23,14 @@ export async function fetchPartners(): Promise<Partner[]> {
       .select("*")
       .order("created_at", { ascending: true });
 
-    if (error || !data || data.length === 0) return defaultPartners;
+    if (error || !data) {
+      console.error("Error fetching partners:", error);
+      return [];
+    }
     return data.map(mapDBPartnerToUI);
   } catch (err) {
-    console.error("Error fetching partners:", err);
-    return defaultPartners;
+    console.error("Failed to fetch partners:", err);
+    return [];
   }
 }
 
@@ -46,10 +49,13 @@ export async function createPartnerInDB(partner: Omit<Partner, "id">): Promise<P
     };
 
     const { data, error } = await supabase.from("partners").insert([payload]).select().single();
-    if (error || !data) throw error;
+    if (error || !data) {
+      console.error("Error creating partner in DB:", error);
+      return null;
+    }
     return mapDBPartnerToUI(data);
   } catch (err) {
-    console.error("Error creating partner in DB:", err);
+    console.error("Failed to create partner in DB:", err);
     return null;
   }
 }
@@ -58,9 +64,13 @@ export async function deletePartnerInDB(id: string): Promise<boolean> {
   try {
     const supabase = createClient();
     const { error } = await supabase.from("partners").delete().eq("id", id);
-    return !error;
+    if (error) {
+      console.error("Error deleting partner:", error);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error("Error deleting partner:", err);
+    console.error("Failed to delete partner:", err);
     return false;
   }
 }

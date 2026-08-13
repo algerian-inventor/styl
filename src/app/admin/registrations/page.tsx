@@ -11,7 +11,11 @@ import { EventRegistration } from "@/data/registrations";
 
 export default function AdminRegistrationsPage() {
   const { t, language } = useLanguage();
-  const { registrations, updateRegistrationStatus } = usePrototypeState();
+  const { registrations, updateRegistrationStatus, loadRegistrations } = usePrototypeState();
+
+  React.useEffect(() => {
+    loadRegistrations();
+  }, [loadRegistrations]);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

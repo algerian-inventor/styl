@@ -13,7 +13,7 @@ import { Search, Plus, Trash2, Edit, Upload, Save } from "lucide-react";
 
 export default function AdminProgramsPage() {
   const { t, language } = useLanguage();
-  const { programs, deleteProgram, addProgram, updateProgram } = usePrototypeState();
+  const { programs, addProgram, updateProgram, deleteProgram, addToast } = usePrototypeState();
 
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -85,13 +85,11 @@ export default function AdminProgramsPage() {
     const file = e.target.files?.[0];
     if (file) {
       const { uploadFileToBucket } = await import("@/lib/storage");
-      const { url } = await uploadFileToBucket(file, "programs");
+      const { url, error } = await uploadFileToBucket(file, "programs");
       if (url) {
         setCoverImage(url);
       } else {
-        const reader = new FileReader();
-        reader.onloadend = () => setCoverImage(reader.result as string);
-        reader.readAsDataURL(file);
+        addToast(error || "Failed to upload program cover image", "error");
       }
     }
   };

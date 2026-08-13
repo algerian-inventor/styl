@@ -6,24 +6,25 @@ export async function uploadFileToBucket(
   file: File,
   bucket: BucketName
 ): Promise<{ url: string | null; error: string | null }> {
+  // 1. File size check (Max 5MB)
   if (file.size > 5 * 1024 * 1024) {
     return { url: null, error: "File size exceeds 5MB limit" };
   }
 
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
+  // 2. Strict MIME type check (JPEG, PNG, WEBP) - SVG excluded for security
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
   if (!allowedTypes.includes(file.type)) {
-    return { url: null, error: "Invalid image format. Allowed: JPG, PNG, WEBP, GIF, SVG" };
+    return { url: null, error: "Invalid image format. Allowed formats: JPG, PNG, WEBP" };
   }
 
   try {
     const supabase = createClient();
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
-    const filePath = `${fileName}`;
+    const fileExt = file.name.split(".").pop() || "png";
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
       .from(bucket)
-      .upload(filePath, file, { cacheControl: "3600", upsert: true });
+      .upload(fileName, file, { cacheControl: "3600", upsert: false });
 
     if (uploadError) {
       console.error("Storage upload error:", uploadError);
@@ -32,7 +33,7 @@ export async function uploadFileToBucket(
 
     const { data: publicUrlData } = supabase.storage
       .from(bucket)
-      .getPublicUrl(filePath);
+      .getPublicUrl(fileName);
 
     return { url: publicUrlData.publicUrl, error: null };
   } catch (err: unknown) {

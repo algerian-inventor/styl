@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { Article, articles as defaultArticles } from "@/data/articles";
+import { Article } from "@/data/articles";
 import { Database } from "@/types/database";
 
 type DBArticle = Database["public"]["Tables"]["articles"]["Row"];
@@ -28,11 +28,14 @@ export async function fetchArticles(): Promise<Article[]> {
       .select("*")
       .order("published_date", { ascending: false });
 
-    if (error || !data || data.length === 0) return defaultArticles;
+    if (error || !data) {
+      console.error("Error fetching articles:", error);
+      return [];
+    }
     return data.map(mapDBArticleToUI);
   } catch (err) {
-    console.error("Error fetching articles:", err);
-    return defaultArticles;
+    console.error("Failed to fetch articles:", err);
+    return [];
   }
 }
 
@@ -46,12 +49,13 @@ export async function fetchArticleBySlug(slug: string): Promise<Article | null> 
       .single();
 
     if (error || !data) {
-      return defaultArticles.find((a) => a.slug === slug) || null;
+      console.error("Error fetching article by slug:", error);
+      return null;
     }
     return mapDBArticleToUI(data);
   } catch (err) {
-    console.error("Error fetching article by slug:", err);
-    return defaultArticles.find((a) => a.slug === slug) || null;
+    console.error("Failed to fetch article by slug:", err);
+    return null;
   }
 }
 
@@ -81,11 +85,39 @@ export async function createArticleInDB(art: Omit<Article, "id" | "slug"> & { sl
     };
 
     const { data, error } = await supabase.from("articles").insert([payload]).select().single();
-    if (error || !data) throw error;
+    if (error || !data) {
+      console.error("Error creating article in DB:", error);
+      return null;
+    }
     return mapDBArticleToUI(data);
   } catch (err) {
-    console.error("Error creating article in DB:", err);
+    console.error("Failed to create article in DB:", err);
     return null;
+  }
+}
+
+export async function updateArticleInDB(id: string, fields: Partial<Article>): Promise<boolean> {
+  try {
+    const supabase = createClient();
+    const payload: Partial<Database["public"]["Tables"]["articles"]["Update"]> = {};
+    if (fields.title) { payload.title_ar = fields.title.ar; payload.title_en = fields.title.en; }
+    if (fields.summary) { payload.summary_ar = fields.summary.ar; payload.summary_en = fields.summary.en; }
+    if (fields.content) { payload.content_ar = fields.content.ar; payload.content_en = fields.content.en; }
+    if (fields.category) { payload.category_ar = fields.category.ar; payload.category_en = fields.category.en; }
+    if (fields.author) { payload.author_name_ar = fields.author.ar; payload.author_name_en = fields.author.en; }
+    if (fields.publishedDate) payload.published_date = fields.publishedDate;
+    if (fields.coverImage !== undefined) payload.cover_image = fields.coverImage;
+    if (fields.isFeatured !== undefined) payload.is_published = fields.isFeatured;
+
+    const { error } = await supabase.from("articles").update(payload).eq("id", id);
+    if (error) {
+      console.error("Error updating article in DB:", error);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("Failed to update article in DB:", err);
+    return false;
   }
 }
 
@@ -93,9 +125,13 @@ export async function deleteArticleInDB(id: string): Promise<boolean> {
   try {
     const supabase = createClient();
     const { error } = await supabase.from("articles").delete().eq("id", id);
-    return !error;
+    if (error) {
+      console.error("Error deleting article:", error);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error("Error deleting article:", err);
+    console.error("Failed to delete article:", err);
     return false;
   }
 }

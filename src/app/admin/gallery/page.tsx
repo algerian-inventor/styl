@@ -12,7 +12,7 @@ import { Search, Plus, Trash2, Upload } from "lucide-react";
 
 export default function AdminGalleryPage() {
   const { t, language } = useLanguage();
-  const { galleryItems, addGalleryItem, deleteGalleryItem } = usePrototypeState();
+  const { galleryItems, addGalleryItem, deleteGalleryItem, addToast } = usePrototypeState();
 
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -35,13 +35,11 @@ export default function AdminGalleryPage() {
     const file = e.target.files?.[0];
     if (file) {
       const { uploadFileToBucket } = await import("@/lib/storage");
-      const { url } = await uploadFileToBucket(file, "gallery");
+      const { url, error } = await uploadFileToBucket(file, "gallery");
       if (url) {
         setImageUrl(url);
       } else {
-        const reader = new FileReader();
-        reader.onloadend = () => setImageUrl(reader.result as string);
-        reader.readAsDataURL(file);
+        addToast(error || "Failed to upload gallery image", "error");
       }
     }
   };

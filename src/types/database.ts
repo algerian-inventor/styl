@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-export type UserRole = "admin" | "editor";
+export type UserRole = "user" | "editor" | "admin";
 export type ProgramStatus = "active" | "upcoming" | "completed";
 export type RegistrationStatus = "pending" | "confirmed" | "rejected" | "attended";
 export type ApplicationStatus = "pending" | "underReview" | "accepted" | "rejected";
@@ -528,7 +528,23 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      register_for_event: {
+        Args: {
+          p_event_id: string;
+          p_full_name: string;
+          p_email: string;
+          p_phone: string;
+          p_wilaya: string;
+          p_age: number;
+          p_education_profession: string;
+          p_motivation: string;
+        };
+        Returns: {
+          success: boolean;
+          reference_number: string | null;
+          error_message: string | null;
+        }[];
+      };
     };
     Enums: {
       user_role: UserRole;

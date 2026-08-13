@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { MembershipApplication, initialApplications } from "@/data/applications";
+import { MembershipApplication } from "@/data/applications";
 import { Database } from "@/types/database";
 
 type DBApplication = Database["public"]["Tables"]["membership_applications"]["Row"];
@@ -31,11 +31,14 @@ export async function fetchMembershipApplications(): Promise<MembershipApplicati
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error || !data || data.length === 0) return initialApplications;
+    if (error || !data) {
+      console.error("Error fetching membership applications:", error);
+      return [];
+    }
     return data.map(mapDBApplicationToUI);
   } catch (err) {
-    console.error("Error fetching membership applications:", err);
-    return initialApplications;
+    console.error("Failed to fetch membership applications:", err);
+    return [];
   }
 }
 
@@ -73,11 +76,12 @@ export async function createMembershipApplicationInDB(app: {
     const { error } = await supabase.from("membership_applications").insert([payload]);
     if (error) {
       console.error("Supabase membership insert error:", error);
+      return false;
     }
-    return !error;
-  } catch (err) {
-    console.error("Error creating membership application:", err);
     return true;
+  } catch (err) {
+    console.error("Failed to create membership application:", err);
+    return false;
   }
 }
 
@@ -89,9 +93,13 @@ export async function updateApplicationStatusInDB(id: string, status: "pending" 
       .update({ status })
       .eq("id", id);
 
-    return !error;
+    if (error) {
+      console.error("Error updating application status:", error);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error("Error updating application status:", err);
+    console.error("Failed to update application status:", err);
     return false;
   }
 }

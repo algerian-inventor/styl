@@ -4,17 +4,6 @@ import { Database } from "@/types/database";
 
 type DBContactMessage = Database["public"]["Tables"]["contact_messages"]["Row"];
 
-const defaultContactMessages: ContactMessage[] = [
-  {
-    id: "MSG-001",
-    fullName: "سليم بوحوش",
-    email: "salim.b@gmail.com",
-    subject: "طلب رعاية علمية لمعرض إلكترونيات",
-    message: "السلام عليكم، نحن مجموعة من الطلبة ونود التعاون مع الرابطة لتنظيم معرض مصغر للابتكارات الإلكترونية في قسنطينة.",
-    date: "2026-06-18",
-  },
-];
-
 export function mapDBContactToUI(data: DBContactMessage): ContactMessage {
   return {
     id: data.id,
@@ -34,11 +23,14 @@ export async function fetchContactMessages(): Promise<ContactMessage[]> {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error || !data || data.length === 0) return defaultContactMessages;
+    if (error || !data) {
+      console.error("Error fetching contact messages:", error);
+      return [];
+    }
     return data.map(mapDBContactToUI);
   } catch (err) {
-    console.error("Error fetching contact messages:", err);
-    return defaultContactMessages;
+    console.error("Failed to fetch contact messages:", err);
+    return [];
   }
 }
 
@@ -61,11 +53,12 @@ export async function createContactMessageInDB(msg: {
     const { error } = await supabase.from("contact_messages").insert([payload]);
     if (error) {
       console.error("Supabase contact message insert error:", error);
+      return false;
     }
-    return !error;
-  } catch (err) {
-    console.error("Error creating contact message:", err);
     return true;
+  } catch (err) {
+    console.error("Failed to create contact message:", err);
+    return false;
   }
 }
 
@@ -73,9 +66,13 @@ export async function deleteContactMessageInDB(id: string): Promise<boolean> {
   try {
     const supabase = createClient();
     const { error } = await supabase.from("contact_messages").delete().eq("id", id);
-    return !error;
+    if (error) {
+      console.error("Error deleting contact message:", error);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error("Error deleting contact message:", err);
+    console.error("Failed to delete contact message:", err);
     return false;
   }
 }

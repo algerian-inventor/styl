@@ -71,8 +71,7 @@ export default function EventDetailPage({ params }: PageProps) {
   }
 
   const onSubmit = async (data: RegFormValues) => {
-    // Submit registration to Supabase data layer via state context
-    const ref = await submitEventRegistration({
+    const res = await submitEventRegistration({
       eventId: event.id,
       fullName: data.fullName,
       email: data.email,
@@ -82,9 +81,11 @@ export default function EventDetailPage({ params }: PageProps) {
       educationProfession: data.educationProfession,
       motivation: data.motivation,
     });
-    setParticipantName(data.fullName);
-    setRegSuccessRef(ref);
-    reset();
+    if (res.success && res.referenceNumber) {
+      setParticipantName(data.fullName);
+      setRegSuccessRef(res.referenceNumber);
+      reset();
+    }
   };
 
   const getErrorMessage = (errorKey?: string) => {

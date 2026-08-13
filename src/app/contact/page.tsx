@@ -71,14 +71,16 @@ export default function ContactPage() {
   });
 
   const onSubmit = async (data: ContactFormValues) => {
-    await submitContactMessage({
+    const success = await submitContactMessage({
       fullName: data.fullName,
       email: data.email,
       subject: data.subject,
       message: data.message,
     });
-    setIsMessageSent(true);
-    reset();
+    if (success) {
+      setIsMessageSent(true);
+      reset();
+    }
   };
 
   const getErrorMessage = (errorKey?: string) => {

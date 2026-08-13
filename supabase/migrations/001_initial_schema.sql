@@ -5,7 +5,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Custom Enum Types
-CREATE TYPE user_role AS ENUM ('admin', 'editor');
+CREATE TYPE user_role AS ENUM ('user', 'editor', 'admin');
 CREATE TYPE program_status AS ENUM ('active', 'upcoming', 'completed');
 CREATE TYPE registration_status AS ENUM ('pending', 'confirmed', 'rejected', 'attended');
 CREATE TYPE application_status AS ENUM ('pending', 'underReview', 'accepted', 'rejected');
@@ -26,7 +26,7 @@ CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
   full_name TEXT,
-  role user_role NOT NULL DEFAULT 'editor',
+  role user_role NOT NULL DEFAULT 'user',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -43,11 +43,11 @@ BEGIN
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-    COALESCE((NEW.raw_user_meta_data->>'role')::user_role, 'editor')
+    'user'
   );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 CREATE OR REPLACE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
@@ -150,7 +150,7 @@ CREATE TRIGGER update_events_timestamp
 CREATE TABLE event_registrations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-  reference_number TEXT UNIQUE NOT NULL,
+  reference_number TEXT UNIQUE NOT NULL DEFAULT ('REG-' || to_char(CURRENT_DATE, 'YYYY') || '-' || upper(substring(replace(gen_random_uuid()::text, '-', ''), 1, 12))),
   full_name TEXT NOT NULL,
   email TEXT NOT NULL,
   phone TEXT NOT NULL,
@@ -268,6 +268,139 @@ CREATE TABLE contact_messages (
 );
 
 ----------------------------------------------------
+-- SECURITY DEFINER HELPER FUNCTIONS
+----------------------------------------------------
+
+-- Check if authenticated user is staff (admin OR editor)
+CREATE OR REPLACE FUNCTION public.is_staff()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role IN ('admin', 'editor')
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+-- Check if authenticated user is admin ONLY
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+----------------------------------------------------
+-- SECURE EVENT REGISTRATION RPC FUNCTION
+----------------------------------------------------
+CREATE OR REPLACE FUNCTION public.register_for_event(
+  p_event_id UUID,
+  p_full_name TEXT,
+  p_email TEXT,
+  p_phone TEXT,
+  p_wilaya TEXT,
+  p_age INT,
+  p_education_profession TEXT,
+  p_motivation TEXT
+)
+RETURNS TABLE (
+  success BOOLEAN,
+  reference_number TEXT,
+  error_message TEXT
+) AS $$
+DECLARE
+  v_event public.events%ROWTYPE;
+  v_current_count INT;
+  v_ref TEXT;
+BEGIN
+  -- 1. Validate age constraint
+  IF p_age < 10 OR p_age > 100 THEN
+    RETURN QUERY SELECT false, NULL::TEXT, 'Age must be between 10 and 100'::TEXT;
+    RETURN;
+  END IF;
+
+  -- 2. Lock & fetch event safely
+  SELECT * INTO v_event
+  FROM public.events
+  WHERE id = p_event_id
+  FOR SHARE;
+
+  IF NOT FOUND THEN
+    RETURN QUERY SELECT false, NULL::TEXT, 'Event not found'::TEXT;
+    RETURN;
+  END IF;
+
+  -- 3. Check published status
+  IF v_event.is_published IS NOT TRUE THEN
+    RETURN QUERY SELECT false, NULL::TEXT, 'Event is not published'::TEXT;
+    RETURN;
+  END IF;
+
+  -- 4. Check closed override
+  IF v_event.is_closed_override IS TRUE THEN
+    RETURN QUERY SELECT false, NULL::TEXT, 'Registration for this event is closed'::TEXT;
+    RETURN;
+  END IF;
+
+  -- 5. Check event date (must not be past date)
+  IF v_event.event_date < CURRENT_DATE THEN
+    RETURN QUERY SELECT false, NULL::TEXT, 'Event has already taken place'::TEXT;
+    RETURN;
+  END IF;
+
+  -- 6. Check registration deadline
+  IF v_event.registration_deadline IS NOT NULL AND v_event.registration_deadline < CURRENT_DATE THEN
+    RETURN QUERY SELECT false, NULL::TEXT, 'Registration deadline has passed'::TEXT;
+    RETURN;
+  END IF;
+
+  -- 7. Check capacity
+  SELECT COUNT(*) INTO v_current_count
+  FROM public.event_registrations
+  WHERE event_id = p_event_id AND status != 'rejected';
+
+  IF v_current_count >= v_event.capacity THEN
+    RETURN QUERY SELECT false, NULL::TEXT, 'Event capacity has been reached'::TEXT;
+    RETURN;
+  END IF;
+
+  -- 8. Generate reference and insert
+  v_ref := 'REG-' || to_char(CURRENT_DATE, 'YYYY') || '-' || upper(substring(replace(gen_random_uuid()::text, '-', ''), 1, 12));
+
+  INSERT INTO public.event_registrations (
+    event_id,
+    reference_number,
+    full_name,
+    email,
+    phone,
+    wilaya,
+    age,
+    education_profession,
+    motivation,
+    status,
+    registration_date
+  ) VALUES (
+    p_event_id,
+    v_ref,
+    p_full_name,
+    p_email,
+    p_phone,
+    p_wilaya,
+    p_age,
+    p_education_profession,
+    p_motivation,
+    'pending',
+    CURRENT_DATE
+  );
+
+  RETURN QUERY SELECT true, v_ref, NULL::TEXT;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+----------------------------------------------------
 -- ROW LEVEL SECURITY (RLS) POLICIES
 ----------------------------------------------------
 
@@ -283,86 +416,78 @@ ALTER TABLE gallery_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE partners ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 
--- Helper function to check if current authenticated user has staff role
-CREATE OR REPLACE FUNCTION is_admin_or_editor()
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role IN ('admin', 'editor')
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
 -- 1. Profiles RLS
-CREATE POLICY "Users can read own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id OR is_admin_or_editor());
+CREATE POLICY "Users can read own profile or staff can read profiles" ON profiles
+  FOR SELECT USING (auth.uid() = id OR is_staff());
 
-CREATE POLICY "Admins can update profiles" ON profiles
-  FOR UPDATE USING (is_admin_or_editor());
+CREATE POLICY "Only admins can update profiles" ON profiles
+  FOR UPDATE USING (is_admin()) WITH CHECK (is_admin());
+
+CREATE POLICY "Only admins can delete profiles" ON profiles
+  FOR DELETE USING (is_admin());
 
 -- 2. Site Settings RLS
 CREATE POLICY "Public can read site settings" ON site_settings
   FOR SELECT USING (true);
 
 CREATE POLICY "Staff can update site settings" ON site_settings
-  FOR ALL USING (is_admin_or_editor());
+  FOR ALL USING (is_staff());
 
 -- 3. Articles RLS
 CREATE POLICY "Public can read published articles" ON articles
-  FOR SELECT USING (is_published = true OR is_admin_or_editor());
+  FOR SELECT USING (is_published = true OR is_staff());
 
 CREATE POLICY "Staff full access to articles" ON articles
-  FOR ALL USING (is_admin_or_editor());
+  FOR ALL USING (is_staff());
 
 -- 4. Events RLS
 CREATE POLICY "Public can read published events" ON events
-  FOR SELECT USING (is_published = true OR is_admin_or_editor());
+  FOR SELECT USING (is_published = true OR is_staff());
 
 CREATE POLICY "Staff full access to events" ON events
-  FOR ALL USING (is_admin_or_editor());
+  FOR ALL USING (is_staff());
 
 -- 5. Event Registrations RLS
 CREATE POLICY "Public can insert event registration" ON event_registrations
   FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "Staff can view and update event registrations" ON event_registrations
-  FOR ALL USING (is_admin_or_editor());
+  FOR ALL USING (is_staff());
 
 -- 6. Programs (Clubs) RLS
 CREATE POLICY "Public can read programs" ON programs
   FOR SELECT USING (true);
 
 CREATE POLICY "Staff full access to programs" ON programs
-  FOR ALL USING (is_admin_or_editor());
+  FOR ALL USING (is_staff());
 
 -- 7. Membership Applications RLS
 CREATE POLICY "Public can insert membership application" ON membership_applications
   FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "Staff can view and update membership applications" ON membership_applications
-  FOR ALL USING (is_admin_or_editor());
+  FOR ALL USING (is_staff());
 
 -- 8. Gallery RLS
 CREATE POLICY "Public can read gallery items" ON gallery_items
   FOR SELECT USING (true);
 
 CREATE POLICY "Staff full access to gallery" ON gallery_items
-  FOR ALL USING (is_admin_or_editor());
+  FOR ALL USING (is_staff());
 
 -- 9. Partners RLS
 CREATE POLICY "Public can read partners" ON partners
   FOR SELECT USING (true);
 
 CREATE POLICY "Staff full access to partners" ON partners
-  FOR ALL USING (is_admin_or_editor());
+  FOR ALL USING (is_staff());
 
 -- 10. Contact Messages RLS
 CREATE POLICY "Public can insert contact message" ON contact_messages
   FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "Staff can view and delete contact messages" ON contact_messages
-  FOR ALL USING (is_admin_or_editor());
+  FOR ALL USING (is_staff());
 
 ----------------------------------------------------
 -- STORAGE BUCKETS SETUP
@@ -381,7 +506,7 @@ CREATE POLICY "Public read access to storage buckets" ON storage.objects
   FOR SELECT USING (bucket_id IN ('gallery', 'events', 'programs', 'articles', 'partners', 'site'));
 
 CREATE POLICY "Staff upload access to storage buckets" ON storage.objects
-  FOR INSERT WITH CHECK (bucket_id IN ('gallery', 'events', 'programs', 'articles', 'partners', 'site') AND is_admin_or_editor());
+  FOR INSERT WITH CHECK (bucket_id IN ('gallery', 'events', 'programs', 'articles', 'partners', 'site') AND is_staff());
 
 CREATE POLICY "Staff update and delete storage objects" ON storage.objects
-  FOR ALL USING (bucket_id IN ('gallery', 'events', 'programs', 'articles', 'partners', 'site') AND is_admin_or_editor());
+  FOR ALL USING (bucket_id IN ('gallery', 'events', 'programs', 'articles', 'partners', 'site') AND is_staff());
