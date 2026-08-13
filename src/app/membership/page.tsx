@@ -4,12 +4,11 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { motion } from "framer-motion";
-import { Check, Send, CheckCircle2, Award, ClipboardList, Info } from "lucide-react";
+import { CheckCircle2, Info, UserPlus, Check } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
-import { SectionHeader } from "@/components/SectionHeader";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { PageHero } from "@/components/ui/PageHero";
 import { FormField } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 
@@ -114,208 +113,258 @@ export default function MembershipPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
-      {/* Page Header */}
-      <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <SectionHeader
-          title={t("membership.title")}
-          subtitle={t("membership.subtitle")}
-        />
-      </motion.div>
+    <div className="w-full bg-[#F4F7FA]">
+      {/* Page Hero */}
+      <PageHero
+        breadcrumbs={[
+          { label: t("nav.home"), href: "/" },
+          { label: t("nav.membership") },
+        ]}
+        eyebrow={language === "ar" ? "الانخراط والتطوع" : "Join the Community"}
+        title={t("membership.title")}
+        description={t("membership.subtitle")}
+      />
 
-      {isSubmitted ? (
-        /* SUCCESS CONFIRMATION PANEL */
-        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-xl mx-auto">
-          <Card className="border border-green-200 bg-green-50/50 p-8 space-y-6 text-center shadow-md">
-            <div className="mx-auto h-16 w-16 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-              <CheckCircle2 className="h-10 w-10" />
-            </div>
+      {/* Form & Benefits Section */}
+      <section className="py-16 sm:py-20">
+        <Container>
+          {isSubmitted ? (
+            /* Success Confirmation Screen */
+            <div className="max-w-xl mx-auto bg-white rounded-2xl border-2 border-emerald-500/40 p-8 sm:p-10 shadow-lg space-y-6 text-center">
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                <CheckCircle2 className="w-10 h-10" />
+              </div>
 
-            <div className="space-y-3">
-              <h3 className="text-xl font-extrabold text-green-800">{t("membership.appSuccess")}</h3>
-              <p className="text-xs sm:text-sm text-brand-dark leading-relaxed font-semibold">
-                {t("membership.appSuccessDesc")}
-              </p>
-            </div>
-
-            <div className="h-[1px] bg-green-200" />
-
-            <div className="text-center pt-2">
-              <Button variant="primary" onClick={() => setIsSubmitted(false)}>
-                {language === "ar" ? "تقديم طلب انضمام جديد" : "Submit another application"}
-              </Button>
-            </div>
-          </Card>
-        </motion.div>
-      ) : (
-        /* INFORMATION PANEL + FORM PANEL GRID */
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-          {/* Left Columns: Explanations, benefits, requirements */}
-          <div className="lg:col-span-1 space-y-8">
-            <div className="bg-white border border-brand-border rounded-xl p-6 shadow-xs space-y-6">
-              {/* Explanation */}
-              <div className="space-y-3">
-                <h3 className="text-base font-bold text-brand-navy flex items-center gap-2">
-                  <Info className="h-5 w-5 text-brand-green" />
-                  {language === "ar" ? "شرح العضوية" : "Membership Guidelines"}
+              <div className="space-y-2">
+                <h3 className="text-2xl font-black text-brand-dark">
+                  {t("membership.appSuccess")}
                 </h3>
-                <p className="text-xs text-brand-muted leading-relaxed font-semibold">
-                  {t("membership.explanation")}
+                <p className="text-sm text-brand-muted leading-relaxed">
+                  {t("membership.appSuccessDesc")}
                 </p>
               </div>
 
-              <div className="h-[1px] bg-brand-border" />
-
-              {/* Benefits */}
-              <div className="space-y-3">
-                <h3 className="text-base font-bold text-brand-navy flex items-center gap-2">
-                  <Award className="h-5 w-5 text-brand-green" />
-                  {t("membership.benefitsTitle")}
-                </h3>
-                <ul className="space-y-2 text-xs text-brand-dark leading-relaxed">
-                  {[
-                    t("membership.benefit1"),
-                    t("membership.benefit2"),
-                    t("membership.benefit3"),
-                    t("membership.benefit4"),
-                  ].map((benefit, i) => (
-                    <li key={i} className="flex gap-2 items-start">
-                      <Check className="h-4 w-4 text-brand-green flex-shrink-0 mt-0.5" />
-                      <span>{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="h-[1px] bg-brand-border" />
-
-              {/* Requirements */}
-              <div className="space-y-3">
-                <h3 className="text-base font-bold text-brand-navy flex items-center gap-2">
-                  <ClipboardList className="h-5 w-5 text-brand-green" />
-                  {t("membership.requirementsTitle")}
-                </h3>
-                <ul className="space-y-2 text-xs text-brand-dark leading-relaxed">
-                  {[t("membership.req1"), t("membership.req2"), t("membership.req3")].map((req, i) => (
-                    <li key={i} className="flex gap-2 items-start">
-                      <Check className="h-4 w-4 text-brand-green flex-shrink-0 mt-0.5" />
-                      <span>{req}</span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="pt-4 border-t border-[#DCE3EA]">
+                <Button variant="primary" onClick={() => setIsSubmitted(false)}>
+                  {language === "ar" ? "تقديم طلب آخر" : "Submit another application"}
+                </Button>
               </div>
             </div>
-          </div>
-
-          {/* Right Column: Dynamic Zod Form */}
-          <div className="lg:col-span-2">
-            <Card className="bg-white border border-brand-border p-8 shadow-xs">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <h3 className="text-lg font-bold text-brand-dark border-b border-brand-border pb-3 uppercase tracking-wider">
-                  {t("membership.formTitle")}
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <FormField label={t("forms.fullName")} error={getErrorMessage(errors.fullName?.message)} required>
-                    <input type="text" {...register("fullName")} placeholder="يوسف حداد" />
-                  </FormField>
-
-                  <FormField label={t("forms.dob")} error={getErrorMessage(errors.dob?.message)} required>
-                    <input type="date" {...register("dob")} />
-                  </FormField>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <FormField label={t("forms.wilaya")} error={getErrorMessage(errors.wilaya?.message)} required>
-                    <input type="text" {...register("wilaya")} placeholder="قسنطينة" />
-                  </FormField>
-
-                  <FormField label={t("forms.municipality")} error={getErrorMessage(errors.municipality?.message)} required>
-                    <input type="text" {...register("municipality")} placeholder="الخروب" />
-                  </FormField>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <FormField label={t("forms.email")} error={getErrorMessage(errors.email?.message)} required>
-                    <input type="email" {...register("email")} placeholder="yousef@gmail.com" />
-                  </FormField>
-
-                  <FormField label={t("forms.phone")} error={getErrorMessage(errors.phone?.message)} required>
-                    <input type="tel" {...register("phone")} placeholder="0771234567" />
-                  </FormField>
-                </div>
-
-                <FormField label={t("forms.educationProfession")} error={getErrorMessage(errors.educationProfession?.message)} required>
-                  <input type="text" {...register("educationProfession")} placeholder="طالب جامعي - ماستر إلكترونيات" />
-                </FormField>
-
-                {/* Interests Checklist Array */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-brand-dark block">
-                    {t("forms.scientificInterests")} <span className="text-red-500">*</span>
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {interestOptions.map((opt) => {
-                      const isChecked = selectedInterests.includes(opt);
-                      return (
-                        <button
-                          type="button"
-                          key={opt}
-                          onClick={() => handleInterestToggle(opt)}
-                          className={`px-3 py-2 border rounded-md text-xs font-semibold text-center transition-all cursor-pointer ${
-                            isChecked
-                              ? "bg-brand-navy border-brand-navy text-white shadow-xs"
-                              : "bg-white border-brand-border text-brand-dark hover:bg-brand-bg"
-                          }`}
-                        >
-                          {opt}
-                        </button>
-                      );
-                    })}
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+              {/* Left Column: Guidelines & Benefits (4 cols) */}
+              <div className="lg:col-span-4 space-y-6">
+                {/* Guidelines */}
+                <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[#DCE3EA] shadow-xs space-y-5">
+                  <div className="flex items-center gap-3 border-b border-[#DCE3EA] pb-4">
+                    <div className="w-10 h-10 rounded-xl bg-brand-navy/10 flex items-center justify-center text-brand-navy">
+                      <Info className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-brand-dark">
+                        {language === "ar" ? "شرح العضوية" : "Membership Scope"}
+                      </h4>
+                      <p className="text-xs text-brand-muted">
+                        {language === "ar" ? "فرص وامتيازات منتسبي الرابطة" : "Member privileges & support"}
+                      </p>
+                    </div>
                   </div>
-                  {errors.interests && <p className="text-xs text-red-500 mt-1">{getErrorMessage(errors.interests.message)}</p>}
-                </div>
 
-                <FormField label={t("forms.skills")} error={getErrorMessage(errors.skills?.message)} required>
-                  <textarea
-                    {...register("skills")}
-                    placeholder={language === "ar" ? "أذكر أهم المهارات أو الخبرات السابقة..." : "Describe your current technical skills..."}
-                    rows={3}
-                    className="resize-none"
-                  />
-                </FormField>
+                  <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
+                    {t("membership.explanation")}
+                  </p>
 
-                <FormField label={t("forms.motivation")} error={getErrorMessage(errors.motivation?.message)} required>
-                  <textarea
-                    {...register("motivation")}
-                    placeholder={language === "ar" ? "ما هي دوافعك ورغبتك في الانضمام للرابطة؟" : "What is your main motivation to join us?"}
-                    rows={3}
-                    className="resize-none"
-                  />
-                </FormField>
-
-                <FormField label={t("forms.portfolio")} error={getErrorMessage(errors.portfolio?.message)}>
-                  <input type="text" {...register("portfolio")} placeholder="https://github.com/yourusername (اختياري)" />
-                </FormField>
-
-                <div className="space-y-1">
-                  <div className="flex gap-2 items-start text-xs text-brand-dark pt-1">
-                    <input type="checkbox" id="consent" {...register("consent")} className="mt-1 cursor-pointer" />
-                    <label htmlFor="consent" className="cursor-pointer select-none leading-relaxed">
-                      {t("forms.consent")}
-                    </label>
+                  <div className="space-y-3 pt-3 border-t border-[#DCE3EA]">
+                    <h5 className="text-xs font-bold text-brand-dark uppercase tracking-wider">
+                      {t("membership.benefitsTitle")}
+                    </h5>
+                    <ul className="space-y-2.5 text-xs sm:text-sm text-brand-dark font-medium">
+                      {[
+                        t("membership.benefit1"),
+                        t("membership.benefit2"),
+                        t("membership.benefit3"),
+                        t("membership.benefit4"),
+                      ].map((benefit, i) => (
+                        <li key={i} className="flex gap-2.5 items-start">
+                          <Check className="w-4 h-4 text-brand-green flex-shrink-0 mt-0.5" />
+                          <span className="leading-snug">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  {errors.consent && <p className="text-xs text-red-500">{getErrorMessage(errors.consent.message)}</p>}
-                </div>
 
-                <Button type="submit" variant="secondary" className="w-full" isLoading={isSubmitting} leftIcon={<Send className="h-4 w-4" />}>
-                  {t("membership.submitApp")}
-                </Button>
-              </form>
-            </Card>
-          </div>
-        </div>
-      )}
+                  <div className="space-y-3 pt-3 border-t border-[#DCE3EA]">
+                    <h5 className="text-xs font-bold text-brand-dark uppercase tracking-wider">
+                      {t("membership.requirementsTitle")}
+                    </h5>
+                    <ul className="space-y-2 text-xs text-brand-muted">
+                      {[t("membership.req1"), t("membership.req2"), t("membership.req3")].map((req, i) => (
+                        <li key={i} className="flex gap-2 items-start">
+                          <Check className="w-3.5 h-3.5 text-brand-navy flex-shrink-0 mt-0.5" />
+                          <span className="leading-snug">{req}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Application Form (8 cols) */}
+              <div className="lg:col-span-8">
+                <div className="bg-white rounded-2xl border border-[#DCE3EA] p-7 sm:p-10 shadow-xs space-y-8">
+                  <div className="border-b border-[#DCE3EA] pb-5 space-y-1">
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-brand-dark">
+                      {t("membership.formTitle")}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-brand-muted">
+                      {language === "ar"
+                        ? "يرجى ملء جميع الحقول المطلوبة بدقة لدراسة ملف طلب الانضمام"
+                        : "Please fill in all required fields accurately for evaluation"}
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    {/* 1. Personal Details */}
+                    <div className="space-y-4">
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        {language === "ar" ? "1. البيانات الشخصية" : "1. Personal Information"}
+                      </h4>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField label={t("forms.fullName")} error={getErrorMessage(errors.fullName?.message)} required>
+                          <input type="text" {...register("fullName")} placeholder="يوسف حداد" />
+                        </FormField>
+
+                        <FormField label={t("forms.dob")} error={getErrorMessage(errors.dob?.message)} required>
+                          <input type="date" {...register("dob")} />
+                        </FormField>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField label={t("forms.wilaya")} error={getErrorMessage(errors.wilaya?.message)} required>
+                          <input type="text" {...register("wilaya")} placeholder="قسنطينة" />
+                        </FormField>
+
+                        <FormField label={t("forms.municipality")} error={getErrorMessage(errors.municipality?.message)} required>
+                          <input type="text" {...register("municipality")} placeholder="الخروب / قسنطينة" />
+                        </FormField>
+                      </div>
+                    </div>
+
+                    {/* 2. Contact Details */}
+                    <div className="space-y-4 pt-4 border-t border-[#DCE3EA]">
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        {language === "ar" ? "2. معلومات الاتصال والمستوى" : "2. Contact & Background"}
+                      </h4>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField label={t("forms.email")} error={getErrorMessage(errors.email?.message)} required>
+                          <input type="email" {...register("email")} placeholder="yousef@gmail.com" />
+                        </FormField>
+
+                        <FormField label={t("forms.phone")} error={getErrorMessage(errors.phone?.message)} required>
+                          <input type="tel" {...register("phone")} placeholder="0771234567" />
+                        </FormField>
+                      </div>
+
+                      <FormField label={t("forms.educationProfession")} error={getErrorMessage(errors.educationProfession?.message)} required>
+                        <input type="text" {...register("educationProfession")} placeholder="طالب جامعي - ماستر إلكترونيات" />
+                      </FormField>
+                    </div>
+
+                    {/* 3. Scientific Interests */}
+                    <div className="space-y-4 pt-4 border-t border-[#DCE3EA]">
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        {language === "ar" ? "3. المجالات العلمية المفضلة" : "3. Scientific Interests"}
+                      </h4>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        {interestOptions.map((opt) => {
+                          const isChecked = selectedInterests.includes(opt);
+                          return (
+                            <button
+                              type="button"
+                              key={opt}
+                              onClick={() => handleInterestToggle(opt)}
+                              className={`p-3 border rounded-xl text-xs font-bold text-center transition-all cursor-pointer ${
+                                isChecked
+                                  ? "bg-[#062B55] border-[#062B55] text-white shadow-xs"
+                                  : "bg-slate-50 border-[#DCE3EA] text-slate-700 hover:bg-slate-100"
+                              }`}
+                            >
+                              {opt}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {errors.interests && (
+                        <p className="text-xs text-red-500 font-medium">
+                          {getErrorMessage(errors.interests.message)}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* 4. Skills & Motivation */}
+                    <div className="space-y-4 pt-4 border-t border-[#DCE3EA]">
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        {language === "ar" ? "4. المهارات والدوافع" : "4. Skills & Motivation"}
+                      </h4>
+
+                      <FormField label={t("forms.skills")} error={getErrorMessage(errors.skills?.message)} required>
+                        <textarea
+                          {...register("skills")}
+                          placeholder={language === "ar" ? "أذكر أهم المهارات البرمجية أو التقنية أو الخبرات السابقة..." : "Describe your current technical skills..."}
+                          rows={3}
+                          className="resize-none"
+                        />
+                      </FormField>
+
+                      <FormField label={t("forms.motivation")} error={getErrorMessage(errors.motivation?.message)} required>
+                        <textarea
+                          {...register("motivation")}
+                          placeholder={language === "ar" ? "ما هي دوافعك للانضمام ومشاريعك المستقبلية؟" : "What is your main motivation to join?"}
+                          rows={3}
+                          className="resize-none"
+                        />
+                      </FormField>
+
+                      <FormField label={t("forms.portfolio")} error={getErrorMessage(errors.portfolio?.message)}>
+                        <input type="text" {...register("portfolio")} placeholder="https://github.com/yourusername (اختياري)" />
+                      </FormField>
+                    </div>
+
+                    {/* Consent Checkbox */}
+                    <div className="pt-2">
+                      <div className="flex gap-2.5 items-start text-xs text-brand-dark">
+                        <input type="checkbox" id="consent" {...register("consent")} className="mt-1 cursor-pointer" />
+                        <label htmlFor="consent" className="cursor-pointer select-none leading-relaxed text-slate-600">
+                          {t("forms.consent")}
+                        </label>
+                      </div>
+                      {errors.consent && (
+                        <p className="text-xs text-red-500 font-medium mt-1">
+                          {getErrorMessage(errors.consent.message)}
+                        </p>
+                      )}
+                    </div>
+
+                    <Button
+                      type="submit"
+                      variant="secondary"
+                      size="lg"
+                      className="w-full justify-center gap-2"
+                      isLoading={isSubmitting}
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      <span>{t("membership.submitApp")}</span>
+                    </Button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+        </Container>
+      </section>
     </div>
   );
 }

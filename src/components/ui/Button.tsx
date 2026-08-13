@@ -2,7 +2,7 @@ import React from "react";
 import { Loader2 } from "lucide-react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "danger" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "danger" | "ghost" | "navy-outline";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -20,20 +20,28 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = "inline-flex items-center justify-center font-medium rounded-lg transition-all-custom focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
-  
+  const baseStyles =
+    "inline-flex items-center justify-center font-bold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer select-none";
+
   const variants = {
-    primary: "bg-brand-navy hover:bg-brand-navy-light text-white focus:ring-brand-navy",
-    secondary: "bg-brand-green hover:bg-brand-green-light text-white focus:ring-brand-green",
-    outline: "border border-brand-border text-brand-dark hover:bg-brand-bg focus:ring-brand-navy bg-white",
-    danger: "bg-red-600 hover:bg-red-700 text-white focus:ring-red-600",
-    ghost: "text-brand-navy hover:bg-brand-navy/5 focus:ring-brand-navy",
+    primary:
+      "bg-brand-navy hover:bg-brand-navy-light text-white focus:ring-brand-navy shadow-sm hover:shadow",
+    secondary:
+      "bg-brand-green hover:bg-brand-green-accent text-white focus:ring-brand-green shadow-sm hover:shadow",
+    outline:
+      "border border-[#DCE3EA] text-brand-dark hover:bg-slate-50 hover:border-slate-300 focus:ring-brand-navy bg-white",
+    "navy-outline":
+      "border border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white focus:ring-brand-navy bg-transparent",
+    danger:
+      "bg-red-600 hover:bg-red-700 text-white focus:ring-red-600",
+    ghost:
+      "text-brand-navy hover:bg-brand-navy/5 focus:ring-brand-navy",
   };
 
   const sizes = {
-    sm: "px-3 py-1.5 text-xs",
-    md: "px-4 py-2 text-sm",
-    lg: "px-6 py-3 text-base",
+    sm: "px-3 py-1.5 text-xs h-8",
+    md: "px-4 py-2 text-sm h-10",
+    lg: "px-6 py-3 text-base h-12",
   };
 
   return (

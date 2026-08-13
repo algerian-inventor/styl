@@ -3,25 +3,25 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mail, Phone, MapPin, Award } from "lucide-react";
+import { Mail, Phone, MapPin, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
+import { Container } from "@/components/ui/Container";
 
-// Brand icons declarations as inline SVGs
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
   </svg>
 );
 
 const TwitterIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" />
   </svg>
 );
 
 const YoutubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" />
     <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" />
   </svg>
@@ -32,52 +32,70 @@ export const Footer: React.FC = () => {
   const { siteSettings } = usePrototypeState();
   const pathname = usePathname();
 
-  // Hide footer on admin dashboards
+  // Hide footer on admin dashboards except login
   const isAdminRoute = pathname.startsWith("/admin") && pathname !== "/admin/login";
-
   if (isAdminRoute) return null;
 
   return (
-    <footer className="bg-brand-dark text-white border-t border-brand-navy-light mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Column 1: Intro */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="h-9 w-9 bg-white rounded-md flex items-center justify-center text-brand-navy font-bold text-lg border border-brand-green">
+    <footer className="bg-[#041D38] text-white border-t border-[#062B55] mt-auto relative overflow-hidden">
+      {/* Background scientific grid texture */}
+      <div className="absolute inset-0 bg-sci-grid-dark opacity-20 pointer-events-none" />
+
+      <Container className="relative z-10 py-14 sm:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12">
+          {/* Column 1: Organization Identity & Mission (4 cols) */}
+          <div className="lg:col-span-4 space-y-4">
+            <Link href="/" className="flex items-center gap-3 select-none">
+              <div className="w-10 h-10 bg-[#062B55] rounded-xl flex items-center justify-center text-white font-black text-lg border border-brand-green/40 shadow-xs">
                 STLY
-              </span>
+              </div>
               <div className="flex flex-col leading-tight">
                 <span className="text-sm font-extrabold text-white">
                   {language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}
                 </span>
-                <span className="text-xs text-brand-green font-bold">
-                  {language === "ar" ? "قسنطينة" : "Constantine"}
+                <span className="text-xs text-brand-green-accent font-bold">
+                  {language === "ar" ? "قسنطينة — الجزائر" : "Constantine — Algeria"}
                 </span>
               </div>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              {language === "ar" ? siteSettings.sloganAr : siteSettings.sloganEn}
+            </Link>
+
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pt-1">
+              {language === "ar"
+                ? "رابطة شبابية علمية تُعنى بنشر الثقافة التكنولوجية، ورعاية المبتكرين الشباب، وتمكين الأجيال القادمة في مجالات الروبوتيك والذكاء الاصطناعي."
+                : "A youth scientific league dedicated to promoting technological culture, nurturing young innovators, and empowering future generations in robotics and AI."}
             </p>
-            <div className="flex gap-3 text-slate-400">
-              <a href="#" className="hover:text-brand-green transition-colors" aria-label="Facebook">
-                <FacebookIcon className="h-5 w-5" />
+
+            <div className="flex items-center gap-3 pt-2 text-slate-300">
+              <a
+                href="#"
+                className="w-9 h-9 rounded-lg bg-white/5 hover:bg-brand-green/20 hover:text-brand-green-accent flex items-center justify-center transition-colors border border-white/10"
+                aria-label="Facebook"
+              >
+                <FacebookIcon />
               </a>
-              <a href="#" className="hover:text-brand-green transition-colors" aria-label="Twitter">
-                <TwitterIcon className="h-5 w-5" />
+              <a
+                href="#"
+                className="w-9 h-9 rounded-lg bg-white/5 hover:bg-brand-green/20 hover:text-brand-green-accent flex items-center justify-center transition-colors border border-white/10"
+                aria-label="Twitter"
+              >
+                <TwitterIcon />
               </a>
-              <a href="#" className="hover:text-brand-green transition-colors" aria-label="Youtube">
-                <YoutubeIcon className="h-5 w-5" />
+              <a
+                href="#"
+                className="w-9 h-9 rounded-lg bg-white/5 hover:bg-brand-green/20 hover:text-brand-green-accent flex items-center justify-center transition-colors border border-white/10"
+                aria-label="Youtube"
+              >
+                <YoutubeIcon />
               </a>
             </div>
           </div>
 
-          {/* Column 2: Site Map */}
-          <div>
-            <h4 className="text-sm font-bold text-white border-b border-slate-700 pb-2 mb-4 uppercase tracking-wider">
-              {language === "ar" ? "روابط سريعة" : "Quick Links"}
+          {/* Column 2: Navigation Links (2 cols) */}
+          <div className="lg:col-span-2 space-y-3">
+            <h4 className="text-xs font-extrabold text-brand-green-accent uppercase tracking-widest">
+              {language === "ar" ? "الرابطة" : "League"}
             </h4>
-            <ul className="space-y-2 text-xs text-slate-400">
+            <ul className="space-y-2 text-xs sm:text-sm text-slate-300 font-medium">
               <li>
                 <Link href="/" className="hover:text-white transition-colors">
                   {t("nav.home")}
@@ -106,12 +124,12 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Column 3: Utility Links */}
-          <div>
-            <h4 className="text-sm font-bold text-white border-b border-slate-700 pb-2 mb-4 uppercase tracking-wider">
-              {language === "ar" ? "أقسام أخرى" : "Sections"}
+          {/* Column 3: Resources & Media (3 cols) */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="text-xs font-extrabold text-brand-green-accent uppercase tracking-widest">
+              {language === "ar" ? "الأنشطة والإعلام" : "Activities & Media"}
             </h4>
-            <ul className="space-y-2 text-xs text-slate-400">
+            <ul className="space-y-2 text-xs sm:text-sm text-slate-300 font-medium">
               <li>
                 <Link href="/news" className="hover:text-white transition-colors">
                   {t("nav.news")}
@@ -140,38 +158,50 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Column 4: Contact Info */}
-          <div>
-            <h4 className="text-sm font-bold text-white border-b border-slate-700 pb-2 mb-4 uppercase tracking-wider">
+          {/* Column 4: Direct Contact Details (3 cols) */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="text-xs font-extrabold text-brand-green-accent uppercase tracking-widest">
               {t("contact.infoTitle")}
             </h4>
-            <ul className="space-y-3 text-xs text-slate-400">
-              <li className="flex gap-2 items-start">
-                <MapPin className="h-4 w-4 text-brand-green flex-shrink-0" />
-                <span>{language === "ar" ? siteSettings.addressAr : siteSettings.addressEn}</span>
+            <ul className="space-y-3 text-xs sm:text-sm text-slate-300">
+              <li className="flex gap-2.5 items-start">
+                <MapPin className="h-4 w-4 text-brand-green-accent flex-shrink-0 mt-0.5" />
+                <span className="leading-snug">
+                  {language === "ar" ? siteSettings.addressAr : siteSettings.addressEn}
+                </span>
               </li>
-              <li className="flex gap-2 items-center">
-                <Phone className="h-4 w-4 text-brand-green flex-shrink-0" />
-                <span>{siteSettings.phone}</span>
+              <li className="flex gap-2.5 items-center">
+                <Phone className="h-4 w-4 text-brand-green-accent flex-shrink-0" />
+                <span dir="ltr">{siteSettings.phone}</span>
               </li>
-              <li className="flex gap-2 items-center">
-                <Mail className="h-4 w-4 text-brand-green flex-shrink-0" />
+              <li className="flex gap-2.5 items-center">
+                <Mail className="h-4 w-4 text-brand-green-accent flex-shrink-0" />
                 <span>{siteSettings.email}</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-slate-800 mt-12 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+        {/* Bottom Bar */}
+        <div className="border-t border-slate-700/60 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
           <p>
-            &copy; {new Date().getFullYear()} {language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}. {language === "ar" ? "جميع الحقوق محفوظة." : "All rights reserved."}
+            &copy; {new Date().getFullYear()}{" "}
+            {language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}.{" "}
+            {language === "ar" ? "جميع الحقوق محفوظة." : "All rights reserved."}
           </p>
-          <div className="flex items-center gap-1">
-            <Award className="h-4 w-4 text-brand-green" />
-            <span>{language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}</span>
+
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:text-slate-200 transition-colors">
+              {t("nav.privacy")}
+            </Link>
+            <span>•</span>
+            <div className="flex items-center gap-1.5 text-slate-300 font-medium">
+              <ShieldCheck className="h-4 w-4 text-brand-green-accent" />
+              <span>{language === "ar" ? "رابطة شبابية معتمدة" : "Accredited Youth League"}</span>
+            </div>
           </div>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 };

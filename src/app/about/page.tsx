@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
-import { Award, Compass, Heart, Users, Target } from "lucide-react";
+import { Compass, Heart, Users, Target, ShieldCheck, Atom } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
-import { SectionHeader } from "@/components/SectionHeader";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { PageHero } from "@/components/ui/PageHero";
+import { CTASection } from "@/components/ui/CTASection";
 
 export default function AboutPage() {
   const { t, language } = useLanguage();
@@ -15,157 +15,219 @@ export default function AboutPage() {
   const values = [
     {
       icon: Target,
-      title: { ar: "التميز العلمي", en: "Scientific Excellence" },
-      desc: { ar: "السعي الدائم لتقديم محتوى معرفي وتدريبي متوافق مع المقاييس العلمية.", en: "Always striving to deliver educational and training content that complies with high scientific standards." }
+      title: { ar: "التميز العلمي والمنهجي", en: "Scientific & Methodological Rigor" },
+      desc: {
+        ar: "تقديم برامج وتكوينات دقيقة تتطابق مع المعايير الأكاديمية والتطبيقية الحديثة.",
+        en: "Delivering educational and training content aligned with modern scientific and academic standards.",
+      },
     },
     {
       icon: Compass,
-      title: { ar: "الابتكار والمبادرة", en: "Innovation & Initiative" },
-      desc: { ar: "تشجيع التفكير الحر وتحويل المشكلات الواقعية إلى تحديات للبحث والابتكار.", en: "Encouraging out-of-the-box thinking and turning real-life problems into research challenges." }
+      title: { ar: "الابتكار والمبادرة الحرة", en: "Innovation & Initiative" },
+      desc: {
+        ar: "تشجيع التفكير الإبداعي وتحويل المشكلات الميدانية إلى مشاريع ونماذج تقنية حقيقية.",
+        en: "Encouraging out-of-the-box thinking and turning real challenges into concrete technological prototypes.",
+      },
     },
     {
       icon: Users,
-      title: { ar: "العمل الجماعي", en: "Collaboration" },
-      desc: { ar: "ترسيخ ثقافة التعاون والمشاركة المعرفية بين النوادي والمبتكرين الشباب.", en: "Establishing a culture of knowledge sharing and collaboration among youth and clubs." }
+      title: { ar: "العمل الجماعي والتعاون", en: "Collaboration & Community" },
+      desc: {
+        ar: "ترسيخ ثقافة تبادل الخبرات والتكامل المعرفي بين الشباب، الباحثين والنوادي العلمية.",
+        en: "Fostering knowledge-sharing and team synergy among youth, researchers, and scientific clubs.",
+      },
     },
     {
       icon: Heart,
-      title: { ar: "المسؤولية الاجتماعية", en: "Social Responsibility" },
-      desc: { ar: "توجيه الابتكارات والمشاريع لخدمة وتطوير ولاية قسنطينة والجزائر بشكل عام.", en: "Directing tech innovations to serve and develop the Constantine province and Algeria as a whole." }
-    }
+      title: { ar: "المسؤولية والأثر المجتمعي", en: "Impact & Social Value" },
+      desc: {
+        ar: "توجيه المعرفة والتكنولوجيا لتطوير الحلول المحلية وخدمة قسنطينة والجزائر عموماً.",
+        en: "Harnessing tech tools to solve local problems and serve Constantine and Algeria at large.",
+      },
+    },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
-      {/* Page Header */}
-      <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <SectionHeader
-          title={t("about.title")}
-          subtitle={t("about.subtitle")}
-        />
-      </motion.div>
+    <div className="w-full bg-[#F4F7FA]">
+      {/* Page Hero */}
+      <PageHero
+        breadcrumbs={[
+          { label: t("nav.home"), href: "/" },
+          { label: t("nav.about") },
+        ]}
+        eyebrow={language === "ar" ? "الهوية والرؤية" : "Identity & Vision"}
+        title={t("about.title")}
+        description={t("about.subtitle")}
+      />
 
-      {/* Main Intro */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="space-y-6 text-brand-dark"
-        >
-          <h3 className="text-xl font-bold border-b border-brand-green/30 pb-2 flex items-center gap-2 text-brand-navy">
-            <Award className="h-5 w-5 text-brand-green" />
-            {language === "ar" ? "من نحن؟" : "Who are we?"}
-          </h3>
-          <p className="text-base font-semibold leading-relaxed">
-            {t("about.desc1")}
-          </p>
-          <p className="text-sm text-brand-muted leading-relaxed">
-            {language === "ar"
-              ? `${siteSettings.leagueNameAr} هي منظمة شبانية معتمدة غير ربحية، تأسست لتشكل جسراً يربط بين الفضول العلمي والتطبيقات التكنولوجية. نوفر بيئة حاضنة للشباب تمكنهم من التفاعل مع العلوم الحديثة وتطوير مهارات ملموسة تفتح لهم آفاقاً واسعة في دراستهم الجامعية وحياتهم المهنية.`
-              : `${siteSettings.leagueNameEn} is an approved non-profit youth organization, founded to act as a bridge between scientific curiosity and technological implementation. We provide a space for young people to interact with sciences and develop skills that open opportunities in their university and career paths.`}
-          </p>
-          <p className="text-sm text-brand-muted leading-relaxed">
-            {language === "ar"
-              ? "نعمل تحت إشراف وتأطير ثلة من الباحثين، الدكاترة، والمهندسين المتميزين في شتى مجالات الهندسة، الروبوتيك، البرمجة، والذكاء الاصطناعي، بهدف توجيه المبتكرين ودعم مشاريعهم نحو براءات الاختراع وتأسيس الشركات الناشئة."
-              : "We operate under the guidance of academics, PhDs, and engineers in fields of engineering, robotics, programming, and AI, assisting young creators to copyright inventions and start tech companies."}
-          </p>
-        </motion.div>
+      {/* Main Editorial Story Section */}
+      <section className="py-20 bg-white border-b border-[#DCE3EA]">
+        <Container>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            {/* Story text (7 cols) */}
+            <div className="lg:col-span-7 space-y-6">
+              <span className="inline-flex items-center text-xs font-bold text-brand-navy tracking-wider uppercase bg-brand-navy/5 border border-brand-navy/15 px-3 py-1 rounded-md">
+                {language === "ar" ? "من نحن؟" : "Who We Are"}
+              </span>
 
-        {/* Vision / Mission boxes */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 gap-6"
-        >
-          <Card className="bg-brand-navy text-white p-6">
-            <CardContent className="p-0 space-y-3">
-              <h4 className="text-lg font-bold text-brand-green flex items-center gap-2">
-                <span>{t("about.visionTitle")}</span>
-              </h4>
-              <p className="text-xs leading-relaxed text-slate-200">
-                {t("about.visionDesc")}
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-brand-dark leading-tight tracking-tight">
+                {language === "ar" ? (
+                  <>
+                    رابطة شبابية علمية تدمج <br />
+                    <span className="text-[#062B55]">المعرفة الأكاديمية بالتطبيق الميداني</span>
+                  </>
+                ) : (
+                  <>
+                    Bridging Academic Knowledge with <br />
+                    <span className="text-[#062B55]">Real-World Tech Implementation</span>
+                  </>
+                )}
+              </h2>
+
+              <p className="text-base sm:text-lg text-brand-dark font-medium leading-relaxed">
+                {t("about.desc1")}
               </p>
-            </CardContent>
-          </Card>
 
-          <Card className="bg-white border border-brand-border p-6">
-            <CardContent className="p-0 space-y-3">
-              <h4 className="text-lg font-bold text-brand-navy flex items-center gap-2">
-                <span>{t("about.missionTitle")}</span>
-              </h4>
-              <p className="text-xs leading-relaxed text-brand-muted">
-                {t("about.missionDesc")}
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+              <div className="space-y-4 text-sm sm:text-base text-brand-muted leading-relaxed">
+                <p>
+                  {language === "ar"
+                    ? `${siteSettings.leagueNameAr} هي منظمة شبابية علمية معتمدة غير ربحية، تأسست في ولاية قسنطينة لتكون حاضنة نشطة للشغف المعرفي والابتكار التكنولوجي. نعمل على إتاحة المخابر، المعدات، والتأطير الأكاديمي المتخصص أمام الشباب لتمكينهم من بناء نماذج أولية، والمشاركة في التحديات الوطنية والدولية.`
+                    : `${siteSettings.leagueNameEn} is an approved non-profit scientific youth league based in Constantine, established to serve as an active incubator for knowledge curiosity and tech innovation.`}
+                </p>
+                <p>
+                  {language === "ar"
+                    ? "يشرف على نوادينا وبرامجنا نخبة من الأساتذة الجامعيين، الباحثين، والمهندسين الميدانيين في تخصصات الروبوتيك، الإلكترونيات، الذكاء الاصطناعي، وهندسة البرمجيات، مما يمنح منتسبي الرابطة تجربة تطبيقية رائدة تفتح لهم آفاقاً واسعة في دراستهم ومستقبلهم المهني."
+                    : "Our clubs are mentored by experienced researchers, professors, and field engineers across robotics, electronics, artificial intelligence, and software systems."}
+                </p>
+              </div>
 
-      {/* Strategic Objectives */}
-      <section className="bg-brand-bg border border-brand-border rounded-2xl p-8 md:p-12 relative overflow-hidden bg-sci-grid">
-        <div className="absolute inset-0 bg-brand-bg/95 pointer-events-none" />
-        
-        <div className="relative z-10 space-y-8">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <h3 className="text-xl sm:text-2xl font-extrabold text-brand-dark">
+              <div className="pt-2 flex flex-wrap items-center gap-6 text-sm font-bold text-brand-dark">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-brand-green" />
+                  <span>{language === "ar" ? "اعتماد رسمي وشفافية كاملة" : "Officially Accredited"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Atom className="w-5 h-5 text-brand-green" />
+                  <span>{language === "ar" ? "مخابر وورشات تطبيقية مجهزة" : "Equipped Science Labs"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Vision & Mission Highlight Cards (5 cols) */}
+            <div className="lg:col-span-5 space-y-6">
+              {/* Vision Card */}
+              <div className="p-8 rounded-2xl bg-[#062B55] text-white border border-white/10 shadow-lg space-y-4 relative overflow-hidden">
+                <div className="absolute inset-0 bg-sci-grid-dark opacity-30 pointer-events-none" />
+                <div className="relative z-10 space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-brand-green/20 border border-brand-green/30 flex items-center justify-center text-brand-green-accent">
+                    <Compass className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-xl font-extrabold text-white">
+                    {t("about.visionTitle")}
+                  </h3>
+                  <p className="text-sm text-slate-200 leading-relaxed">
+                    {t("about.visionDesc")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Mission Card */}
+              <div className="p-8 rounded-2xl bg-white text-brand-dark border border-[#DCE3EA] shadow-xs space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-brand-navy/10 flex items-center justify-center text-brand-navy">
+                  <Target className="w-5 h-5" />
+                </div>
+                <h3 className="text-xl font-extrabold text-brand-dark">
+                  {t("about.missionTitle")}
+                </h3>
+                <p className="text-sm text-brand-muted leading-relaxed">
+                  {t("about.missionDesc")}
+                </p>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Strategic Objectives Section */}
+      <section className="py-20 bg-[#F4F7FA] border-b border-[#DCE3EA]">
+        <Container>
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+            <span className="text-xs font-extrabold text-brand-green uppercase tracking-widest">
+              {language === "ar" ? "خارطة الطريق" : "Our Roadmap"}
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-brand-dark">
               {t("about.objectivesTitle")}
-            </h3>
-            <p className="text-xs text-brand-muted">
-              {language === "ar" ? "نسعى لتحقيق أهداف ملموسة تصنع الأثر في مجتمعنا" : "We strive to reach practical milestones impacting our society"}
+            </h2>
+            <p className="text-sm sm:text-base text-brand-muted">
+              {language === "ar"
+                ? "أهداف استراتيجية محددة تقود كافة فعالياتنا ونشاطاتنا التكوينية"
+                : "Key strategic objectives driving our initiatives and youth workshops"}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {[t("about.obj1"), t("about.obj2"), t("about.obj3"), t("about.obj4")].map((obj, i) => (
-              <div key={i} className="bg-white border border-brand-border p-5 rounded-lg flex gap-4 items-start shadow-xs">
-                <span className="h-8 w-8 bg-brand-navy/5 text-brand-navy border border-brand-navy/10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
-                  {i + 1}
+              <div
+                key={i}
+                className="bg-white border border-[#DCE3EA] hover:border-brand-navy/30 p-6 rounded-xl flex gap-4 items-start shadow-xs transition-all"
+              >
+                <span className="w-10 h-10 bg-[#062B55] text-brand-green-accent rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0 shadow-xs">
+                  0{i + 1}
                 </span>
-                <p className="text-xs font-semibold text-brand-dark leading-relaxed pt-1">
+                <p className="text-sm sm:text-base font-bold text-brand-dark leading-relaxed pt-1.5">
                   {obj}
                 </p>
               </div>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* Core Values */}
-      <section className="space-y-8">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <h3 className="text-xl sm:text-2xl font-extrabold text-brand-dark">
-            {language === "ar" ? "القيم الموجهة لنا" : "Our Core Values"}
-          </h3>
-          <p className="text-xs text-brand-muted">
-            {language === "ar" ? "المبادئ الأخلاقية والمهنية التي تنظم نشاطاتنا وتوجه فرق العمل" : "Ethical & professional guidelines regulating our initiatives"}
-          </p>
-        </div>
+      {/* Core Values Section */}
+      <section className="py-20 bg-white border-b border-[#DCE3EA]">
+        <Container>
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+            <span className="text-xs font-extrabold text-brand-green uppercase tracking-widest">
+              {language === "ar" ? "المبادئ التوجيهية" : "Guiding Principles"}
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-brand-dark">
+              {language === "ar" ? "قيمنا الجوهرية" : "Our Core Values"}
+            </h2>
+            <p className="text-sm sm:text-base text-brand-muted">
+              {language === "ar"
+                ? "الركائز المهنية والأخلاقية التي تحكم عملنا وتضمن بيئة آمنة ومحفزة للشباب"
+                : "Ethical and professional foundations ensuring an engaging environment for all youth"}
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {values.map((val, idx) => {
-            const IconComp = val.icon;
-            return (
-              <Card key={idx} className="h-full flex flex-col justify-between">
-                <CardContent className="p-6 space-y-4">
-                  <div className="p-3 bg-brand-green/5 text-brand-green border border-brand-green/10 rounded-lg w-fit">
-                    <IconComp className="h-5 w-5" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {values.map((val, idx) => {
+              const IconComp = val.icon;
+              return (
+                <div
+                  key={idx}
+                  className="bg-[#F4F7FA] p-6 rounded-xl border border-[#DCE3EA] hover:border-brand-navy/30 transition-all duration-300 flex flex-col justify-between space-y-4"
+                >
+                  <div className="space-y-3">
+                    <div className="w-12 h-12 rounded-xl bg-white text-brand-green flex items-center justify-center shadow-xs border border-[#DCE3EA]">
+                      <IconComp className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-brand-dark">
+                      {language === "ar" ? val.title.ar : val.title.en}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
+                      {language === "ar" ? val.desc.ar : val.desc.en}
+                    </p>
                   </div>
-                  <h4 className="font-bold text-brand-dark text-sm">
-                    {language === "ar" ? val.title.ar : val.title.en}
-                  </h4>
-                  <p className="text-xs text-brand-muted leading-relaxed">
-                    {language === "ar" ? val.desc.ar : val.desc.en}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                </div>
+              );
+            })}
+          </div>
+        </Container>
       </section>
+
+      {/* CTA Section */}
+      <CTASection />
     </div>
   );
 }
