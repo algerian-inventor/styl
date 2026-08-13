@@ -90,8 +90,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: "/admin/settings", label: t("admin.settings"), icon: Settings },
   ];
 
-  const handleLogout = () => {
-    adminLogout();
+  const handleLogout = async () => {
+    await adminLogout();
     router.push("/admin/login");
   };
 

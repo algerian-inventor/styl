@@ -1,9 +1,8 @@
 "use client";
 
-/* eslint-disable react-hooks/set-state-in-effect */
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { createClient } from "@/lib/supabase/client";
 import { articles as defaultArticles, Article } from "@/data/articles";
 import { events as defaultEvents, Event } from "@/data/events";
 import { programs as defaultPrograms, Program } from "@/data/programs";
@@ -11,6 +10,16 @@ import { initialRegistrations, EventRegistration } from "@/data/registrations";
 import { initialApplications, MembershipApplication } from "@/data/applications";
 import { galleryItems as defaultGallery, GalleryItem } from "@/data/gallery";
 import { partners as defaultPartners, Partner } from "@/data/partners";
+
+import { fetchArticles, createArticleInDB, deleteArticleInDB } from "@/lib/data/articles";
+import { fetchEvents, createEventInDB, toggleEventRegistrationInDB, deleteEventInDB } from "@/lib/data/events";
+import { fetchPrograms, createProgramInDB, updateProgramInDB, deleteProgramInDB } from "@/lib/data/programs";
+import { fetchGalleryItems, createGalleryItemInDB, deleteGalleryItemInDB } from "@/lib/data/gallery";
+import { fetchPartners, createPartnerInDB, deletePartnerInDB } from "@/lib/data/partners";
+import { fetchSiteSettings, updateSiteSettingsInDB, defaultSettings } from "@/lib/data/settings";
+import { fetchEventRegistrations, createEventRegistrationInDB, updateRegistrationStatusInDB } from "@/lib/data/registrations";
+import { fetchMembershipApplications, createMembershipApplicationInDB, updateApplicationStatusInDB } from "@/lib/data/membership";
+import { fetchContactMessages, createContactMessageInDB, deleteContactMessageInDB } from "@/lib/data/contact";
 
 export interface ContactMessage {
   id: string;
@@ -40,19 +49,6 @@ export interface SiteSettings {
   heroBannerUrl?: string;
 }
 
-const defaultSettings: SiteSettings = {
-  leagueNameAr: "الرابطة العلمية والتقنية للشباب – قسنطينة",
-  leagueNameEn: "Scientific and Technical Youth League – Constantine",
-  sloganAr: "نحو جيل يقود المستقبل بالعلم والابتكار",
-  sloganEn: "Towards a generation leading the future with science and innovation",
-  email: "contact@stly.dz",
-  phone: "031 92 48 10",
-  addressAr: "حي سيدي مبروك السفلي، قسنطينة، الجزائر",
-  addressEn: "Sidi Mabrouk El Sifli, Constantine, Algeria",
-  primaryColor: "navy",
-  heroBannerUrl: "",
-};
-
 interface PrototypeStateContextProps {
   articles: Article[];
   events: Event[];
@@ -67,164 +63,93 @@ interface PrototypeStateContextProps {
   siteSettings: SiteSettings;
 
   // Customizer actions
-  updateSiteSettings: (settings: Partial<SiteSettings>) => void;
+  updateSiteSettings: (settings: Partial<SiteSettings>) => Promise<void>;
 
   // Toast actions
   addToast: (message: string, type?: "success" | "error" | "info") => void;
   removeToast: (id: string) => void;
 
   // CRUD & actions
-  addArticle: (article: Omit<Article, "id" | "slug">) => void;
+  addArticle: (article: Omit<Article, "id" | "slug">) => Promise<void>;
   updateArticle: (id: string, article: Partial<Article>) => void;
-  deleteArticle: (id: string) => void;
+  deleteArticle: (id: string) => Promise<void>;
 
-  addEvent: (event: Omit<Event, "id" | "slug" | "isClosed">) => void;
+  addEvent: (event: Omit<Event, "id" | "slug" | "isClosed">) => Promise<void>;
   updateEvent: (id: string, event: Partial<Event>) => void;
-  deleteEvent: (id: string) => void;
-  toggleEventRegistration: (id: string) => void;
+  deleteEvent: (id: string) => Promise<void>;
+  toggleEventRegistration: (id: string) => Promise<void>;
 
-  addProgram: (program: Omit<Program, "id" | "slug">) => void;
-  updateProgram: (id: string, program: Partial<Program>) => void;
-  deleteProgram: (id: string) => void;
+  addProgram: (program: Omit<Program, "id" | "slug">) => Promise<void>;
+  updateProgram: (id: string, program: Partial<Program>) => Promise<void>;
+  deleteProgram: (id: string) => Promise<void>;
 
-  submitEventRegistration: (registration: Omit<EventRegistration, "id" | "registrationDate" | "status" | "eventTitle">) => string; // Returns reference number
-  updateRegistrationStatus: (id: string, status: EventRegistration["status"]) => void;
+  submitEventRegistration: (registration: Omit<EventRegistration, "id" | "registrationDate" | "status" | "eventTitle">) => Promise<string>;
+  updateRegistrationStatus: (id: string, status: EventRegistration["status"]) => Promise<void>;
 
-  submitMembershipApplication: (application: Omit<MembershipApplication, "id" | "submissionDate" | "status">) => void;
-  updateApplicationStatus: (id: string, status: MembershipApplication["status"]) => void;
+  submitMembershipApplication: (application: Omit<MembershipApplication, "id" | "submissionDate" | "status">) => Promise<void>;
+  updateApplicationStatus: (id: string, status: MembershipApplication["status"]) => Promise<void>;
 
-  submitContactMessage: (message: Omit<ContactMessage, "id" | "date">) => void;
-  deleteContactMessage: (id: string) => void;
+  submitContactMessage: (message: Omit<ContactMessage, "id" | "date">) => Promise<void>;
+  deleteContactMessage: (id: string) => Promise<void>;
 
-  addGalleryItem: (item: Omit<GalleryItem, "id">) => void;
-  deleteGalleryItem: (id: string) => void;
+  addGalleryItem: (item: Omit<GalleryItem, "id">) => Promise<void>;
+  deleteGalleryItem: (id: string) => Promise<void>;
 
-  addPartner: (partner: Omit<Partner, "id">) => void;
-  deletePartner: (id: string) => void;
+  addPartner: (partner: Omit<Partner, "id">) => Promise<void>;
+  deletePartner: (id: string) => Promise<void>;
 
-  adminLogin: (email: string, pass: string) => boolean;
-  adminLogout: () => void;
+  adminLogin: (email: string, pass: string) => Promise<boolean>;
+  adminLogout: () => Promise<void>;
 }
 
 const PrototypeStateContext = createContext<PrototypeStateContextProps | undefined>(undefined);
 
 export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { language } = useLanguage();
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
-  const [applications, setApplications] = useState<MembershipApplication[]>([]);
+  const [articles, setArticles] = useState<Article[]>(defaultArticles);
+  const [events, setEvents] = useState<Event[]>(defaultEvents);
+  const [programs, setPrograms] = useState<Program[]>(defaultPrograms);
+  const [registrations, setRegistrations] = useState<EventRegistration[]>(initialRegistrations);
+  const [applications, setApplications] = useState<MembershipApplication[]>(initialApplications);
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
-  const [partners, setPartners] = useState<Partner[]>([]);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(defaultGallery);
+  const [partners, setPartners] = useState<Partner[]>(defaultPartners);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(defaultSettings);
   const toastIdRef = React.useRef(0);
 
-  // Settings State
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>(defaultSettings);
-
-  // Initialize data on mount
+  // Initialize and sync session with Supabase Auth
   useEffect(() => {
-    const loadState = <T,>(key: string, defaults: T[]): T[] => {
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch (e) {
-          console.error(`Error parsing ${key} from localStorage`, e);
-        }
-      }
-      return defaults;
+    const supabase = createClient();
+
+    // Check auth session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAdminAuthenticated(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAdminAuthenticated(!!session);
+    });
+
+    // Load initial data from data layer
+    fetchSiteSettings().then(setSiteSettings);
+    fetchArticles().then(setArticles);
+    fetchEvents().then(setEvents);
+    fetchPrograms().then(setPrograms);
+    fetchGalleryItems().then(setGalleryItems);
+    fetchPartners().then(setPartners);
+    fetchEventRegistrations().then(setRegistrations);
+    fetchMembershipApplications().then(setApplications);
+    fetchContactMessages().then(setContactMessages);
+
+    return () => {
+      subscription.unsubscribe();
     };
-
-    setArticles(loadState("stly_articles", defaultArticles));
-    setEvents(loadState("stly_events", defaultEvents));
-    setPrograms(loadState("stly_programs", defaultPrograms));
-    setRegistrations(loadState("stly_registrations", initialRegistrations));
-    setApplications(loadState("stly_applications", initialApplications));
-    setContactMessages(loadState("stly_contact_messages", [
-      {
-        id: "MSG-001",
-        fullName: "سليم بوحوش",
-        email: "salim.b@gmail.com",
-        subject: "طلب رعاية علمية لمعرض إلكترونيات",
-        message: "السلام عليكم، نحن مجموعة من الطلبة ونود التعاون مع الرابطة لتنظيم معرض مصغر للابتكارات الإلكترونية في قسنطينة.",
-        date: "2026-06-18",
-      }
-    ]));
-    setGalleryItems(loadState("stly_gallery", defaultGallery));
-    setPartners(loadState("stly_partners", defaultPartners));
-
-    // Load customizer settings
-    const storedSettings = localStorage.getItem("stly_site_settings");
-    if (storedSettings) {
-      try {
-        setSiteSettings(JSON.parse(storedSettings));
-      } catch (e) {
-        console.error("Error parsing settings from localStorage", e);
-      }
-    }
-
-    const auth = localStorage.getItem("stly_admin_auth");
-    if (auth === "true") {
-      setIsAdminAuthenticated(true);
-    }
-    setIsHydrated(true);
   }, []);
-
-  // Save to localStorage when state changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) return;
-    localStorage.setItem("stly_articles", JSON.stringify(articles));
-  }, [articles, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    localStorage.setItem("stly_events", JSON.stringify(events));
-  }, [events, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    localStorage.setItem("stly_programs", JSON.stringify(programs));
-  }, [programs, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    localStorage.setItem("stly_registrations", JSON.stringify(registrations));
-  }, [registrations, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    localStorage.setItem("stly_applications", JSON.stringify(applications));
-  }, [applications, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    localStorage.setItem("stly_contact_messages", JSON.stringify(contactMessages));
-  }, [contactMessages, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    localStorage.setItem("stly_gallery", JSON.stringify(galleryItems));
-  }, [galleryItems, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    localStorage.setItem("stly_partners", JSON.stringify(partners));
-  }, [partners, isHydrated]);
-
-  // Save Customizer settings
-  useEffect(() => {
-    if (!isHydrated) return;
-    localStorage.setItem("stly_site_settings", JSON.stringify(siteSettings));
-  }, [siteSettings, isHydrated]);
 
   // Inject Theme Color variables in root document
   useEffect(() => {
-    if (!isHydrated) return;
     const colors = {
       navy: { primary: "#062B55", primaryLight: "#0d4682" },
       teal: { primary: "#0D9488", primaryLight: "#14b8a6" },
@@ -236,16 +161,7 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       document.documentElement.style.setProperty("--color-brand-navy", theme.primary);
       document.documentElement.style.setProperty("--color-brand-navy-light", theme.primaryLight);
     }
-  }, [siteSettings.primaryColor, isHydrated]);
-
-  // Settings Actions
-  const updateSiteSettings = (settings: Partial<SiteSettings>) => {
-    setSiteSettings((prev) => ({ ...prev, ...settings }));
-    addToast(
-      language === "ar" ? "تم حفظ إعدادات المظهر بنجاح!" : "Appearance settings saved successfully!",
-      "success"
-    );
-  };
+  }, [siteSettings.primaryColor]);
 
   // Toast actions
   const addToast = (message: string, type: "success" | "error" | "info" = "success") => {
@@ -261,24 +177,22 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Helper for generating slugs
-  const slugify = (text: string) => {
-    return text
-      .toLowerCase()
-      .replace(/[^a-z0-9\u0600-\u06FF]/g, "-") // support Arabic chars in slug
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "");
+  // Customizer actions
+  const updateSiteSettings = async (settings: Partial<SiteSettings>) => {
+    setSiteSettings((prev) => ({ ...prev, ...settings }));
+    await updateSiteSettingsInDB(settings);
+    addToast(
+      language === "ar" ? "تم حفظ إعدادات المظهر بنجاح!" : "Appearance settings saved successfully!",
+      "success"
+    );
   };
 
-  // CRUD implementations
-  const addArticle = (art: Omit<Article, "id" | "slug">) => {
-    const slug = slugify(art.title.en || art.title.ar);
-    const newArt: Article = {
-      ...art,
-      id: `ART-${Date.now()}`,
-      slug: `${slug}-${Math.floor(Math.random() * 1000)}`,
-    };
-    setArticles((prev) => [newArt, ...prev]);
+  // Article Actions
+  const addArticle = async (art: Omit<Article, "id" | "slug">) => {
+    const created = await createArticleInDB(art);
+    if (created) {
+      setArticles((prev) => [created, ...prev]);
+    }
     addToast(
       language === "ar" ? "تم إضافة المقال بنجاح!" : "Article added successfully!",
       "success"
@@ -289,29 +203,23 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     setArticles((prev) =>
       prev.map((a) => (a.id === id ? { ...a, ...fieldsToUpdate } : a))
     );
-    addToast(
-      language === "ar" ? "تم تحديث المقال بنجاح!" : "Article updated successfully!",
-      "success"
-    );
   };
 
-  const deleteArticle = (id: string) => {
+  const deleteArticle = async (id: string) => {
     setArticles((prev) => prev.filter((a) => a.id !== id));
+    await deleteArticleInDB(id);
     addToast(
       language === "ar" ? "تم حذف المقال بنجاح!" : "Article deleted successfully!",
       "info"
     );
   };
 
-  const addEvent = (evt: Omit<Event, "id" | "slug" | "isClosed">) => {
-    const slug = slugify(evt.title.en || evt.title.ar);
-    const newEvt: Event = {
-      ...evt,
-      id: `EVT-${Date.now()}`,
-      slug: `${slug}-${Math.floor(Math.random() * 1000)}`,
-      isClosed: false,
-    };
-    setEvents((prev) => [newEvt, ...prev]);
+  // Event Actions
+  const addEvent = async (evt: Omit<Event, "id" | "slug" | "isClosed">) => {
+    const created = await createEventInDB(evt);
+    if (created) {
+      setEvents((prev) => [created, ...prev]);
+    }
     addToast(
       language === "ar" ? "تم إضافة الفعالية بنجاح!" : "Event added successfully!",
       "success"
@@ -322,141 +230,146 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     setEvents((prev) =>
       prev.map((e) => (e.id === id ? { ...e, ...fieldsToUpdate } : e))
     );
-    addToast(
-      language === "ar" ? "تم تحديث الفعالية بنجاح!" : "Event updated successfully!",
-      "success"
-    );
   };
 
-  const deleteEvent = (id: string) => {
+  const deleteEvent = async (id: string) => {
     setEvents((prev) => prev.filter((e) => e.id !== id));
+    await deleteEventInDB(id);
     addToast(
       language === "ar" ? "تم حذف الفعالية بنجاح!" : "Event deleted successfully!",
       "info"
     );
   };
 
-  const toggleEventRegistration = (id: string) => {
-    let closedState = false;
+  const toggleEventRegistration = async (id: string) => {
+    let currentIsClosed = false;
     setEvents((prev) =>
       prev.map((e) => {
         if (e.id === id) {
-          closedState = !e.isClosed;
-          return { ...e, isClosed: closedState };
+          currentIsClosed = e.isClosed;
+          return { ...e, isClosed: !e.isClosed };
         }
         return e;
       })
     );
+    await toggleEventRegistrationInDB(id, currentIsClosed);
     addToast(
-      language === "ar"
-        ? closedState
-          ? "تم إغلاق التسجيل في الفعالية!"
-          : "تم فتح التسجيل في الفعالية!"
-        : closedState
-        ? "Event registration closed!"
-        : "Event registration opened!",
+      language === "ar" ? "تم تحديث حالة الفعالية بنجاح!" : "Event registration toggled!",
       "info"
     );
   };
 
-  const addProgram = (prog: Omit<Program, "id" | "slug">) => {
-    const slug = slugify(prog.name.en || prog.name.ar);
-    const newProg: Program = {
-      ...prog,
-      id: `PROG-${Date.now()}`,
-      slug: `${slug}-${Math.floor(Math.random() * 1000)}`,
-    };
-    setPrograms((prev) => [newProg, ...prev]);
+  // Program Actions
+  const addProgram = async (prog: Omit<Program, "id" | "slug">) => {
+    const created = await createProgramInDB(prog);
+    if (created) {
+      setPrograms((prev) => [created, ...prev]);
+    }
     addToast(
       language === "ar" ? "تم إضافة البرنامج بنجاح!" : "Program added successfully!",
       "success"
     );
   };
 
-  const updateProgram = (id: string, fieldsToUpdate: Partial<Program>) => {
+  const updateProgram = async (id: string, fieldsToUpdate: Partial<Program>) => {
     setPrograms((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...fieldsToUpdate } : p))
     );
+    await updateProgramInDB(id, fieldsToUpdate);
     addToast(
       language === "ar" ? "تم تحديث البرنامج بنجاح!" : "Program updated successfully!",
       "success"
     );
   };
 
-  const deleteProgram = (id: string) => {
+  const deleteProgram = async (id: string) => {
     setPrograms((prev) => prev.filter((p) => p.id !== id));
+    await deleteProgramInDB(id);
     addToast(
       language === "ar" ? "تم حذف البرنامج بنجاح!" : "Program deleted successfully!",
       "info"
     );
   };
 
-  const submitEventRegistration = (reg: Omit<EventRegistration, "id" | "registrationDate" | "status" | "eventTitle">): string => {
-    const refNum = `REG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+  // Registration Submissions
+  const submitEventRegistration = async (
+    reg: Omit<EventRegistration, "id" | "registrationDate" | "status" | "eventTitle">
+  ): Promise<string> => {
+    const result = await createEventRegistrationInDB(reg);
     const eventObj = events.find((e) => e.id === reg.eventId);
-    const eventTitle = eventObj
-      ? eventObj.title
-      : { ar: "فعالية خاصة", en: "Special Event" };
-
     const newReg: EventRegistration = {
       ...reg,
-      id: refNum,
-      eventTitle,
+      id: result.referenceNumber,
+      eventTitle: eventObj ? eventObj.title : { ar: "فعالية خاصة", en: "Special Event" },
       registrationDate: new Date().toISOString().split("T")[0],
       status: "pending",
     };
     setRegistrations((prev) => [newReg, ...prev]);
     addToast(
       language === "ar"
-        ? "تم تقديم طلب التسجيل بنجاح! رقم المرجع الخاص بك هو " + refNum
-        : "Registration submitted successfully! Your reference number is " + refNum,
+        ? "تم تقديم طلب التسجيل بنجاح! رقم المرجع الخاص بك هو " + result.referenceNumber
+        : "Registration submitted successfully! Reference: " + result.referenceNumber,
       "success"
     );
-    return refNum;
+    return result.referenceNumber;
   };
 
-  const updateRegistrationStatus = (id: string, status: EventRegistration["status"]) => {
+  const updateRegistrationStatus = async (id: string, status: EventRegistration["status"]) => {
     setRegistrations((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status } : r))
     );
+    await updateRegistrationStatusInDB(id, status);
     addToast(
-      language === "ar"
-        ? `تم تحديث حالة التسجيل إلى: ${status === "confirmed" ? "مؤكد" : status === "rejected" ? "مرفوض" : "قيد الانتظار"}`
-        : `Registration status updated to ${status}`,
+      language === "ar" ? "تم تحديث حالة التسجيل بنجاح!" : "Registration status updated!",
       "info"
     );
   };
 
-  const submitMembershipApplication = (app: Omit<MembershipApplication, "id" | "submissionDate" | "status">) => {
-    const refNum = `APP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+  // Membership Applications
+  const submitMembershipApplication = async (
+    app: Omit<MembershipApplication, "id" | "submissionDate" | "status">
+  ) => {
+    await createMembershipApplicationInDB({
+      fullName: app.fullName,
+      dob: app.dob,
+      wilaya: app.wilaya,
+      municipality: app.municipality,
+      email: app.email,
+      phone: app.phone,
+      educationProfession: app.educationProfession,
+      scientificInterests: app.scientificInterests,
+      skills: app.skills,
+      motivation: app.motivation,
+      portfolio: app.portfolio,
+    });
+
     const newApp: MembershipApplication = {
       ...app,
-      id: refNum,
+      id: `APP-${Date.now()}`,
       submissionDate: new Date().toISOString().split("T")[0],
       status: "pending",
     };
     setApplications((prev) => [newApp, ...prev]);
     addToast(
-      language === "ar"
-        ? "تم تقديم طلب الانضمام للرابطة بنجاح! سنتواصل معك قريباً."
-        : "Membership application submitted successfully! We will contact you soon.",
+      language === "ar" ? "تم تقديم طلب الانضمام للرابطة بنجاح!" : "Membership application submitted!",
       "success"
     );
   };
 
-  const updateApplicationStatus = (id: string, status: MembershipApplication["status"]) => {
+  const updateApplicationStatus = async (id: string, status: MembershipApplication["status"]) => {
     setApplications((prev) =>
       prev.map((a) => (a.id === id ? { ...a, status } : a))
     );
+    await updateApplicationStatusInDB(id, status);
     addToast(
-      language === "ar"
-        ? `تم تحديث حالة طلب العضوية إلى: ${status === "accepted" ? "مقبول" : status === "rejected" ? "مرفوض" : "قيد الدراسة"}`
-        : `Application status updated to ${status}`,
+      language === "ar" ? "تم تحديث حالة طلب العضوية بنجاح!" : "Application status updated!",
       "info"
     );
   };
 
-  const submitContactMessage = (msg: Omit<ContactMessage, "id" | "date">) => {
+  // Contact Messages
+  const submitContactMessage = async (msg: Omit<ContactMessage, "id" | "date">) => {
+    await createContactMessageInDB(msg);
     const newMsg: ContactMessage = {
       ...msg,
       id: `MSG-${Date.now()}`,
@@ -464,84 +377,108 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     };
     setContactMessages((prev) => [newMsg, ...prev]);
     addToast(
-      language === "ar" ? "تم إرسال رسالتك بنجاح! شكراً لتواصلك معنا." : "Your message has been sent successfully! Thank you.",
+      language === "ar" ? "تم إرسال رسالتك بنجاح!" : "Message sent successfully!",
       "success"
     );
   };
 
-  const deleteContactMessage = (id: string) => {
+  const deleteContactMessage = async (id: string) => {
     setContactMessages((prev) => prev.filter((m) => m.id !== id));
+    await deleteContactMessageInDB(id);
     addToast(
       language === "ar" ? "تم حذف الرسالة بنجاح!" : "Message deleted successfully!",
       "info"
     );
   };
 
-  const addGalleryItem = (item: Omit<GalleryItem, "id">) => {
-    const newItem: GalleryItem = {
-      ...item,
-      id: `GAL-${Date.now()}`,
-    };
-    setGalleryItems((prev) => [newItem, ...prev]);
+  // Gallery Actions
+  const addGalleryItem = async (item: Omit<GalleryItem, "id">) => {
+    const created = await createGalleryItemInDB(item);
+    if (created) {
+      setGalleryItems((prev) => [created, ...prev]);
+    }
     addToast(
-      language === "ar" ? "تم إضافة المادة إلى المعرض!" : "Media item added to gallery!",
+      language === "ar" ? "تم إضافة المادة إلى المعرض!" : "Item added to gallery!",
       "success"
     );
   };
 
-  const deleteGalleryItem = (id: string) => {
+  const deleteGalleryItem = async (id: string) => {
     setGalleryItems((prev) => prev.filter((i) => i.id !== id));
+    await deleteGalleryItemInDB(id);
     addToast(
-      language === "ar" ? "تم حذف مادة المعرض!" : "Media item deleted from gallery!",
+      language === "ar" ? "تم حذف مادة المعرض!" : "Gallery item deleted!",
       "info"
     );
   };
 
-  const addPartner = (part: Omit<Partner, "id">) => {
-    const newPart: Partner = {
-      ...part,
-      id: `PART-${Date.now()}`,
-    };
-    setPartners((prev) => [newPart, ...prev]);
+  // Partner Actions
+  const addPartner = async (part: Omit<Partner, "id">) => {
+    const created = await createPartnerInDB(part);
+    if (created) {
+      setPartners((prev) => [created, ...prev]);
+    }
     addToast(
       language === "ar" ? "تم إضافة الشريك بنجاح!" : "Partner added successfully!",
       "success"
     );
   };
 
-  const deletePartner = (id: string) => {
+  const deletePartner = async (id: string) => {
     setPartners((prev) => prev.filter((p) => p.id !== id));
+    await deletePartnerInDB(id);
     addToast(
       language === "ar" ? "تم حذف الشريك بنجاح!" : "Partner deleted successfully!",
       "info"
     );
   };
 
-  // Auth operations
-  const adminLogin = (email: string, pass: string): boolean => {
-    if (email === "admin@stly.dz" && pass === "demo123") {
+  // Real Supabase Auth operations
+  const adminLogin = async (email: string, pass: string): Promise<boolean> => {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: pass,
+      });
+
+      if (error || !data.user) {
+        addToast(
+          language === "ar" ? "خطأ في البريد الإلكتروني أو كلمة المرور" : "Invalid email or password",
+          "error"
+        );
+        return false;
+      }
+
       setIsAdminAuthenticated(true);
-      localStorage.setItem("stly_admin_auth", "true");
       addToast(
         language === "ar" ? "مرحباً بك مجدداً في لوحة التحكم!" : "Welcome back to the dashboard!",
         "success"
       );
       return true;
+    } catch (err) {
+      console.error("Login error:", err);
+      addToast(
+        language === "ar" ? "حدث خطأ أثناء تسجيل الدخول" : "An error occurred during login",
+        "error"
+      );
+      return false;
     }
-    addToast(
-      language === "ar" ? "البريد الإلكتروني أو كلمة المرور غير صحيحة" : "Invalid email or password",
-      "error"
-    );
-    return false;
   };
 
-  const adminLogout = () => {
-    setIsAdminAuthenticated(false);
-    localStorage.removeItem("stly_admin_auth");
-    addToast(
-      language === "ar" ? "تم تسجيل الخروج بنجاح" : "Logged out successfully",
-      "info"
-    );
+  const adminLogout = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      setIsAdminAuthenticated(false);
+      addToast(
+        language === "ar" ? "تم تسجيل الخروج بنجاح" : "Logged out successfully",
+        "info"
+      );
+    } catch (err) {
+      console.error("Logout error:", err);
+      setIsAdminAuthenticated(false);
+    }
   };
 
   return (

@@ -70,8 +70,8 @@ export default function ContactPage() {
     },
   });
 
-  const onSubmit = (data: ContactFormValues) => {
-    submitContactMessage({
+  const onSubmit = async (data: ContactFormValues) => {
+    await submitContactMessage({
       fullName: data.fullName,
       email: data.email,
       subject: data.subject,

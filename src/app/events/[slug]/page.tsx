@@ -70,9 +70,9 @@ export default function EventDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const onSubmit = (data: RegFormValues) => {
-    // Submit registration to the global prototype state
-    const ref = submitEventRegistration({
+  const onSubmit = async (data: RegFormValues) => {
+    // Submit registration to Supabase data layer via state context
+    const ref = await submitEventRegistration({
       eventId: event.id,
       fullName: data.fullName,
       email: data.email,

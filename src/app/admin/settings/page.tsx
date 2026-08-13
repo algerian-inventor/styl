@@ -56,14 +56,18 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setHeroBannerUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      const { uploadFileToBucket } = await import("@/lib/storage");
+      const { url } = await uploadFileToBucket(file, "site");
+      if (url) {
+        setHeroBannerUrl(url);
+      } else {
+        const reader = new FileReader();
+        reader.onloadend = () => setHeroBannerUrl(reader.result as string);
+        reader.readAsDataURL(file);
+      }
     }
   };
 

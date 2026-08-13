@@ -31,14 +31,18 @@ export default function AdminGalleryPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      const { uploadFileToBucket } = await import("@/lib/storage");
+      const { url } = await uploadFileToBucket(file, "gallery");
+      if (url) {
+        setImageUrl(url);
+      } else {
+        const reader = new FileReader();
+        reader.onloadend = () => setImageUrl(reader.result as string);
+        reader.readAsDataURL(file);
+      }
     }
   };
 

@@ -50,9 +50,9 @@ export default function AdminLoginPage() {
     },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormValues) => {
     setErrorMsg(null);
-    const success = adminLogin(data.email, data.password);
+    const success = await adminLogin(data.email, data.password);
     if (success) {
       router.push("/admin");
     } else {
@@ -124,15 +124,6 @@ export default function AdminLoginPage() {
                 />
               </div>
             </FormField>
-
-            {/* Hint Box */}
-            <div className="p-3 bg-brand-bg border border-brand-border rounded text-[10px] text-brand-muted leading-relaxed">
-              <p className="font-bold text-brand-dark mb-0.5">
-                {language === "ar" ? "بيانات الدخول التجريبية:" : "Demo Credentials:"}
-              </p>
-              <p>Email: admin@stly.dz</p>
-              <p>Password: demo123</p>
-            </div>
 
             <Button type="submit" variant="primary" className="w-full font-bold" isLoading={isSubmitting}>
               {t("admin.loginBtn")}

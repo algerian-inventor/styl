@@ -81,14 +81,18 @@ export default function AdminProgramsPage() {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      const { uploadFileToBucket } = await import("@/lib/storage");
+      const { url } = await uploadFileToBucket(file, "programs");
+      if (url) {
+        setCoverImage(url);
+      } else {
+        const reader = new FileReader();
+        reader.onloadend = () => setCoverImage(reader.result as string);
+        reader.readAsDataURL(file);
+      }
     }
   };
 

@@ -95,8 +95,8 @@ export default function MembershipPage() {
     return errorKey;
   };
 
-  const onSubmit = (data: MembershipFormValues) => {
-    submitMembershipApplication({
+  const onSubmit = async (data: MembershipFormValues) => {
+    await submitMembershipApplication({
       fullName: data.fullName,
       dob: data.dob,
       wilaya: data.wilaya,
