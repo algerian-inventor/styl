@@ -17,7 +17,6 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
   const [loadError, setLoadError] = useState(false);
 
   const isInstagram = item.sourceType === "instagram" || item.socialPlatform === "instagram";
-  const isFacebook = item.sourceType === "facebook" || item.socialPlatform === "facebook";
   const postUrl = item.socialUrl || item.url;
   const isVideo = item.type === "video";
   const isLoaded = loadedId === item.id;

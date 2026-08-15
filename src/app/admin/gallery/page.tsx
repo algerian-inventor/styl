@@ -151,6 +151,7 @@ export default function AdminGalleryPage() {
         platform: parsed.platform!,
         type: parsed.type!,
         canonicalUrl: parsed.canonicalUrl,
+        originalUrl: parsed.originalUrl || trimmed,
         externalId: parsed.externalId!,
         title: {
           ar:
