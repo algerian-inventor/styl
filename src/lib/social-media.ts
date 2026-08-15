@@ -1,0 +1,320 @@
+/**
+ * STLY Constantine - Social Media Utility Library
+ * Handles URL normalization, platform detection, validation,
+ * and Meta oEmbed / embed generation for Instagram and Facebook.
+ */
+
+export type SocialPlatform = "instagram" | "facebook";
+export type SocialMediaType = "image" | "video";
+
+export interface ParsedSocialUrl {
+  isValid: boolean;
+  platform?: SocialPlatform;
+  type?: SocialMediaType;
+  canonicalUrl?: string;
+  externalId?: string;
+  errorMessage?: {
+    ar: string;
+    en: string;
+  };
+}
+
+export interface SocialPreviewResult {
+  success: boolean;
+  platform: SocialPlatform;
+  type: SocialMediaType;
+  canonicalUrl: string;
+  externalId: string;
+  title?: {
+    ar: string;
+    en: string;
+  };
+  authorName?: string;
+  thumbnailUrl?: string;
+  embedHtml?: string;
+  hasOfficialMetadata: boolean;
+  error?: string;
+}
+
+/**
+ * Normalizes and validates Instagram or Facebook URLs.
+ * Strips tracking parameters (igsh, utm_*, mibextid, etc.) and extracts canonical URL & ID.
+ */
+export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
+  if (!rawUrl || typeof rawUrl !== "string") {
+    return {
+      isValid: false,
+      errorMessage: {
+        ar: "يرجى إدخال رابط منشور صحيح.",
+        en: "Please enter a valid post URL.",
+      },
+    };
+  }
+
+  const trimmed = rawUrl.trim();
+  let urlObj: URL;
+
+  try {
+    // Ensure protocol
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    urlObj = new URL(withProtocol);
+  } catch {
+    return {
+      isValid: false,
+      errorMessage: {
+        ar: "صيغة الرابط غير صحيحة.",
+        en: "Invalid URL format.",
+      },
+    };
+  }
+
+  // Only allow HTTPS
+  if (urlObj.protocol !== "https:" && urlObj.protocol !== "http:") {
+    return {
+      isValid: false,
+      errorMessage: {
+        ar: "يجب أن يبدأ الرابط بـ https://",
+        en: "URL must start with https://",
+      },
+    };
+  }
+
+  const hostname = urlObj.hostname.toLowerCase();
+  const pathname = urlObj.pathname;
+
+  // -------------------------------------------------------------
+  // 1. INSTAGRAM
+  // -------------------------------------------------------------
+  const isInstagramHost =
+    hostname === "instagram.com" ||
+    hostname === "www.instagram.com" ||
+    hostname === "instagr.am" ||
+    hostname.endsWith(".instagram.com");
+
+  if (isInstagramHost) {
+    // Patterns:
+    // /p/:id (Post / Image / Carousel)
+    // /reel/:id or /reels/:id (Reel / Video)
+    // /tv/:id (IGTV / Video)
+    const postMatch = pathname.match(/^\/p\/([a-zA-Z0-9_-]+)/i);
+    const reelMatch = pathname.match(/^\/reels?\/([a-zA-Z0-9_-]+)/i);
+    const tvMatch = pathname.match(/^\/tv\/([a-zA-Z0-9_-]+)/i);
+
+    if (postMatch) {
+      const shortcode = postMatch[1];
+      return {
+        isValid: true,
+        platform: "instagram",
+        type: "image",
+        canonicalUrl: `https://www.instagram.com/p/${shortcode}/`,
+        externalId: shortcode,
+      };
+    }
+
+    if (reelMatch) {
+      const shortcode = reelMatch[1];
+      return {
+        isValid: true,
+        platform: "instagram",
+        type: "video",
+        canonicalUrl: `https://www.instagram.com/reel/${shortcode}/`,
+        externalId: shortcode,
+      };
+    }
+
+    if (tvMatch) {
+      const shortcode = tvMatch[1];
+      return {
+        isValid: true,
+        platform: "instagram",
+        type: "video",
+        canonicalUrl: `https://www.instagram.com/tv/${shortcode}/`,
+        externalId: shortcode,
+      };
+    }
+
+    return {
+      isValid: false,
+      errorMessage: {
+        ar: "الرابط ليس منشوراً أو ريلز صالحاً على إنستغرام (يجب أن يحتوي على /p/ أو /reel/).",
+        en: "URL is not a valid Instagram post or reel (must contain /p/ or /reel/).",
+      },
+    };
+  }
+
+  // -------------------------------------------------------------
+  // 2. FACEBOOK
+  // -------------------------------------------------------------
+  const isFacebookHost =
+    hostname === "facebook.com" ||
+    hostname === "www.facebook.com" ||
+    hostname === "m.facebook.com" ||
+    hostname === "web.facebook.com" ||
+    hostname === "fb.watch" ||
+    hostname.endsWith(".facebook.com");
+
+  if (isFacebookHost) {
+    // FB Watch Shortlink: https://fb.watch/abc123/
+    if (hostname === "fb.watch") {
+      const watchMatch = pathname.match(/^\/([a-zA-Z0-9_-]+)/i);
+      if (watchMatch) {
+        const id = watchMatch[1];
+        return {
+          isValid: true,
+          platform: "facebook",
+          type: "video",
+          canonicalUrl: `https://fb.watch/${id}/`,
+          externalId: id,
+        };
+      }
+    }
+
+    // Facebook Reels: /reel/:id or /reels/:id
+    const fbReelMatch = pathname.match(/^\/reels?\/([0-9a-zA-Z_-]+)/i);
+    if (fbReelMatch) {
+      const reelId = fbReelMatch[1];
+      return {
+        isValid: true,
+        platform: "facebook",
+        type: "video",
+        canonicalUrl: `https://www.facebook.com/reel/${reelId}/`,
+        externalId: reelId,
+      };
+    }
+
+    // Facebook Watch: /watch/?v=:id
+    if (pathname.startsWith("/watch")) {
+      const videoId = urlObj.searchParams.get("v");
+      if (videoId) {
+        return {
+          isValid: true,
+          platform: "facebook",
+          type: "video",
+          canonicalUrl: `https://www.facebook.com/watch/?v=${videoId}`,
+          externalId: videoId,
+        };
+      }
+    }
+
+    // Facebook Videos: /username/videos/:id or /videos/:id
+    const fbVideoMatch = pathname.match(/\/(?:[a-zA-Z0-9._-]+)\/videos\/([0-9]+)/i) || pathname.match(/\/videos\/([0-9]+)/i);
+    if (fbVideoMatch) {
+      const videoId = fbVideoMatch[1];
+      return {
+        isValid: true,
+        platform: "facebook",
+        type: "video",
+        canonicalUrl: `https://www.facebook.com/watch/?v=${videoId}`,
+        externalId: videoId,
+      };
+    }
+
+    // Facebook Posts: /username/posts/:id or /posts/:id
+    const fbPostMatch = pathname.match(/\/(?:[a-zA-Z0-9._-]+)\/posts\/([0-9a-zA-Z_]+)/i) || pathname.match(/\/posts\/([0-9a-zA-Z_]+)/i);
+    if (fbPostMatch) {
+      const postId = fbPostMatch[1];
+      // Clean path
+      const cleanPath = pathname.replace(/\/+$/, "");
+      return {
+        isValid: true,
+        platform: "facebook",
+        type: "image",
+        canonicalUrl: `https://www.facebook.com${cleanPath}`,
+        externalId: postId,
+      };
+    }
+
+    // Facebook Share URLs: /share/p/:id, /share/r/:id, /share/v/:id
+    const fbShareMatch = pathname.match(/^\/share\/(p|r|v)\/([a-zA-Z0-9_-]+)/i);
+    if (fbShareMatch) {
+      const shareType = fbShareMatch[1].toLowerCase();
+      const shareId = fbShareMatch[2];
+      const mediaType: SocialMediaType = shareType === "p" ? "image" : "video";
+      return {
+        isValid: true,
+        platform: "facebook",
+        type: mediaType,
+        canonicalUrl: `https://www.facebook.com/share/${shareType}/${shareId}/`,
+        externalId: shareId,
+      };
+    }
+
+    // Facebook Permalink: /permalink.php?story_fbid=...&id=...
+    if (pathname.includes("permalink.php")) {
+      const storyFbid = urlObj.searchParams.get("story_fbid");
+      const id = urlObj.searchParams.get("id");
+      if (storyFbid && id) {
+        return {
+          isValid: true,
+          platform: "facebook",
+          type: "image",
+          canonicalUrl: `https://www.facebook.com/permalink.php?story_fbid=${storyFbid}&id=${id}`,
+          externalId: `${id}_${storyFbid}`,
+        };
+      }
+    }
+
+    // Facebook Photos: /photo.php?fbid=...
+    if (pathname.includes("photo.php")) {
+      const fbid = urlObj.searchParams.get("fbid");
+      if (fbid) {
+        return {
+          isValid: true,
+          platform: "facebook",
+          type: "image",
+          canonicalUrl: `https://www.facebook.com/photo.php?fbid=${fbid}`,
+          externalId: fbid,
+        };
+      }
+    }
+
+    return {
+      isValid: false,
+      errorMessage: {
+        ar: "الرابط ليس منشوراً أو فيديو صالحاً على فيسبوك.",
+        en: "URL is not a recognized public Facebook post, video, or reel.",
+      },
+    };
+  }
+
+  // -------------------------------------------------------------
+  // Unsupported domain
+  // -------------------------------------------------------------
+  return {
+    isValid: false,
+    errorMessage: {
+      ar: "النظام يدعم روابط إنستغرام وفيسبوك العامة فقط.",
+      en: "Only public Instagram and Facebook links are supported.",
+    },
+  };
+}
+
+/**
+ * Normalizes URL for duplicate checking.
+ */
+export function getCanonicalSocialUrl(rawUrl: string): string | null {
+  const parsed = parseAndValidateSocialUrl(rawUrl);
+  return parsed.isValid && parsed.canonicalUrl ? parsed.canonicalUrl : null;
+}
+
+/**
+ * Generates official embed iframe URL for fallback or direct iframe rendering.
+ */
+export function getSocialEmbedUrl(platform: SocialPlatform, canonicalUrl: string, type: SocialMediaType = "image"): string {
+  if (platform === "instagram") {
+    // Instagram embed URL
+    const clean = canonicalUrl.replace(/\/+$/, "");
+    return `${clean}/embed/captioned/`;
+  }
+
+  if (platform === "facebook") {
+    // Facebook plugin iframe embed
+    const encoded = encodeURIComponent(canonicalUrl);
+    if (type === "video") {
+      return `https://www.facebook.com/plugins/video.php?href=${encoded}&show_text=false&width=500`;
+    }
+    return `https://www.facebook.com/plugins/post.php?href=${encoded}&show_text=true&width=500`;
+  }
+
+  return canonicalUrl;
+}

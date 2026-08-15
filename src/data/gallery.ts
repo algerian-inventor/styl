@@ -1,3 +1,6 @@
+export type GallerySourceType = "upload" | "instagram" | "facebook";
+export type SocialPlatformType = "instagram" | "facebook";
+
 export interface GalleryItem {
   id: string;
   title: {
@@ -12,6 +15,15 @@ export interface GalleryItem {
   type: "image" | "video";
   url: string;
   videoUrl?: string; // YouTube or placeholder video url
+
+  // Social media extension fields
+  sourceType?: GallerySourceType;
+  socialUrl?: string;
+  socialPlatform?: SocialPlatformType;
+  externalId?: string;
+  embedHtml?: string;
+  thumbnailUrl?: string;
+  authorName?: string;
 }
 
 export const galleryItems: GalleryItem[] = [

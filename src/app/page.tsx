@@ -575,29 +575,72 @@ export default function HomePage() {
             />
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {previewGallery.map((item) => (
-                <Link
-                  key={item.id}
-                  href="/gallery"
-                  className="group relative aspect-square rounded-xl overflow-hidden bg-slate-200 border border-[#DCE3EA] hover:border-brand-navy/30 transition-all duration-300 shadow-xs"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={item.url}
-                    alt={item.title[language]}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                      // Graceful fallback hide or replace
-                      (e.target as HTMLElement).style.display = "none";
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex items-end">
-                    <p className="text-xs font-bold text-white line-clamp-1">
-                      {item.title[language]}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+              {previewGallery.map((item) => {
+                const isInstagram = item.sourceType === "instagram" || item.socialPlatform === "instagram";
+                const isFacebook = item.sourceType === "facebook" || item.socialPlatform === "facebook";
+                const isSocial = isInstagram || isFacebook;
+                const hasValidThumb = Boolean(item.thumbnailUrl || (item.url && !item.url.startsWith("http")));
+
+                return (
+                  <Link
+                    key={item.id}
+                    href="/gallery"
+                    className="group relative aspect-square rounded-xl overflow-hidden bg-slate-900 border border-[#DCE3EA] hover:border-brand-navy/30 transition-all duration-300 shadow-xs flex flex-col justify-between"
+                  >
+                    {/* Image if available */}
+                    {hasValidThumb ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.thumbnailUrl || item.url}
+                        alt={item.title[language]}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : isSocial ? (
+                      <div
+                        className={`w-full h-full p-3 flex flex-col justify-between select-none ${
+                          isInstagram
+                            ? "bg-gradient-to-br from-[#405DE6] via-[#E1306C] to-[#FCAF45] text-white"
+                            : "bg-gradient-to-br from-[#1877F2] via-[#0D47A1] to-[#041D38] text-white"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-extrabold uppercase opacity-90">
+                            {isInstagram ? "Instagram" : "Facebook"}
+                          </span>
+                        </div>
+                        <p className="text-[11px] font-bold line-clamp-2 leading-tight text-white drop-shadow-xs">
+                          {item.title[language]}
+                        </p>
+                      </div>
+                    ) : null}
+
+                    {/* Corner badge for social posts */}
+                    {isSocial && (
+                      <div className="absolute top-2 end-2 z-10">
+                        <div
+                          className={`w-5 h-5 rounded-md flex items-center justify-center shadow-xs text-white text-[10px] ${
+                            isInstagram
+                              ? "bg-gradient-to-tr from-[#FD1D1D] to-[#833AB4]"
+                              : "bg-[#1877F2]"
+                          }`}
+                        >
+                          {isInstagram ? "IG" : "FB"}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex items-end">
+                      <p className="text-xs font-bold text-white line-clamp-1">
+                        {item.title[language]}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </Container>
         </section>
