@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { GalleryItem } from "@/data/gallery";
 import { useLanguage } from "@/context/LanguageContext";
 import { Play, ExternalLink } from "lucide-react";
+import { getDisplayThumbnailUrl } from "@/lib/social-media";
 
 // Official brand SVG icons for Instagram and Facebook
 export const InstagramIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" }) => (
@@ -47,7 +48,9 @@ export const SocialGalleryCard: React.FC<SocialGalleryCardProps> = ({
   const isSocial = isInstagram || isFacebook;
   const isVideo = item.type === "video";
 
-  const hasValidThumbnail = Boolean(item.thumbnailUrl || (item.url && !imageError && !item.url.startsWith("/images/gallery/")));
+  const rawThumb = item.thumbnailUrl || (item.url && !item.url.startsWith("/images/gallery/") ? item.url : null);
+  const displayImageSrc = getDisplayThumbnailUrl(rawThumb);
+  const hasValidThumbnail = Boolean(displayImageSrc && !imageError);
 
   return (
     <div
@@ -63,11 +66,11 @@ export const SocialGalleryCard: React.FC<SocialGalleryCardProps> = ({
       }}
       aria-label={`${item.title[language]} (${isInstagram ? "Instagram" : isFacebook ? "Facebook" : "Media"})`}
     >
-      {/* 1. If real thumbnail exists, show image */}
-      {hasValidThumbnail && (
+      {/* 1. Real Media Thumbnail Image */}
+      {hasValidThumbnail && displayImageSrc && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={item.thumbnailUrl || item.url}
+          src={displayImageSrc}
           alt={item.title[language]}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={() => setImageError(true)}
@@ -75,7 +78,16 @@ export const SocialGalleryCard: React.FC<SocialGalleryCardProps> = ({
         />
       )}
 
-      {/* 2. Branded Social Media Card Fallback (When no image thumbnail is available) */}
+      {/* Video Play Badge on Real Thumbnail */}
+      {hasValidThumbnail && isVideo && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+            <Play className="w-5 h-5 fill-white text-white translate-x-0.5" />
+          </div>
+        </div>
+      )}
+
+      {/* 2. Branded Social Media Card Fallback (Only when no image thumbnail is available) */}
       {(!hasValidThumbnail || imageError) && isSocial && (
         <div
           className={`w-full h-full p-5 flex flex-col justify-between select-none ${

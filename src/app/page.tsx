@@ -25,6 +25,7 @@ import { EventCard } from "@/components/ui/EventCard";
 import { NewsCard } from "@/components/ui/NewsCard";
 import { CTASection } from "@/components/ui/CTASection";
 import { Button } from "@/components/ui/Button";
+import { getDisplayThumbnailUrl } from "@/lib/social-media";
 
 export default function HomePage() {
   const { t, language, dir } = useLanguage();
@@ -579,7 +580,9 @@ export default function HomePage() {
                 const isInstagram = item.sourceType === "instagram" || item.socialPlatform === "instagram";
                 const isFacebook = item.sourceType === "facebook" || item.socialPlatform === "facebook";
                 const isSocial = isInstagram || isFacebook;
-                const hasValidThumb = Boolean(item.thumbnailUrl || (item.url && !item.url.startsWith("http")));
+                const rawThumb = item.thumbnailUrl || (item.url && !item.url.startsWith("http") ? item.url : null);
+                const displayThumb = getDisplayThumbnailUrl(rawThumb);
+                const hasValidThumb = Boolean(displayThumb);
 
                 return (
                   <Link
@@ -588,10 +591,10 @@ export default function HomePage() {
                     className="group relative aspect-square rounded-xl overflow-hidden bg-slate-900 border border-[#DCE3EA] hover:border-brand-navy/30 transition-all duration-300 shadow-xs flex flex-col justify-between"
                   >
                     {/* Image if available */}
-                    {hasValidThumb ? (
+                    {hasValidThumb && displayThumb ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={item.thumbnailUrl || item.url}
+                        src={displayThumb}
                         alt={item.title[language]}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {

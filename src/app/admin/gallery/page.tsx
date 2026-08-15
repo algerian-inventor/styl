@@ -11,6 +11,7 @@ import { GalleryItem } from "@/data/gallery";
 import {
   parseAndValidateSocialUrl,
   getCanonicalSocialUrl,
+  getDisplayThumbnailUrl,
   SocialPreviewResult,
 } from "@/lib/social-media";
 import { InstagramIcon, FacebookIcon } from "@/components/gallery/SocialGalleryCard";
@@ -25,13 +26,14 @@ import {
   AlertCircle,
   RefreshCw,
   ImageIcon,
+  Play,
 } from "lucide-react";
 
 type AdminCreationMode = "upload" | "social";
 
 export default function AdminGalleryPage() {
   const { t, language } = useLanguage();
-  const { galleryItems, addGalleryItem, deleteGalleryItem } = usePrototypeState();
+  const { galleryItems, addGalleryItem, updateGalleryItem, deleteGalleryItem, addToast } = usePrototypeState();
 
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -52,6 +54,10 @@ export default function AdminGalleryPage() {
   const [previewResult, setPreviewResult] = useState<SocialPreviewResult | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isDuplicate, setIsDuplicate] = useState(false);
+
+  // Refresh / Backfill state
+  const [refreshingId, setRefreshingId] = useState<string | null>(null);
+  const [isRefreshingAll, setIsRefreshingAll] = useState(false);
 
   const albumNames: Record<string, { ar: string; en: string }> = {
     robotics: { ar: "الروبوتيك", en: "Robotics" },
@@ -128,7 +134,7 @@ export default function AdminGalleryPage() {
       const res = await fetch("/api/gallery/social-preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: parsed.canonicalUrl }),
+        body: JSON.stringify({ url: trimmed }),
       });
 
       const data = await res.json();
@@ -203,7 +209,115 @@ export default function AdminGalleryPage() {
       handleFetchPreview(socialUrlInput);
     }, 450);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socialUrlInput, creationMode]);
+
+  // Backfill: Refresh single social item metadata
+  const handleRefreshItem = async (item: GalleryItem) => {
+    const targetUrl = item.socialUrl || item.url;
+    if (!targetUrl) return;
+
+    setRefreshingId(item.id);
+    try {
+      const res = await fetch("/api/gallery/social-preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: targetUrl }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        updateGalleryItem(item.id, {
+          thumbnailUrl: data.thumbnailUrl,
+          socialUrl: data.canonicalUrl || item.socialUrl,
+          externalId: data.externalId || item.externalId,
+          type: data.type || item.type,
+          hasOfficialMetadata: data.hasOfficialMetadata,
+          authorName: data.authorName || item.authorName,
+          title: {
+            ar: data.title?.ar || item.title.ar,
+            en: data.title?.en || item.title.en,
+          },
+        });
+        addToast(
+          language === "ar"
+            ? "تم تحديث معاينة وبيانات المنشور بنجاح!"
+            : "Social media preview refreshed successfully!",
+          "success"
+        );
+      } else {
+        addToast(
+          language === "ar"
+            ? "تعذر تحديث بيانات المنشور من المنصة."
+            : "Could not refresh social preview from platform.",
+          "error"
+        );
+      }
+    } catch {
+      addToast(
+        language === "ar" ? "حدث خطأ أثناء تحديث المعاينة." : "Error refreshing preview.",
+        "error"
+      );
+    } finally {
+      setRefreshingId(null);
+    }
+  };
+
+  // Backfill: Refresh all social items metadata
+  const handleRefreshAllSocial = async () => {
+    const socialItems = galleryItems.filter(
+      (item) => item.sourceType === "instagram" || item.sourceType === "facebook" || item.socialPlatform
+    );
+
+    if (socialItems.length === 0) {
+      addToast(
+        language === "ar"
+          ? "لا توجد منشورات تواصل اجتماعي لتحديثها."
+          : "No social media items to refresh.",
+        "info"
+      );
+      return;
+    }
+
+    setIsRefreshingAll(true);
+    let updatedCount = 0;
+
+    for (const item of socialItems) {
+      const targetUrl = item.socialUrl || item.url;
+      if (!targetUrl) continue;
+
+      try {
+        const res = await fetch("/api/gallery/social-preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: targetUrl }),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          updateGalleryItem(item.id, {
+            thumbnailUrl: data.thumbnailUrl,
+            socialUrl: data.canonicalUrl || item.socialUrl,
+            externalId: data.externalId || item.externalId,
+            type: data.type || item.type,
+            hasOfficialMetadata: data.hasOfficialMetadata,
+            authorName: data.authorName || item.authorName,
+          });
+          updatedCount++;
+        }
+      } catch (err) {
+        console.warn("Could not refresh item:", item.id, err);
+      }
+    }
+
+    setIsRefreshingAll(false);
+    addToast(
+      language === "ar"
+        ? `تم تحديث معاينات (${updatedCount}) منشور بنجاح!`
+        : `Successfully refreshed (${updatedCount}) social media items!`,
+      "success"
+    );
+  };
 
   const resetForm = () => {
     setTitleAr("");
@@ -237,7 +351,6 @@ export default function AdminGalleryPage() {
     e.preventDefault();
     if (!previewResult || isDuplicate || !titleAr || !titleEn) return;
 
-    // Double check duplicate
     const canonical = getCanonicalSocialUrl(socialUrlInput) || previewResult.canonicalUrl;
     if (checkIsDuplicate(canonical)) {
       setIsDuplicate(true);
@@ -257,6 +370,7 @@ export default function AdminGalleryPage() {
       thumbnailUrl: previewResult.thumbnailUrl,
       embedHtml: previewResult.embedHtml,
       authorName: previewResult.authorName,
+      hasOfficialMetadata: previewResult.hasOfficialMetadata,
     });
 
     resetForm();
@@ -275,15 +389,16 @@ export default function AdminGalleryPage() {
         const isInstagram = row.sourceType === "instagram" || row.socialPlatform === "instagram";
         const isFacebook = row.sourceType === "facebook" || row.socialPlatform === "facebook";
         const isSocial = isInstagram || isFacebook;
+        const displayThumb = getDisplayThumbnailUrl(row.thumbnailUrl || (row.url && !row.url.startsWith("http") ? row.url : null));
 
         return (
           <div className="flex items-center gap-3">
             {/* Miniature Image / Social Preview */}
             <div className="h-11 w-11 rounded-lg border border-brand-border bg-slate-100 flex-shrink-0 overflow-hidden flex items-center justify-center relative">
-              {row.thumbnailUrl || (row.url && !row.url.startsWith("http") && !row.url.includes("instagram") && !row.url.includes("facebook")) ? (
+              {displayThumb ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={row.thumbnailUrl || row.url}
+                  src={displayThumb}
                   alt=""
                   className="h-full w-full object-cover"
                 />
@@ -372,17 +487,38 @@ export default function AdminGalleryPage() {
     },
     {
       header: t("forms.actions"),
-      cell: (row) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="p-1 text-red-500 hover:text-red-700"
-          onClick={() => setDeleteId(row.id)}
-          title="Delete media"
-        >
-          <Trash2 className="h-4.5 w-4.5" />
-        </Button>
-      ),
+      cell: (row) => {
+        const isSocial = row.sourceType === "instagram" || row.sourceType === "facebook" || row.socialPlatform;
+        const isRefreshingThis = refreshingId === row.id;
+
+        return (
+          <div className="flex items-center gap-1">
+            {/* Refresh / Backfill Button for Social Items */}
+            {isSocial && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-1 text-slate-600 hover:text-brand-navy"
+                onClick={() => handleRefreshItem(row)}
+                disabled={isRefreshingThis}
+                title={language === "ar" ? "تحديث معاينة المنشور" : "Refresh social media preview"}
+              >
+                <RefreshCw className={`h-4 w-4 ${isRefreshingThis ? "animate-spin text-brand-navy" : ""}`} />
+              </Button>
+            )}
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-1 text-red-500 hover:text-red-700"
+              onClick={() => setDeleteId(row.id)}
+              title="Delete media"
+            >
+              <Trash2 className="h-4.5 w-4.5" />
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -401,13 +537,27 @@ export default function AdminGalleryPage() {
           </p>
         </div>
 
-        <Button
-          size="sm"
-          leftIcon={<Plus className="h-4.5 w-4.5" />}
-          onClick={() => setIsCreateOpen(true)}
-        >
-          {language === "ar" ? "إضافة عنصر للمعرض" : "Add Gallery Item"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Bulk Refresh Social Previews */}
+          <Button
+            size="sm"
+            variant="outline"
+            leftIcon={<RefreshCw className={`h-4 w-4 ${isRefreshingAll ? "animate-spin" : ""}`} />}
+            onClick={handleRefreshAllSocial}
+            disabled={isRefreshingAll}
+            title="Refresh metadata for all social media items"
+          >
+            {language === "ar" ? "تحديث معاينات التواصل" : "Refresh Social Previews"}
+          </Button>
+
+          <Button
+            size="sm"
+            leftIcon={<Plus className="h-4.5 w-4.5" />}
+            onClick={() => setIsCreateOpen(true)}
+          >
+            {language === "ar" ? "إضافة عنصر للمعرض" : "Add Gallery Item"}
+          </Button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -524,7 +674,7 @@ export default function AdminGalleryPage() {
                 </div>
               </FormField>
 
-              {/* Live Preview Card */}
+              {/* Real Media Preview Card */}
               {previewResult && !isDuplicate && (
                 <div className="p-4 rounded-xl border border-brand-green/30 bg-emerald-50/40 space-y-3">
                   <div className="flex items-center justify-between">
@@ -565,15 +715,38 @@ export default function AdminGalleryPage() {
                     </a>
                   </div>
 
-                  {/* Thumbnail snippet */}
-                  {previewResult.thumbnailUrl && (
-                    <div className="h-24 w-24 rounded-lg overflow-hidden border border-brand-border bg-slate-200">
+                  {/* Real Media Thumbnail Image */}
+                  {previewResult.thumbnailUrl ? (
+                    <div className="relative h-44 w-full rounded-xl overflow-hidden border border-brand-border bg-slate-900 shadow-xs group">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={previewResult.thumbnailUrl}
+                        src={getDisplayThumbnailUrl(previewResult.thumbnailUrl) || previewResult.thumbnailUrl}
                         alt="preview"
                         className="h-full w-full object-cover"
                       />
+                      {previewResult.type === "video" && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-xs flex items-center justify-center text-white">
+                            <Play className="w-5 h-5 fill-white text-white translate-x-0.5" />
+                          </div>
+                        </div>
+                      )}
+                      <div className="absolute bottom-2 start-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white font-bold">
+                        {previewResult.authorName || (previewResult.platform === "instagram" ? "@stly.constantine" : "STLY Constantine")}
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className={`h-24 w-full rounded-xl p-3 flex flex-col justify-between text-white ${
+                        previewResult.platform === "instagram"
+                          ? "bg-gradient-to-tr from-[#FD1D1D] to-[#833AB4]"
+                          : "bg-[#1877F2]"
+                      }`}
+                    >
+                      <span className="text-[10px] font-extrabold uppercase">
+                        {previewResult.platform} {previewResult.type}
+                      </span>
+                      <p className="text-xs font-bold line-clamp-1">{previewResult.title?.ar || previewResult.title?.en}</p>
                     </div>
                   )}
                 </div>
@@ -605,22 +778,22 @@ export default function AdminGalleryPage() {
               <FormField label={language === "ar" ? "العنوان (بالإنجليزية)" : "Title (English)"} required>
                 <input
                   type="text"
-                  placeholder="e.g. Hands-on Electronics Lab Reel"
+                  placeholder="e.g., Robotics Workshop Documentation Reel"
                   value={titleEn}
                   onChange={(e) => setTitleEn(e.target.value)}
                   className="w-full px-3.5 py-2 border border-brand-border rounded-lg text-xs bg-white text-brand-dark focus:ring-2 focus:ring-brand-navy/20 focus:border-brand-navy"
+                  dir="ltr"
                 />
               </FormField>
 
-              <div className="flex gap-3 justify-end pt-3 border-t border-slate-200">
-                <Button variant="outline" size="sm" type="button" onClick={resetForm}>
+              <div className="flex justify-end gap-3 pt-3 border-t border-brand-border">
+                <Button type="button" variant="outline" size="sm" onClick={resetForm}>
                   {t("admin.common.cancel")}
                 </Button>
                 <Button
-                  variant="secondary"
-                  size="sm"
                   type="submit"
-                  disabled={!previewResult || isDuplicate || !titleAr.trim() || !titleEn.trim()}
+                  size="sm"
+                  disabled={!previewResult || isDuplicate || !titleAr || !titleEn}
                 >
                   {language === "ar" ? "إضافة إلى المعرض" : "Add to Gallery"}
                 </Button>
@@ -628,29 +801,9 @@ export default function AdminGalleryPage() {
             </form>
           )}
 
-          {/* MODE 2: MANUAL PHOTO UPLOAD */}
+          {/* MODE 2: MANUAL IMAGE UPLOAD */}
           {creationMode === "upload" && (
             <form onSubmit={handleManualSubmit} className="space-y-4">
-              <FormField label={language === "ar" ? "العنوان (بالعربية)" : "Title (Arabic)"} required>
-                <input
-                  type="text"
-                  placeholder="مثال: فريق الروبوتات الفائز"
-                  value={titleAr}
-                  onChange={(e) => setTitleAr(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-brand-border rounded-lg text-xs bg-white text-brand-dark focus:ring-2 focus:ring-brand-navy/20 focus:border-brand-navy"
-                />
-              </FormField>
-
-              <FormField label={language === "ar" ? "العنوان (بالإنجليزية)" : "Title (English)"} required>
-                <input
-                  type="text"
-                  placeholder="e.g. Winning Robotics Team"
-                  value={titleEn}
-                  onChange={(e) => setTitleEn(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-brand-border rounded-lg text-xs bg-white text-brand-dark focus:ring-2 focus:ring-brand-navy/20 focus:border-brand-navy"
-                />
-              </FormField>
-
               <FormField label={language === "ar" ? "الألبوم" : "Album"} required>
                 <select
                   value={album}
@@ -663,39 +816,53 @@ export default function AdminGalleryPage() {
                 </select>
               </FormField>
 
-              <FormField label={language === "ar" ? "اختر صورة للرفع" : "Select Image to Upload"} required>
-                <div className="flex flex-col gap-2">
-                  <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-brand-border rounded-xl cursor-pointer hover:bg-brand-bg/50 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-4 pb-4 text-center">
-                      <Upload className="h-7 w-7 text-brand-navy mb-1.5" />
-                      <p className="text-xs font-semibold text-brand-dark">
-                        {language === "ar" ? "انقر لاختيار ملف صورة" : "Click to select an image file"}
-                      </p>
-                      <p className="text-[10px] text-brand-muted">PNG, JPG, WEBP</p>
-                    </div>
-                    <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                  </label>
-
-                  {imageUrl && (
-                    <div className="relative h-20 w-20 rounded-lg overflow-hidden border border-brand-border mt-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={imageUrl} alt="preview" className="h-full w-full object-cover" />
-                    </div>
-                  )}
-                </div>
+              <FormField label={language === "ar" ? "العنوان (بالعربية)" : "Title (Arabic)"} required>
+                <input
+                  type="text"
+                  placeholder="مثال: ورشة الروبوتيك 2026"
+                  value={titleAr}
+                  onChange={(e) => setTitleAr(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-brand-border rounded-lg text-xs bg-white text-brand-dark focus:ring-2 focus:ring-brand-navy/20 focus:border-brand-navy"
+                />
               </FormField>
 
-              <div className="flex gap-3 justify-end pt-3 border-t border-slate-200">
-                <Button variant="outline" size="sm" type="button" onClick={resetForm}>
+              <FormField label={language === "ar" ? "العنوان (بالإنجليزية)" : "Title (English)"} required>
+                <input
+                  type="text"
+                  placeholder="e.g., Robotics Workshop 2026"
+                  value={titleEn}
+                  onChange={(e) => setTitleEn(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-brand-border rounded-lg text-xs bg-white text-brand-dark focus:ring-2 focus:ring-brand-navy/20 focus:border-brand-navy"
+                  dir="ltr"
+                />
+              </FormField>
+
+              <FormField
+                label={language === "ar" ? "ملف الصورة" : "Image File"}
+                required
+                hint={language === "ar" ? "صيغ PNG أو JPG بحد أقصى 5 ميجابايت" : "PNG, JPG up to 5MB"}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="w-full px-3.5 py-2 border border-brand-border rounded-lg text-xs bg-white text-brand-dark focus:ring-2 focus:ring-brand-navy/20 focus:border-brand-navy"
+                />
+              </FormField>
+
+              {imageUrl && (
+                <div className="h-32 w-full rounded-lg overflow-hidden border border-brand-border bg-slate-100 flex items-center justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={imageUrl} alt="preview" className="h-full w-full object-cover" />
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-brand-border">
+                <Button type="button" variant="outline" size="sm" onClick={resetForm}>
                   {t("admin.common.cancel")}
                 </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  type="submit"
-                  disabled={!titleAr.trim() || !titleEn.trim() || !imageUrl}
-                >
-                  {language === "ar" ? "حفظ ونشر" : "Save & Publish"}
+                <Button type="submit" size="sm" disabled={!titleAr || !titleEn || !imageUrl}>
+                  {language === "ar" ? "إضافة إلى المعرض" : "Add to Gallery"}
                 </Button>
               </div>
             </form>
@@ -703,18 +870,24 @@ export default function AdminGalleryPage() {
         </div>
       </Modal>
 
-      {/* Delete confirmation */}
-      <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)} title={t("admin.common.confirmDelete")}>
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title={language === "ar" ? "تأكيد حذف مادة المعرض" : "Confirm Media Item Deletion"}
+      >
         <div className="space-y-4">
-          <p className="text-xs text-brand-muted leading-relaxed">
-            {t("admin.common.cannotUndo")}
+          <p className="text-xs text-brand-muted">
+            {language === "ar"
+              ? "هل أنت متأكد من رغبتك في حذف هذه المادة من المعرض؟ لا يمكن التراجع عن هذا الإجراء."
+              : "Are you sure you want to delete this media item from the gallery? This action cannot be undone."}
           </p>
-          <div className="flex gap-3 justify-end">
+          <div className="flex justify-end gap-3">
             <Button variant="outline" size="sm" onClick={() => setDeleteId(null)}>
               {t("admin.common.cancel")}
             </Button>
             <Button variant="danger" size="sm" onClick={handleDeleteConfirm}>
-              {t("admin.common.delete")}
+              {language === "ar" ? "حذف" : "Delete"}
             </Button>
           </div>
         </div>

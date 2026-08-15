@@ -1,6 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resolveAndCleanSocialUrl, SocialPreviewResult } from "@/lib/social-media";
 
+/**
+ * Decodes basic HTML entities like &#x627; or &amp; into readable strings.
+ */
+function decodeHtmlEntities(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#([0-9]+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .trim();
+}
+
+/**
+ * Extracts Open Graph tags using Meta-compatible crawler request.
+ */
+async function fetchMetaOpenGraph(targetUrl: string) {
+  try {
+    const res = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+      next: { revalidate: 3600 },
+    });
+
+    if (!res.ok) return null;
+    const html = await res.text();
+
+    const ogImageMatch =
+      html.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i) ||
+      html.match(/<meta\s+content=["']([^"']+)["']\s+property=["']og:image["']/i) ||
+      html.match(/"image":\s*\{"@type":\s*"ImageObject",\s*"url":\s*"([^"]+)"/i);
+
+    const ogTitleMatch =
+      html.match(/<meta\s+property=["']og:title["']\s+content=["']([^"']+)["']/i) ||
+      html.match(/<meta\s+content=["']([^"']+)["']\s+property=["']og:title["']/i);
+
+    const ogDescMatch =
+      html.match(/<meta\s+property=["']og:description["']\s+content=["']([^"']+)["']/i) ||
+      html.match(/<meta\s+content=["']([^"']+)["']\s+property=["']og:description["']/i);
+
+    const rawImage = ogImageMatch ? ogImageMatch[1].replace(/&amp;/g, "&") : undefined;
+    const rawTitle = ogTitleMatch ? decodeHtmlEntities(ogTitleMatch[1]) : undefined;
+    const rawDesc = ogDescMatch ? decodeHtmlEntities(ogDescMatch[1]) : undefined;
+
+    return {
+      thumbnailUrl: rawImage,
+      title: rawTitle,
+      description: rawDesc,
+    };
+  } catch (err) {
+    console.warn("Open Graph metadata fetch failed:", err);
+    return null;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -13,7 +73,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Resolve any share redirect (e.g. /share/p/, /share/r/) and parse canonical URL
+    // 1. Resolve any share redirect (e.g. /share/p/, /share/r/) and extract canonical permalink
     const parsed = await resolveAndCleanSocialUrl(rawUrl);
 
     if (!parsed.isValid || !parsed.platform || !parsed.canonicalUrl || !parsed.type || !parsed.externalId) {
@@ -29,7 +89,7 @@ export async function POST(req: NextRequest) {
 
     const { platform, canonicalUrl, originalUrl, type, externalId } = parsed;
 
-    // Check for optional Meta App credentials
+    // 2. Check for optional Meta App credentials
     const metaToken =
       process.env.META_OEMBED_TOKEN ||
       (process.env.META_APP_ID && process.env.META_APP_SECRET
@@ -42,6 +102,7 @@ export async function POST(req: NextRequest) {
     let officialEmbedHtml: string | undefined;
     let hasOfficialMetadata = false;
 
+    // 3. Try official Meta Graph oEmbed API if credentials provided
     if (metaToken) {
       try {
         let oembedEndpoint = "";
@@ -74,16 +135,30 @@ export async function POST(req: NextRequest) {
             officialTitle = data.title;
             officialEmbedHtml = data.html;
             hasOfficialMetadata = true;
-          } else {
-            console.warn(`Meta oEmbed API returned ${res.status} for ${canonicalUrl}`);
           }
         }
       } catch (err) {
-        console.warn("Error fetching Meta oEmbed data:", err);
+        console.warn("Meta oEmbed API query error:", err);
       }
     }
 
-    // Default localized titles if no official title returned
+    // 4. If no thumbnail from oEmbed (or no credentials), extract official Open Graph metadata
+    if (!officialThumbnailUrl) {
+      const ogData = await fetchMetaOpenGraph(canonicalUrl);
+      if (ogData?.thumbnailUrl) {
+        officialThumbnailUrl = ogData.thumbnailUrl;
+        hasOfficialMetadata = true;
+      }
+      if (ogData?.description && !officialTitle) {
+        // Use clean truncated post description or title if available
+        const cleanDesc = ogData.description.split("\n")[0].substring(0, 120).trim();
+        if (cleanDesc) officialTitle = cleanDesc;
+      } else if (ogData?.title && !officialTitle) {
+        officialTitle = ogData.title;
+      }
+    }
+
+    // 5. Default localized titles if no custom or official title found
     const defaultTitleAr =
       officialTitle ||
       (platform === "instagram"

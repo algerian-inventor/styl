@@ -2,7 +2,7 @@
  * STLY Constantine - Social Media Utility Library
  * Handles URL normalization, platform detection, validation,
  * HTTP redirect resolution for Facebook share links,
- * and Meta oEmbed / embed generation for Instagram and Facebook.
+ * and Meta oEmbed & Open Graph metadata extraction for Instagram and Facebook.
  */
 
 export type SocialPlatform = "instagram" | "facebook";
@@ -305,7 +305,6 @@ export async function resolveAndCleanSocialUrl(rawUrl: string): Promise<ParsedSo
   const initial = parseAndValidateSocialUrl(rawUrl);
   if (!initial.isValid) return initial;
 
-  // If not a Facebook share redirect link, return directly
   if (!initial.isShareUrl || initial.platform !== "facebook") {
     return initial;
   }
@@ -318,7 +317,6 @@ export async function resolveAndCleanSocialUrl(rawUrl: string): Promise<ParsedSo
 
     const location = res.headers.get("location");
     if (location) {
-      // Re-parse the redirected destination URL
       const resolved = parseAndValidateSocialUrl(location);
       if (resolved.isValid) {
         return {
@@ -331,7 +329,6 @@ export async function resolveAndCleanSocialUrl(rawUrl: string): Promise<ParsedSo
     console.warn("Could not follow Facebook share redirect:", err);
   }
 
-  // Fallback to initial if redirect could not be resolved
   return initial;
 }
 
@@ -361,4 +358,16 @@ export function getSocialEmbedUrl(platform: SocialPlatform, canonicalUrl: string
   }
 
   return canonicalUrl;
+}
+
+/**
+ * Converts a raw Meta/FB thumbnail URL into an image URL suitable for web display.
+ * Routes lookaside.fbsbx.com URLs through /api/gallery/media-proxy to bypass browser restrictions.
+ */
+export function getDisplayThumbnailUrl(thumbnailUrl?: string | null): string | null {
+  if (!thumbnailUrl) return null;
+  if (thumbnailUrl.includes("lookaside.fbsbx.com")) {
+    return `/api/gallery/media-proxy?url=${encodeURIComponent(thumbnailUrl)}`;
+  }
+  return thumbnailUrl;
 }

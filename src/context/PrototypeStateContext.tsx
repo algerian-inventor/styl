@@ -108,6 +108,7 @@ interface PrototypeStateContextProps {
   deleteContactMessage: (id: string) => void;
 
   addGalleryItem: (item: Omit<GalleryItem, "id">) => void;
+  updateGalleryItem: (id: string, item: Partial<GalleryItem>) => void;
   deleteGalleryItem: (id: string) => void;
 
   addPartner: (partner: Omit<Partner, "id">) => void;
@@ -491,6 +492,12 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
     );
   };
 
+  const updateGalleryItem = (id: string, updatedFields: Partial<GalleryItem>) => {
+    setGalleryItems((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, ...updatedFields } : i))
+    );
+  };
+
   const deleteGalleryItem = (id: string) => {
     setGalleryItems((prev) => prev.filter((i) => i.id !== id));
     addToast(
@@ -580,6 +587,7 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
         submitContactMessage,
         deleteContactMessage,
         addGalleryItem,
+        updateGalleryItem,
         deleteGalleryItem,
         addPartner,
         deletePartner,
