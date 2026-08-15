@@ -24,6 +24,7 @@ export interface GalleryItem {
   embedHtml?: string;
   thumbnailUrl?: string;
   authorName?: string;
+  hasOfficialMetadata?: boolean;
 }
 
 export const galleryItems: GalleryItem[] = [
