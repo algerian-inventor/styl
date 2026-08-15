@@ -1,6 +1,7 @@
 /**
  * STLY Constantine - Social Media Utility Library
  * Handles URL normalization, platform detection, validation,
+ * HTTP redirect resolution for Facebook share links,
  * and Meta oEmbed / embed generation for Instagram and Facebook.
  */
 
@@ -12,7 +13,9 @@ export interface ParsedSocialUrl {
   platform?: SocialPlatform;
   type?: SocialMediaType;
   canonicalUrl?: string;
+  originalUrl?: string;
   externalId?: string;
+  isShareUrl?: boolean;
   errorMessage?: {
     ar: string;
     en: string;
@@ -24,6 +27,7 @@ export interface SocialPreviewResult {
   platform: SocialPlatform;
   type: SocialMediaType;
   canonicalUrl: string;
+  originalUrl: string;
   externalId: string;
   title?: {
     ar: string;
@@ -37,7 +41,7 @@ export interface SocialPreviewResult {
 }
 
 /**
- * Normalizes and validates Instagram or Facebook URLs.
+ * Normalizes and validates Instagram or Facebook URLs synchronously.
  * Strips tracking parameters (igsh, utm_*, mibextid, etc.) and extracts canonical URL & ID.
  */
 export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
@@ -55,7 +59,6 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
   let urlObj: URL;
 
   try {
-    // Ensure protocol
     const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
     urlObj = new URL(withProtocol);
   } catch {
@@ -68,7 +71,6 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
     };
   }
 
-  // Only allow HTTPS
   if (urlObj.protocol !== "https:" && urlObj.protocol !== "http:") {
     return {
       isValid: false,
@@ -92,10 +94,6 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
     hostname.endsWith(".instagram.com");
 
   if (isInstagramHost) {
-    // Patterns:
-    // /p/:id (Post / Image / Carousel)
-    // /reel/:id or /reels/:id (Reel / Video)
-    // /tv/:id (IGTV / Video)
     const postMatch = pathname.match(/^\/p\/([a-zA-Z0-9_-]+)/i);
     const reelMatch = pathname.match(/^\/reels?\/([a-zA-Z0-9_-]+)/i);
     const tvMatch = pathname.match(/^\/tv\/([a-zA-Z0-9_-]+)/i);
@@ -107,6 +105,7 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
         platform: "instagram",
         type: "image",
         canonicalUrl: `https://www.instagram.com/p/${shortcode}/`,
+        originalUrl: trimmed,
         externalId: shortcode,
       };
     }
@@ -118,6 +117,7 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
         platform: "instagram",
         type: "video",
         canonicalUrl: `https://www.instagram.com/reel/${shortcode}/`,
+        originalUrl: trimmed,
         externalId: shortcode,
       };
     }
@@ -129,6 +129,7 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
         platform: "instagram",
         type: "video",
         canonicalUrl: `https://www.instagram.com/tv/${shortcode}/`,
+        originalUrl: trimmed,
         externalId: shortcode,
       };
     }
@@ -164,7 +165,25 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
           platform: "facebook",
           type: "video",
           canonicalUrl: `https://fb.watch/${id}/`,
+          originalUrl: trimmed,
           externalId: id,
+          isShareUrl: true,
+        };
+      }
+    }
+
+    // Facebook Permalink: /permalink.php?story_fbid=...&id=...
+    if (pathname.includes("permalink.php")) {
+      const storyFbid = urlObj.searchParams.get("story_fbid");
+      const id = urlObj.searchParams.get("id");
+      if (storyFbid && id) {
+        return {
+          isValid: true,
+          platform: "facebook",
+          type: "image",
+          canonicalUrl: `https://www.facebook.com/permalink.php?story_fbid=${storyFbid}&id=${id}`,
+          originalUrl: trimmed,
+          externalId: `${id}_${storyFbid}`,
         };
       }
     }
@@ -178,6 +197,7 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
         platform: "facebook",
         type: "video",
         canonicalUrl: `https://www.facebook.com/reel/${reelId}/`,
+        originalUrl: trimmed,
         externalId: reelId,
       };
     }
@@ -191,6 +211,7 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
           platform: "facebook",
           type: "video",
           canonicalUrl: `https://www.facebook.com/watch/?v=${videoId}`,
+          originalUrl: trimmed,
           externalId: videoId,
         };
       }
@@ -205,6 +226,7 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
         platform: "facebook",
         type: "video",
         canonicalUrl: `https://www.facebook.com/watch/?v=${videoId}`,
+        originalUrl: trimmed,
         externalId: videoId,
       };
     }
@@ -213,15 +235,30 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
     const fbPostMatch = pathname.match(/\/(?:[a-zA-Z0-9._-]+)\/posts\/([0-9a-zA-Z_]+)/i) || pathname.match(/\/posts\/([0-9a-zA-Z_]+)/i);
     if (fbPostMatch) {
       const postId = fbPostMatch[1];
-      // Clean path
       const cleanPath = pathname.replace(/\/+$/, "");
       return {
         isValid: true,
         platform: "facebook",
         type: "image",
         canonicalUrl: `https://www.facebook.com${cleanPath}`,
+        originalUrl: trimmed,
         externalId: postId,
       };
+    }
+
+    // Facebook Photos: /photo.php?fbid=...
+    if (pathname.includes("photo.php")) {
+      const fbid = urlObj.searchParams.get("fbid");
+      if (fbid) {
+        return {
+          isValid: true,
+          platform: "facebook",
+          type: "image",
+          canonicalUrl: `https://www.facebook.com/photo.php?fbid=${fbid}`,
+          originalUrl: trimmed,
+          externalId: fbid,
+        };
+      }
     }
 
     // Facebook Share URLs: /share/p/:id, /share/r/:id, /share/v/:id
@@ -235,37 +272,10 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
         platform: "facebook",
         type: mediaType,
         canonicalUrl: `https://www.facebook.com/share/${shareType}/${shareId}/`,
+        originalUrl: trimmed,
         externalId: shareId,
+        isShareUrl: true,
       };
-    }
-
-    // Facebook Permalink: /permalink.php?story_fbid=...&id=...
-    if (pathname.includes("permalink.php")) {
-      const storyFbid = urlObj.searchParams.get("story_fbid");
-      const id = urlObj.searchParams.get("id");
-      if (storyFbid && id) {
-        return {
-          isValid: true,
-          platform: "facebook",
-          type: "image",
-          canonicalUrl: `https://www.facebook.com/permalink.php?story_fbid=${storyFbid}&id=${id}`,
-          externalId: `${id}_${storyFbid}`,
-        };
-      }
-    }
-
-    // Facebook Photos: /photo.php?fbid=...
-    if (pathname.includes("photo.php")) {
-      const fbid = urlObj.searchParams.get("fbid");
-      if (fbid) {
-        return {
-          isValid: true,
-          platform: "facebook",
-          type: "image",
-          canonicalUrl: `https://www.facebook.com/photo.php?fbid=${fbid}`,
-          externalId: fbid,
-        };
-      }
     }
 
     return {
@@ -277,9 +287,7 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
     };
   }
 
-  // -------------------------------------------------------------
   // Unsupported domain
-  // -------------------------------------------------------------
   return {
     isValid: false,
     errorMessage: {
@@ -287,6 +295,44 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
       en: "Only public Instagram and Facebook links are supported.",
     },
   };
+}
+
+/**
+ * Resolves Facebook Share URLs (/share/p/..., /share/r/..., fb.watch/...)
+ * by following the HTTP redirect to obtain the real canonical permalink / reel URL.
+ */
+export async function resolveAndCleanSocialUrl(rawUrl: string): Promise<ParsedSocialUrl> {
+  const initial = parseAndValidateSocialUrl(rawUrl);
+  if (!initial.isValid) return initial;
+
+  // If not a Facebook share redirect link, return directly
+  if (!initial.isShareUrl || initial.platform !== "facebook") {
+    return initial;
+  }
+
+  try {
+    const res = await fetch(initial.canonicalUrl || rawUrl, {
+      method: "GET",
+      redirect: "manual",
+    });
+
+    const location = res.headers.get("location");
+    if (location) {
+      // Re-parse the redirected destination URL
+      const resolved = parseAndValidateSocialUrl(location);
+      if (resolved.isValid) {
+        return {
+          ...resolved,
+          originalUrl: initial.originalUrl || rawUrl,
+        };
+      }
+    }
+  } catch (err) {
+    console.warn("Could not follow Facebook share redirect:", err);
+  }
+
+  // Fallback to initial if redirect could not be resolved
+  return initial;
 }
 
 /**
@@ -302,13 +348,11 @@ export function getCanonicalSocialUrl(rawUrl: string): string | null {
  */
 export function getSocialEmbedUrl(platform: SocialPlatform, canonicalUrl: string, type: SocialMediaType = "image"): string {
   if (platform === "instagram") {
-    // Instagram embed URL
     const clean = canonicalUrl.replace(/\/+$/, "");
     return `${clean}/embed/captioned/`;
   }
 
   if (platform === "facebook") {
-    // Facebook plugin iframe embed
     const encoded = encodeURIComponent(canonicalUrl);
     if (type === "video") {
       return `https://www.facebook.com/plugins/video.php?href=${encoded}&show_text=false&width=500`;

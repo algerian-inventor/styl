@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseAndValidateSocialUrl, SocialPreviewResult } from "@/lib/social-media";
+import { resolveAndCleanSocialUrl, SocialPreviewResult } from "@/lib/social-media";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const parsed = parseAndValidateSocialUrl(rawUrl);
+    // Resolve any share redirect (e.g. /share/p/, /share/r/) and parse canonical URL
+    const parsed = await resolveAndCleanSocialUrl(rawUrl);
 
     if (!parsed.isValid || !parsed.platform || !parsed.canonicalUrl || !parsed.type || !parsed.externalId) {
       return NextResponse.json(
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { platform, canonicalUrl, type, externalId } = parsed;
+    const { platform, canonicalUrl, originalUrl, type, externalId } = parsed;
 
     // Check for optional Meta App credentials
     const metaToken =
@@ -63,7 +64,6 @@ export async function POST(req: NextRequest) {
         if (oembedEndpoint) {
           const res = await fetch(oembedEndpoint, {
             headers: { Accept: "application/json" },
-            // Cache preview responses for 1 hour
             next: { revalidate: 3600 },
           });
 
@@ -91,8 +91,8 @@ export async function POST(req: NextRequest) {
           ? `ريلز إنستغرام: منشور تفاعلي للرابطة`
           : `منشور إنستغرام: توثيق أنشطة الرابطة`
         : type === "video"
-        ? `فيديو فيسبوك: تغطية فعاليات الرابطة`
-        : `منشور فيسبوك: تحديثات ونشاطات الرابطة`);
+        ? `فيديو فيسبوك: تغطية فعاليات ونشاطات الرابطة`
+        : `منشور فيسبوك: توثيق أنشطة الرابطة`);
 
     const defaultTitleEn =
       officialTitle ||
@@ -109,6 +109,7 @@ export async function POST(req: NextRequest) {
       platform,
       type,
       canonicalUrl,
+      originalUrl: originalUrl || rawUrl,
       externalId,
       title: {
         ar: defaultTitleAr,

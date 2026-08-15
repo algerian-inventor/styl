@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { GalleryItem } from "@/data/gallery";
 import { useLanguage } from "@/context/LanguageContext";
 import { InstagramIcon, FacebookIcon } from "./SocialGalleryCard";
@@ -15,8 +15,6 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
   const { language } = useLanguage();
   const [loadedId, setLoadedId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState(false);
-  const [useIframeFallback, setUseIframeFallback] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const isInstagram = item.sourceType === "instagram" || item.socialPlatform === "instagram";
   const isFacebook = item.sourceType === "facebook" || item.socialPlatform === "facebook";
@@ -27,102 +25,33 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
   useEffect(() => {
     let isMounted = true;
 
-    // Timeout to detect if third-party script is blocked by adblock
-    const timer = setTimeout(() => {
-      if (isMounted) {
-        setUseIframeFallback(true);
-      }
-    }, 3500);
-
-    // 1. INSTAGRAM EMBED LOGIC
+    // Instagram script loader
     if (isInstagram && postUrl) {
-      const loadInstagram = () => {
-        if (typeof window !== "undefined") {
-          const w = window as unknown as { instgrm?: { Embeds: { process: () => void } } };
-          if (w.instgrm?.Embeds) {
-            w.instgrm.Embeds.process();
-            if (isMounted) setLoadedId(item.id);
-          } else {
-            const existingScript = document.getElementById("instagram-embed-script");
-            if (!existingScript) {
-              const script = document.createElement("script");
-              script.id = "instagram-embed-script";
-              script.src = "https://www.instagram.com/embed.js";
-              script.async = true;
-              script.defer = true;
-              script.onload = () => {
-                if (isMounted) {
-                  w.instgrm?.Embeds?.process();
-                  setLoadedId(item.id);
-                }
-              };
-              script.onerror = () => {
-                if (isMounted) {
-                  setUseIframeFallback(true);
-                }
-              };
-              document.body.appendChild(script);
-            } else {
-              // Script exists, re-process
-              setTimeout(() => {
-                w.instgrm?.Embeds?.process();
-                if (isMounted) setLoadedId(item.id);
-              }, 300);
+      const w = typeof window !== "undefined" ? (window as unknown as { instgrm?: { Embeds: { process: () => void } } }) : null;
+      if (w?.instgrm?.Embeds) {
+        w.instgrm.Embeds.process();
+      } else if (typeof document !== "undefined") {
+        const existingScript = document.getElementById("instagram-embed-script");
+        if (!existingScript) {
+          const script = document.createElement("script");
+          script.id = "instagram-embed-script";
+          script.src = "https://www.instagram.com/embed.js";
+          script.async = true;
+          script.defer = true;
+          script.onload = () => {
+            if (isMounted) {
+              w?.instgrm?.Embeds?.process();
             }
-          }
+          };
+          document.body.appendChild(script);
         }
-      };
-
-      loadInstagram();
-    }
-
-    // 2. FACEBOOK EMBED LOGIC
-    if (isFacebook && postUrl) {
-      const loadFacebook = () => {
-        if (typeof window !== "undefined") {
-          const w = window as unknown as { FB?: { XFBML: { parse: (el?: HTMLElement) => void } } };
-          if (w.FB?.XFBML) {
-            w.FB.XFBML.parse(containerRef.current || undefined);
-            if (isMounted) setLoadedId(item.id);
-          } else {
-            const existingScript = document.getElementById("facebook-jssdk");
-            if (!existingScript) {
-              const script = document.createElement("script");
-              script.id = "facebook-jssdk";
-              script.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0";
-              script.async = true;
-              script.defer = true;
-              script.crossOrigin = "anonymous";
-              script.onload = () => {
-                if (isMounted) {
-                  w.FB?.XFBML?.parse(containerRef.current || undefined);
-                  setLoadedId(item.id);
-                }
-              };
-              script.onerror = () => {
-                if (isMounted) {
-                  setUseIframeFallback(true);
-                }
-              };
-              document.body.appendChild(script);
-            } else {
-              setTimeout(() => {
-                w.FB?.XFBML?.parse(containerRef.current || undefined);
-                if (isMounted) setLoadedId(item.id);
-              }, 300);
-            }
-          }
-        }
-      };
-
-      loadFacebook();
+      }
     }
 
     return () => {
       isMounted = false;
-      clearTimeout(timer);
     };
-  }, [item.id, isInstagram, isFacebook, postUrl]);
+  }, [item.id, isInstagram, postUrl]);
 
   const iframeSrc = isInstagram
     ? getSocialEmbedUrl("instagram", postUrl, isVideo ? "video" : "image")
@@ -168,13 +97,10 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
       </div>
 
       {/* Embed Container Box */}
-      <div
-        ref={containerRef}
-        className="w-full min-h-[480px] bg-slate-50 rounded-xl border border-slate-200 flex flex-col items-center justify-center p-2 relative overflow-hidden"
-      >
+      <div className="w-full min-h-[520px] bg-slate-50 rounded-xl border border-slate-200 flex flex-col items-center justify-center p-2 relative overflow-hidden">
         {/* Loading Spinner */}
-        {!isLoaded && !useIframeFallback && !loadError && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-xs z-10 space-y-2">
+        {!isLoaded && !loadError && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur-xs z-10 space-y-2">
             <RefreshCw className="w-6 h-6 text-brand-navy animate-spin" />
             <p className="text-xs font-bold text-brand-dark">
               {language === "ar" ? "جاري تحميل المنشور..." : "Loading post embed..."}
@@ -182,73 +108,14 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
           </div>
         )}
 
-        {/* 1. Official Instagram Blockquote Embed */}
-        {isInstagram && !useIframeFallback && (
-          <div className="w-full flex justify-center">
-            <blockquote
-              className="instagram-media"
-              data-instgrm-permalink={postUrl}
-              data-instgrm-version="14"
-              style={{
-                background: "#FFF",
-                border: "0",
-                borderRadius: "12px",
-                margin: "1px",
-                maxWidth: "540px",
-                minWidth: "326px",
-                padding: "0",
-                width: "99.375%",
-              }}
-            >
-              <div style={{ padding: "16px" }}>
-                <a
-                  href={postUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    background: "#FFFFFF",
-                    lineHeight: "0",
-                    padding: "0 0",
-                    textAlign: "center",
-                    textDecoration: "none",
-                    width: "100%",
-                  }}
-                >
-                  <span className="text-xs text-slate-400">Loading Instagram Post...</span>
-                </a>
-              </div>
-            </blockquote>
-          </div>
-        )}
-
-        {/* 2. Official Facebook XFBML Embed */}
-        {isFacebook && !useIframeFallback && (
-          <div className="w-full flex justify-center">
-            {isVideo ? (
-              <div
-                className="fb-video"
-                data-href={postUrl}
-                data-width="500"
-                data-allowfullscreen="true"
-                data-show-text="false"
-              />
-            ) : (
-              <div
-                className="fb-post"
-                data-href={postUrl}
-                data-width="500"
-                data-show-text="true"
-              />
-            )}
-          </div>
-        )}
-
-        {/* 3. Direct Iframe Embed Fallback (Works if script is blocked or delayed) */}
-        {useIframeFallback && !loadError && (
+        {/* Official Direct Iframe Embed (Works seamlessly for Facebook Posts, Reels & Instagram) */}
+        {!loadError && (
           <iframe
             src={iframeSrc}
-            className="w-full min-h-[520px] rounded-lg border-0"
-            scrolling="no"
+            className={`w-full max-w-[500px] rounded-lg border-0 transition-opacity duration-300 ${
+              isVideo ? "min-h-[580px] sm:min-h-[640px]" : "min-h-[520px] sm:min-h-[580px]"
+            } ${isLoaded ? "opacity-100" : "opacity-0"}`}
+            scrolling="yes"
             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
             onLoad={() => setLoadedId(item.id)}
             onError={() => setLoadError(true)}
@@ -256,7 +123,7 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
           />
         )}
 
-        {/* 4. Graceful Error / Blocked State */}
+        {/* Graceful Error / Blocked State */}
         {loadError && (
           <div className="p-8 text-center space-y-3 max-w-sm">
             <div className="w-12 h-12 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600">
