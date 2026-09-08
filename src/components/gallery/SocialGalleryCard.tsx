@@ -52,6 +52,8 @@ export const SocialGalleryCard: React.FC<SocialGalleryCardProps> = ({
   const displayImageSrc = getDisplayThumbnailUrl(rawThumb);
   const hasValidThumbnail = Boolean(displayImageSrc && !imageError);
 
+  if (imageError) return null;
+
   return (
     <div
       onClick={onClick}

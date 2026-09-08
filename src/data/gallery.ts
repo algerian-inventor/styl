@@ -14,7 +14,7 @@ export interface GalleryItem {
   };
   type: "image" | "video";
   url: string;
-  videoUrl?: string; // YouTube or placeholder video url
+  videoUrl?: string;
 
   // Social media extension fields
   sourceType?: GallerySourceType;
@@ -29,10 +29,7 @@ export interface GalleryItem {
 
 export const galleryAlbumNames: Record<string, { ar: string; en: string }> = {
   basmaTech: { ar: "بصمة تك", en: "Basma-Tech" },
-  ansf: { ar: "ANSF — المعرض العلمي الوطني الجزائري", en: "ANSF — Algerian National Science Fair" },
-  robotics: { ar: "الروبوتيك", en: "Robotics" },
-  salon: { ar: "صالون العلوم", en: "Science Salon" },
-  camp: { ar: "معسكر الذكاء الاصطناعي", en: "AI Bootcamp" },
+  ansf: { ar: "ANSF 2026", en: "ANSF 2026" },
 };
 
 const facebookSharePost = (
@@ -42,6 +39,7 @@ const facebookSharePost = (
   title: { ar: string; en: string }
 ): GalleryItem => {
   const socialUrl = `https://www.facebook.com/share/p/${shareId}/`;
+  const prefix = album === "ansf" ? "ansf" : "basma";
   return {
     id,
     title,
@@ -53,6 +51,7 @@ const facebookSharePost = (
     socialUrl,
     socialPlatform: "facebook",
     externalId: shareId,
+    thumbnailUrl: `/images/social-cache/${prefix}-${shareId}.png`,
     hasOfficialMetadata: false,
   };
 };
@@ -64,6 +63,7 @@ const facebookShareReel = (
   title: { ar: string; en: string }
 ): GalleryItem => {
   const socialUrl = `https://www.facebook.com/share/r/${shareId}/`;
+  const prefix = album === "ansf" ? "ansf" : "basma";
   return {
     id,
     title,
@@ -75,6 +75,7 @@ const facebookShareReel = (
     socialUrl,
     socialPlatform: "facebook",
     externalId: shareId,
+    thumbnailUrl: `/images/social-cache/${prefix}-${shareId}.png`,
     hasOfficialMetadata: false,
   };
 };
@@ -168,94 +169,4 @@ export const galleryItems: GalleryItem[] = [
     ar: "منشور ANSF",
     en: "ANSF Post",
   }),
-  {
-    id: "g1",
-    title: {
-      ar: "مشاركة فريق الرابطة في المسابقة الوطنية للروبوتيك",
-      en: "STLY Team at the National Robotics Competition",
-    },
-    album: "robotics",
-    albumName: { ar: "الروبوتيك", en: "Robotics" },
-    type: "image",
-    url: "/images/gallery/robotics1.png",
-  },
-  {
-    id: "g2",
-    title: {
-      ar: "الورشة التطبيقية لتصميم وبرمجة الروبوتات",
-      en: "Hands-on Workshop for Designing Robots",
-    },
-    album: "robotics",
-    albumName: { ar: "الروبوتيك", en: "Robotics" },
-    type: "image",
-    url: "/images/gallery/robotics2.png",
-  },
-  {
-    id: "g3",
-    title: {
-      ar: "المعرض العام للنوادي المشاركة في صالون العلوم 2026",
-      en: "General Exhibition of Clubs at Science Salon 2026",
-    },
-    album: "salon",
-    albumName: { ar: "صالون العلوم", en: "Science Salon" },
-    type: "image",
-    url: "/images/gallery/salon1.png",
-  },
-  {
-    id: "g4",
-    title: {
-      ar: "محاضرة الدكتور بوالشعور حول تكنولوجيا النانو",
-      en: "Prof. Boualchour's Lecture on Nanotechnology",
-    },
-    album: "salon",
-    albumName: { ar: "صالون العلوم", en: "Science Salon" },
-    type: "image",
-    url: "/images/gallery/salon2.png",
-  },
-  {
-    id: "g5",
-    title: {
-      ar: "افتتاح فعاليات معسكر رواد الذكاء الاصطناعي",
-      en: "Opening of the AI Pioneers Bootcamp",
-    },
-    album: "camp",
-    albumName: { ar: "معسكر الذكاء الاصطناعي", en: "AI Bootcamp" },
-    type: "image",
-    url: "/images/gallery/camp1.png",
-  },
-  {
-    id: "g6",
-    title: {
-      ar: "عرض بالفيديو لمشاريع التخرج المنجزة في المعسكر التكويني",
-      en: "Video Showcasing Projects Completed During the Bootcamp",
-    },
-    album: "camp",
-    albumName: { ar: "معسكر الذكاء الاصطناعي", en: "AI Bootcamp" },
-    type: "video",
-    url: "/images/gallery/camp-video-thumb.png",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Demo embed video
-  },
-  {
-    id: "g7",
-    title: {
-      ar: "العمل الجماعي وتصميم الدارات الإلكترونية",
-      en: "Teamwork & PCB Circuit Design Session",
-    },
-    album: "robotics",
-    albumName: { ar: "الروبوتيك", en: "Robotics" },
-    type: "image",
-    url: "/images/gallery/robotics3.png",
-  },
-  {
-    id: "g8",
-    title: {
-      ar: "لقطات فيديو تلخص صالون قسنطينة للعلوم 2026",
-      en: "Video Highlights of Constantine Science Salon 2026",
-    },
-    album: "salon",
-    albumName: { ar: "صالون العلوم", en: "Science Salon" },
-    type: "video",
-    url: "/images/gallery/salon-video-thumb.png",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Demo embed video
-  },
 ];

@@ -24,6 +24,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, variant = "card" })
     : eventDateObj.toLocaleDateString(language === "ar" ? "ar-DZ" : "en-US", { month: "short" });
 
   const isClosed = event.isClosed;
+  const hasLocation = Boolean(event.location[language]);
 
   if (variant === "row") {
     return (
@@ -73,10 +74,12 @@ export const EventCard: React.FC<EventCardProps> = ({ event, variant = "card" })
                 <Clock className="w-3.5 h-3.5 text-brand-navy" />
                 {event.time}
               </span>
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-brand-green" />
-                {event.location[language]}
-              </span>
+              {hasLocation && (
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-brand-green" />
+                  {event.location[language]}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -168,10 +171,12 @@ export const EventCard: React.FC<EventCardProps> = ({ event, variant = "card" })
               <Clock className="w-3.5 h-3.5 text-brand-navy" />
               {event.time}
             </span>
-            <span className="flex items-start gap-1.5 min-w-0">
-              <MapPin className="w-3.5 h-3.5 text-brand-green flex-shrink-0 mt-0.5" />
-              <span className="line-clamp-2">{event.location[language]}</span>
-            </span>
+            {hasLocation && (
+              <span className="flex items-start gap-1.5 min-w-0">
+                <MapPin className="w-3.5 h-3.5 text-brand-green flex-shrink-0 mt-0.5" />
+                <span className="line-clamp-2">{event.location[language]}</span>
+              </span>
+            )}
           </div>
 
           <Link

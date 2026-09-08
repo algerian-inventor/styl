@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
@@ -15,14 +15,15 @@ export default function EventsPage() {
 
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
-  const [activeTab, setActiveTab] = useState<"upcoming" | "previous">("upcoming");
+  const [activeTab, setActiveTab] = useState<"upcoming" | "previous">("previous");
 
-  const categories = ["all", "Science", "Robotics", "Innovation"];
+  const categories = useMemo(
+    () => ["all", ...Array.from(new Set(events.map((event) => event.category)))],
+    [events]
+  );
   const categoryTranslations: Record<string, { ar: string; en: string }> = {
     all: { ar: "كل الفعاليات", en: "All Events" },
-    Science: { ar: "صالون العلوم", en: "Science Salon" },
-    Robotics: { ar: "الروبوتيك", en: "Robotics" },
-    Innovation: { ar: "الابتكار والريادة", en: "Innovation" },
+    ANSF: { ar: "ANSF", en: "ANSF" },
   };
 
   const filteredEvents = events.filter((e) => {
@@ -110,7 +111,11 @@ export default function EventsPage() {
                       : "bg-slate-50 border-[#DCE3EA] text-slate-700 hover:bg-slate-100"
                   }`}
                 >
-                  {language === "ar" ? categoryTranslations[cat].ar : categoryTranslations[cat].en}
+                  {categoryTranslations[cat]
+                    ? language === "ar"
+                      ? categoryTranslations[cat].ar
+                      : categoryTranslations[cat].en
+                    : cat}
                 </button>
               ))}
             </div>

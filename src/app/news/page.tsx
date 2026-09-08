@@ -53,8 +53,8 @@ export default function NewsPage() {
         title={t("nav.news")}
         description={
           language === "ar"
-            ? "متابعة شاملة لأحدث إنجازات الرابطة، مشاركات الشباب، والتغطيات الإخبارية والعلمية"
-            : "Comprehensive coverage of our latest achievements, youth innovations, and scientific activities"
+            ? "مساحة مخصصة للأخبار والتغطيات الرسمية عند توفر محتوى موثق للنشر."
+            : "A space for official news and coverage when verified content is available for publication."
         }
       />
 
@@ -112,12 +112,12 @@ export default function NewsPage() {
           ) : (
             <div className="py-16 text-center bg-white rounded-2xl border border-[#DCE3EA] p-8 max-w-lg mx-auto space-y-3">
               <h3 className="text-xl font-bold text-brand-dark">
-                {language === "ar" ? "لا توجد مقالات مطابقة" : "No articles found"}
+                {language === "ar" ? "لا توجد أخبار موثقة حالياً" : "No verified news articles yet"}
               </h3>
               <p className="text-sm text-brand-muted">
                 {language === "ar"
-                  ? "جرب البحث بكلمات أخرى أو تغيير خيارات التصفية."
-                  : "Try another search term or choose another filter."}
+                  ? "سيتم نشر الأخبار والتغطيات عندما تتوفر مصادر ومعلومات مؤكدة."
+                  : "News and coverage will be published when confirmed sources and details are available."}
               </p>
             </div>
           )}

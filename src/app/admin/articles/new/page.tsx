@@ -74,7 +74,7 @@ export default function AdminNewArticlePage() {
       author: { ar: data.authorAr, en: data.authorEn },
       publishedDate: new Date().toISOString().split("T")[0],
       isFeatured: false,
-      coverImage: "/images/news/default.png",
+      coverImage: "",
       tags: {
         ar: processTags(data.tagsAr),
         en: processTags(data.tagsEn),

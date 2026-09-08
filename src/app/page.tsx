@@ -393,7 +393,41 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================
-          4. SCIENTIFIC FIELDS SECTION (3-Column Clean Grid)
+          4. BASMA-TECH FEATURE SECTION
+      ======================================================== */}
+      <section className="py-16 sm:py-20 bg-white border-b border-[#DCE3EA]">
+        <Container>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div className="lg:col-span-8 space-y-4">
+              <span className="inline-flex items-center text-xs font-bold text-brand-navy tracking-wider uppercase bg-brand-navy/5 border border-brand-navy/15 px-3 py-1 rounded-md">
+                Basma-Tech
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-dark leading-tight">
+                {language === "ar"
+                  ? "فريق بصمة تك التابع للرابطة"
+                  : "Basma-Tech, a Scientific Team Within STLY Constantine"}
+              </h2>
+              <p className="text-sm sm:text-base text-brand-muted leading-relaxed max-w-3xl">
+                {language === "ar"
+                  ? "فريق بصمة تك هو فريق علمي تابع لرابطة النشاطات العلمية والتقنية للشباب – قسنطينة، يشارك في الأنشطة والمبادرات والمسابقات العلمية والتكنولوجية."
+                  : "Basma-Tech is a scientific team within STLY Constantine, participating in scientific and technology activities, initiatives, and competitions."}
+              </p>
+            </div>
+
+            <div className="lg:col-span-4 flex lg:justify-end">
+              <Link href="/gallery?album=basmaTech">
+                <Button variant="outline" size="md" className="gap-2">
+                  <span>{language === "ar" ? "شاهد أنشطة بصمة تك" : "Explore Basma-Tech Activities"}</span>
+                  <ArrowIcon className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ========================================================
+          5. SCIENTIFIC FIELDS SECTION (3-Column Clean Grid)
       ======================================================== */}
       <section className="py-20 sm:py-24 bg-[#F4F7FA]">
         <Container>
@@ -456,7 +490,7 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================
-          5. FEATURED PROGRAMS SECTION
+          6. FEATURED PROGRAMS SECTION
       ======================================================== */}
       {featuredPrograms.length > 0 && (
         <section className="py-20 sm:py-24 bg-white border-y border-[#DCE3EA]">
@@ -489,7 +523,7 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          6. UPCOMING EVENTS SECTION
+          7. UPCOMING EVENTS SECTION
       ======================================================== */}
       {upcomingEvents.length > 0 && (
         <section className="py-20 sm:py-24 bg-[#F4F7FA]">
@@ -522,7 +556,7 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          7. LATEST NEWS & PUBLICATIONS SECTION
+          8. LATEST NEWS & PUBLICATIONS SECTION
       ======================================================== */}
       {latestNews.length > 0 && (
         <section className="py-20 sm:py-24 bg-white border-y border-[#DCE3EA]">
@@ -563,7 +597,7 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          8. GALLERY PREVIEW (Varied Mosaic Grid)
+          9. GALLERY PREVIEW (Varied Mosaic Grid)
       ======================================================== */}
       {previewGallery.length > 0 && (
         <section className="py-20 sm:py-24 bg-[#F4F7FA]">
@@ -675,7 +709,7 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          9. PARTNERS & INSTITUTIONAL NETWORK
+          10. PARTNERS & INSTITUTIONAL NETWORK
       ======================================================== */}
       {partners.length > 0 && (
         <section className="py-16 sm:py-20 bg-white border-t border-[#DCE3EA]">
@@ -716,7 +750,7 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          10. MEMBERSHIP CALL TO ACTION SECTION (Navy)
+          11. MEMBERSHIP CALL TO ACTION SECTION (Navy)
       ======================================================== */}
       <CTASection />
     </div>

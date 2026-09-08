@@ -69,6 +69,9 @@ export default function EventDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const hasLocation = Boolean(event.location[language]);
+  const hasCapacity = event.capacity > 0;
+
   const onSubmit = (data: RegFormValues) => {
     const ref = submitEventRegistration({
       eventId: event.id,
@@ -291,16 +294,20 @@ export default function EventDetailPage({ params }: PageProps) {
                         <Clock className="w-4 h-4 text-brand-navy flex-shrink-0" />
                         <span>{event.time}</span>
                       </li>
-                      <li className="flex items-start gap-2.5">
-                        <MapPin className="w-4 h-4 text-brand-green flex-shrink-0 mt-0.5" />
-                        <span>{event.location[language]}</span>
-                      </li>
-                      <li className="flex items-center gap-2.5">
-                        <Users className="w-4 h-4 text-brand-navy flex-shrink-0" />
-                        <span>
-                          {t("events.capacity")}: {event.capacity} {language === "ar" ? "مقعد" : "Seats"}
-                        </span>
-                      </li>
+                      {hasLocation && (
+                        <li className="flex items-start gap-2.5">
+                          <MapPin className="w-4 h-4 text-brand-green flex-shrink-0 mt-0.5" />
+                          <span>{event.location[language]}</span>
+                        </li>
+                      )}
+                      {hasCapacity && (
+                        <li className="flex items-center gap-2.5">
+                          <Users className="w-4 h-4 text-brand-navy flex-shrink-0" />
+                          <span>
+                            {t("events.capacity")}: {event.capacity} {language === "ar" ? "مقعد" : "Seats"}
+                          </span>
+                        </li>
+                      )}
                     </ul>
                   </div>
 
@@ -311,9 +318,9 @@ export default function EventDetailPage({ params }: PageProps) {
                           ? "عذراً، باب التسجيل مغلق حالياً لهذه الفعالية."
                           : "Registration is currently closed for this event."}
                       </p>
-                      <Link href="/events" className="inline-block pt-1">
+                      <Link href="/ansf" className="inline-block pt-1">
                         <Button variant="outline" size="sm">
-                          {language === "ar" ? "تصفح الفعاليات الأخرى" : "Browse other events"}
+                          {language === "ar" ? "تفاصيل ANSF" : "ANSF Details"}
                         </Button>
                       </Link>
                     </div>

@@ -44,16 +44,7 @@ export interface SiteSettings {
   tiktokUrl?: string;
 }
 
-const initialContactMessages: ContactMessage[] = [
-  {
-    id: "MSG-001",
-    fullName: "سليم بوحوش",
-    email: "salim.b@gmail.com",
-    subject: "طلب رعاية علمية لمعرض إلكترونيات",
-    message: "السلام عليكم، نحن مجموعة من الطلبة ونود التعاون مع الرابطة لتنظيم معرض مصغر للابتكارات الإلكترونية في قسنطينة.",
-    date: "2026-06-18",
-  },
-];
+const initialContactMessages: ContactMessage[] = [];
 
 const defaultSettings: SiteSettings = {
   leagueNameAr: "الرابطة العلمية والتقنية للشباب – قسنطينة",
@@ -73,6 +64,7 @@ const defaultSettings: SiteSettings = {
 };
 
 const GALLERY_SEED_VERSION = "2026-09-08-real-basma-tech-ansf";
+const CONTENT_CLEANUP_VERSION = "2026-09-08-final-pre-demo-cleanup-v4";
 
 interface PrototypeStateContextProps {
   articles: Article[];
@@ -162,9 +154,15 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       return defaults;
     };
 
+    const shouldResetUnverifiedSeeds =
+      localStorage.getItem("stly_content_cleanup_version") !== CONTENT_CLEANUP_VERSION;
+    if (shouldResetUnverifiedSeeds) {
+      localStorage.setItem("stly_content_cleanup_version", CONTENT_CLEANUP_VERSION);
+    }
+
     const loadGalleryState = (): GalleryItem[] => {
       const stored = localStorage.getItem("stly_gallery");
-      if (!stored) {
+      if (!stored || shouldResetUnverifiedSeeds) {
         localStorage.setItem("stly_gallery_seed_version", GALLERY_SEED_VERSION);
         return defaultGallery;
       }
@@ -172,17 +170,22 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       try {
         const parsed = JSON.parse(stored) as GalleryItem[];
         const storedSeedVersion = localStorage.getItem("stly_gallery_seed_version");
-        if (storedSeedVersion === GALLERY_SEED_VERSION) return parsed;
+        const cleanedStored = parsed.filter(
+          (item) =>
+            !["g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8"].includes(item.id) &&
+            !item.videoUrl?.includes("youtube.com/embed/")
+        );
+        if (storedSeedVersion === GALLERY_SEED_VERSION) return cleanedStored;
 
         const knownKeys = new Set(
-          parsed.map((item) => (item.socialUrl || item.url || item.id).toLowerCase())
+          cleanedStored.map((item) => (item.socialUrl || item.url || item.id).toLowerCase())
         );
         const missingDefaults = defaultGallery.filter(
           (item) => !knownKeys.has((item.socialUrl || item.url || item.id).toLowerCase())
         );
 
         localStorage.setItem("stly_gallery_seed_version", GALLERY_SEED_VERSION);
-        return [...missingDefaults, ...parsed];
+        return [...missingDefaults, ...cleanedStored];
       } catch (e) {
         console.error("Error parsing stly_gallery from localStorage", e);
         localStorage.setItem("stly_gallery_seed_version", GALLERY_SEED_VERSION);
@@ -190,14 +193,22 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       }
     };
 
-    setArticles(loadState("stly_articles", defaultArticles));
-    setEvents(loadState("stly_events", defaultEvents));
-    setPrograms(loadState("stly_programs", defaultPrograms));
-    setRegistrations(loadState("stly_registrations", initialRegistrations));
-    setApplications(loadState("stly_applications", initialApplications));
-    setContactMessages(loadState("stly_contact_messages", initialContactMessages));
+    setArticles(shouldResetUnverifiedSeeds ? defaultArticles : loadState("stly_articles", defaultArticles));
+    setEvents(shouldResetUnverifiedSeeds ? defaultEvents : loadState("stly_events", defaultEvents));
+    setPrograms(shouldResetUnverifiedSeeds ? defaultPrograms : loadState("stly_programs", defaultPrograms));
+    setRegistrations(
+      shouldResetUnverifiedSeeds ? initialRegistrations : loadState("stly_registrations", initialRegistrations)
+    );
+    setApplications(
+      shouldResetUnverifiedSeeds ? initialApplications : loadState("stly_applications", initialApplications)
+    );
+    setContactMessages(
+      shouldResetUnverifiedSeeds
+        ? initialContactMessages
+        : loadState("stly_contact_messages", initialContactMessages)
+    );
     setGalleryItems(loadGalleryState());
-    setPartners(loadState("stly_partners", defaultPartners));
+    setPartners(shouldResetUnverifiedSeeds ? defaultPartners : loadState("stly_partners", defaultPartners));
 
     // Load customizer settings
     const storedSettings = localStorage.getItem("stly_site_settings");

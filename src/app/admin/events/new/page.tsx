@@ -58,7 +58,7 @@ export default function AdminNewEventPage() {
       locationEn: "",
       capacity: 50,
       registrationDeadline: "",
-      category: "Robotics",
+      category: "ANSF",
     },
   });
 
@@ -73,7 +73,7 @@ export default function AdminNewEventPage() {
       capacity: data.capacity,
       registrationDeadline: data.registrationDeadline,
       category: data.category,
-      coverImage: "/images/events/default.png",
+      coverImage: "",
       speakers: [],
       program: [],
     });

@@ -45,7 +45,7 @@ export default function AdminGalleryPage() {
   // Manual upload form states
   const [titleAr, setTitleAr] = useState("");
   const [titleEn, setTitleEn] = useState("");
-  const [album, setAlbum] = useState("robotics");
+  const [album, setAlbum] = useState("basmaTech");
   const [imageUrl, setImageUrl] = useState("");
 
   // Social import form states
@@ -294,7 +294,7 @@ export default function AdminGalleryPage() {
   const resetForm = () => {
     setTitleAr("");
     setTitleEn("");
-    setAlbum("robotics");
+    setAlbum("basmaTech");
     setImageUrl("");
     setSocialUrlInput("");
     setPreviewResult(null);

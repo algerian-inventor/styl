@@ -120,26 +120,28 @@ function GalleryContent() {
       {/* Gallery Content Section */}
       <section className="py-16 sm:py-20">
         <Container className="space-y-10">
-          {/* Album Filter Tabs */}
-          <div className="flex flex-wrap justify-center gap-2">
-            {albums.map((alb) => (
-              <button
-                key={alb.id}
-                onClick={() => setActiveAlbum(alb.id)}
-                className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all cursor-pointer ${
-                  visibleActiveAlbum === alb.id
-                    ? "bg-[#062B55] border-[#062B55] text-white shadow-xs"
-                    : "bg-white border-[#DCE3EA] text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                {language === "ar" ? alb.ar : alb.en}
-              </button>
-            ))}
+          {/* Album Filter Tabs - Horizontal scroll on mobile */}
+          <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex flex-nowrap sm:flex-wrap justify-start sm:justify-center gap-2 min-w-max sm:min-w-0">
+              {albums.map((alb) => (
+                <button
+                  key={alb.id}
+                  onClick={() => setActiveAlbum(alb.id)}
+                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all cursor-pointer whitespace-nowrap ${
+                    visibleActiveAlbum === alb.id
+                      ? "bg-[#062B55] border-[#062B55] text-white shadow-xs"
+                      : "bg-white border-[#DCE3EA] text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  {language === "ar" ? alb.ar : alb.en}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Mosaic Grid */}
           {filteredItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
               {filteredItems.map((item, idx) => {
                 const itemIsSocial =
                   item.sourceType === "instagram" ||
