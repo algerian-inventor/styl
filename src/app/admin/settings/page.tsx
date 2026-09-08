@@ -36,6 +36,7 @@ export default function AdminSettingsPage() {
   const [facebookUrl, setFacebookUrl] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [tiktokUrl, setTiktokUrl] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Sync state with settings when context loads
   useEffect(() => {
@@ -75,8 +76,41 @@ export default function AdminSettingsPage() {
     }
   };
 
+  const validateUrl = (url: string): boolean => {
+    if (!url || url.trim() === "") return true; // allow blank
+    const trimmed = url.trim();
+    try {
+      const parsed = new URL(trimmed);
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false; // malformed URL
+    }
+  };
+
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const urlFields = {
+      instagram: instagramUrl.trim(),
+      facebook: facebookUrl.trim(),
+      youtube: youtubeUrl.trim(),
+      tiktok: tiktokUrl.trim()
+    };
+
+    const newErrors: Record<string, string> = {};
+    const errorMessage = language === "ar" ? "يجب أن يكون الرابط صحيحاً ويبدأ بـ http:// أو https://" : "Must be a valid HTTP/HTTPS URL.";
+    
+    let hasErrors = false;
+    
+    if (!validateUrl(urlFields.instagram)) { newErrors.instagram = errorMessage; hasErrors = true; }
+    if (!validateUrl(urlFields.facebook)) { newErrors.facebook = errorMessage; hasErrors = true; }
+    if (!validateUrl(urlFields.youtube)) { newErrors.youtube = errorMessage; hasErrors = true; }
+    if (!validateUrl(urlFields.tiktok)) { newErrors.tiktok = errorMessage; hasErrors = true; }
+    
+    setErrors(newErrors);
+    
+    if (hasErrors) return;
+
     updateSiteSettings({
       leagueNameAr,
       leagueNameEn,
@@ -88,10 +122,10 @@ export default function AdminSettingsPage() {
       addressEn,
       primaryColor,
       heroBannerUrl,
-      instagramUrl: instagramUrl.trim(),
-      facebookUrl: facebookUrl.trim(),
-      youtubeUrl: youtubeUrl.trim(),
-      tiktokUrl: tiktokUrl.trim(),
+      instagramUrl: urlFields.instagram,
+      facebookUrl: urlFields.facebook,
+      youtubeUrl: urlFields.youtube,
+      tiktokUrl: urlFields.tiktok,
     });
   };
 
@@ -279,36 +313,36 @@ export default function AdminSettingsPage() {
                       {language === "ar" ? "روابط التواصل الاجتماعي" : "Social Media"}
                     </h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField label="Instagram">
+                      <FormField label="Instagram" error={errors.instagram}>
                         <input
                           type="url"
                           placeholder="https://instagram.com/..."
                           value={instagramUrl}
-                          onChange={(e) => setInstagramUrl(e.target.value)}
+                          onChange={(e) => { setInstagramUrl(e.target.value); setErrors(prev => ({ ...prev, instagram: "" })); }}
                         />
                       </FormField>
-                      <FormField label="Facebook">
+                      <FormField label="Facebook" error={errors.facebook}>
                         <input
                           type="url"
                           placeholder="https://facebook.com/..."
                           value={facebookUrl}
-                          onChange={(e) => setFacebookUrl(e.target.value)}
+                          onChange={(e) => { setFacebookUrl(e.target.value); setErrors(prev => ({ ...prev, facebook: "" })); }}
                         />
                       </FormField>
-                      <FormField label="YouTube">
+                      <FormField label="YouTube" error={errors.youtube}>
                         <input
                           type="url"
                           placeholder="https://youtube.com/..."
                           value={youtubeUrl}
-                          onChange={(e) => setYoutubeUrl(e.target.value)}
+                          onChange={(e) => { setYoutubeUrl(e.target.value); setErrors(prev => ({ ...prev, youtube: "" })); }}
                         />
                       </FormField>
-                      <FormField label="TikTok">
+                      <FormField label="TikTok" error={errors.tiktok}>
                         <input
                           type="url"
                           placeholder="https://tiktok.com/..."
                           value={tiktokUrl}
-                          onChange={(e) => setTiktokUrl(e.target.value)}
+                          onChange={(e) => { setTiktokUrl(e.target.value); setErrors(prev => ({ ...prev, tiktok: "" })); }}
                         />
                       </FormField>
                     </div>

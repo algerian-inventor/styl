@@ -13,6 +13,7 @@ export const Navbar: React.FC = () => {
   const { siteSettings } = usePrototypeState();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const pathname = usePathname();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
@@ -24,6 +25,28 @@ export const Navbar: React.FC = () => {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Handle Escape key to close dropdown
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
+  // Handle Outside Click to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!(e.target as Element).closest(".nav-dropdown-container")) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
   // Hide navbar on admin dashboards except admin login
@@ -90,30 +113,50 @@ export const Navbar: React.FC = () => {
               const active = isActive(link.href);
               
               if (link.dropdown) {
+                const isOpen = activeDropdown === link.href;
                 return (
-                  <div key={link.href} className="relative group px-1">
-                    <Link
-                      href={link.href}
-                      className={`relative px-3.5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-1 ${
+                  <div 
+                    key={link.href} 
+                    className="relative px-1 nav-dropdown-container"
+                    onMouseEnter={() => setActiveDropdown(link.href)}
+                    onMouseLeave={() => setActiveDropdown(null)}
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                        setActiveDropdown(null);
+                      }
+                    }}
+                  >
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-haspopup="true"
+                      onClick={() => setActiveDropdown(isOpen ? null : link.href)}
+                      onFocus={() => setActiveDropdown(link.href)}
+                      className={`relative px-3.5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy/20 ${
                         active
                           ? "text-[#062B55] bg-slate-100/80 font-extrabold"
                           : "text-brand-dark hover:text-[#062B55] hover:bg-slate-50"
                       }`}
                     >
                       {link.label}
-                      <svg className="w-3.5 h-3.5 opacity-50 transition-transform group-hover:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg className={`w-3.5 h-3.5 opacity-50 transition-transform ${isOpen ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                       </svg>
                       {active && (
                         <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-brand-green rounded-full" />
                       )}
-                    </Link>
-                    <div className={`absolute top-full ${isRtl ? "right-0" : "left-0"} mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50`}>
+                    </button>
+                    <div 
+                      className={`absolute top-full ${isRtl ? "right-0" : "left-0"} mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-2 transition-all duration-200 z-50 ${
+                        isOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-1"
+                      }`}
+                    >
                       {link.dropdown.map((subLink) => (
                         <Link
                           key={subLink.href}
                           href={subLink.href}
-                          className="block px-4 py-2 text-sm font-semibold text-brand-dark hover:bg-slate-50 hover:text-brand-navy"
+                          className="block px-4 py-2 text-sm font-semibold text-brand-dark hover:bg-slate-50 hover:text-brand-navy focus:bg-slate-50 focus:text-brand-navy focus:outline-none"
+                          onClick={() => setActiveDropdown(null)}
                         >
                           {subLink.label}
                         </Link>
