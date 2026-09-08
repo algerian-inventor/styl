@@ -80,7 +80,7 @@ const facebookShareReel = (
   };
 };
 
-export const galleryItems: GalleryItem[] = [
+export const facebookSeededData: GalleryItem[] = [
   facebookSharePost("basma-tech-1978VRJMur", "basmaTech", "1978VRJMur", {
     ar: "منشور بصمة تك",
     en: "Basma-Tech Post",
@@ -169,4 +169,49 @@ export const galleryItems: GalleryItem[] = [
     ar: "منشور ANSF",
     en: "ANSF Post",
   }),
+];
+
+export const galleryItems: GalleryItem[] = [
+  {
+    ...facebookSharePost("basma-tech-1978VRJMur", "basmaTech", "1978VRJMur", {
+      ar: "نشاط بصمة تك وANSF",
+      en: "Basma-Tech & ANSF Activity",
+    }),
+    thumbnailUrl: "https://i.postimg.cc/QMHk0Rkb/20260426-191521.jpg",
+  },
+  {
+    ...facebookSharePost("ansf-19cQ9hoPub", "ansf", "19cQ9hoPub", {
+      ar: "نشاط بصمة تك وANSF",
+      en: "Basma-Tech & ANSF Activity",
+    }),
+    thumbnailUrl: "https://i.postimg.cc/qvZ2h1Vw/FB-IMG-1777233907598.jpg",
+  },
+  {
+    ...facebookSharePost("basma-tech-1AoV9m4kny", "basmaTech", "1AoV9m4kny", {
+      ar: "نشاط بصمة تك وANSF",
+      en: "Basma-Tech & ANSF Activity",
+    }),
+    thumbnailUrl: "https://i.postimg.cc/y6X9X1C7/FB-IMG-1777305071224.jpg",
+  },
+  {
+    ...facebookSharePost("ansf-1JrXQz163i", "ansf", "1JrXQz163i", {
+      ar: "نشاط بصمة تك وANSF",
+      en: "Basma-Tech & ANSF Activity",
+    }),
+    thumbnailUrl: "https://i.postimg.cc/WpnFq504/ifest.png",
+  },
+  {
+    ...facebookSharePost("basma-tech-18weicETQ6", "basmaTech", "18weicETQ6", {
+      ar: "نشاط بصمة تك وANSF",
+      en: "Basma-Tech & ANSF Activity",
+    }),
+    thumbnailUrl: "https://i.postimg.cc/HL9HvhY7/6.jpg",
+  },
+  {
+    ...facebookShareReel("ansf-1FSFPKYNkK", "ansf", "1FSFPKYNkK", {
+      ar: "نشاط بصمة تك وANSF",
+      en: "Basma-Tech & ANSF Activity",
+    }),
+    thumbnailUrl: "https://i.postimg.cc/NMbsFPZQ/10.jpg",
+  },
 ];
