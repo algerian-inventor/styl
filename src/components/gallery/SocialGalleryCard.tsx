@@ -48,7 +48,7 @@ export const SocialGalleryCard: React.FC<SocialGalleryCardProps> = ({
   const isSocial = isInstagram || isFacebook;
   const isVideo = item.type === "video";
 
-  const rawThumb = item.thumbnailUrl || (item.url && !item.url.startsWith("/images/gallery/") ? item.url : null);
+  const rawThumb = item.thumbnailUrl || (!isSocial && item.url ? item.url : null);
   const displayImageSrc = getDisplayThumbnailUrl(rawThumb);
   const hasValidThumbnail = Boolean(displayImageSrc && !imageError);
 
@@ -89,50 +89,53 @@ export const SocialGalleryCard: React.FC<SocialGalleryCardProps> = ({
 
       {/* 2. Branded Social Media Card Fallback (Only when no image thumbnail is available) */}
       {(!hasValidThumbnail || imageError) && isSocial && (
-        <div
-          className={`w-full h-full p-5 flex flex-col justify-between select-none ${
-            isInstagram
-              ? "bg-gradient-to-br from-[#405DE6] via-[#E1306C] to-[#FCAF45] text-white"
-              : "bg-gradient-to-br from-[#1877F2] via-[#0D47A1] to-[#041D38] text-white"
-          }`}
-        >
-          {/* Header row with handle */}
+        <div className="w-full h-full p-5 flex flex-col justify-between select-none bg-white text-brand-dark">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-md">
+              <div
+                className={`p-1.5 rounded-lg ${
+                  isInstagram
+                    ? "bg-pink-50 text-pink-700 border border-pink-100"
+                    : "bg-blue-50 text-blue-700 border border-blue-100"
+                }`}
+              >
                 {isInstagram ? (
-                  <InstagramIcon className="w-4 h-4 text-white" />
+                  <InstagramIcon className="w-4 h-4" />
                 ) : (
-                  <FacebookIcon className="w-4 h-4 text-white" />
+                  <FacebookIcon className="w-4 h-4" />
                 )}
               </div>
-              <span className="text-[11px] font-extrabold tracking-tight opacity-95">
-                {isInstagram ? "@stly.constantine" : "STLY Constantine"}
+              <span className="text-[11px] font-extrabold tracking-tight">
+                {isInstagram
+                  ? isVideo
+                    ? "Instagram Reel"
+                    : "Instagram Post"
+                  : isVideo
+                  ? "Facebook Reel"
+                  : "Facebook Post"}
               </span>
             </div>
 
             {isVideo && (
-              <span className="p-1.5 rounded-full bg-black/30 backdrop-blur-md">
-                <Play className="w-3.5 h-3.5 fill-white text-white" />
+              <span className="p-1.5 rounded-full bg-slate-100 text-brand-navy">
+                <Play className="w-3.5 h-3.5 fill-brand-navy text-brand-navy" />
               </span>
             )}
           </div>
 
-          {/* Central Title / Preview */}
           <div className="space-y-1 my-auto">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/80 block">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-green block">
               {item.albumName[language]}
             </span>
-            <p className="text-xs sm:text-sm font-extrabold line-clamp-3 leading-snug text-white drop-shadow-xs">
+            <p className="text-xs sm:text-sm font-extrabold line-clamp-3 leading-snug text-brand-dark">
               {item.title[language]}
             </p>
           </div>
 
-          {/* Bottom badge */}
-          <div className="flex items-center justify-between text-[10px] font-semibold text-white/90 pt-2 border-t border-white/20">
-            <span>{isInstagram ? (isVideo ? "Instagram Reel" : "Instagram Post") : isVideo ? "Facebook Video" : "Facebook Post"}</span>
-            <span className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-              <span>{language === "ar" ? "معاينة" : "Preview"}</span>
+          <div className="flex items-center justify-between text-[10px] font-semibold text-slate-600 pt-2 border-t border-slate-200">
+            <span>{language === "ar" ? "معاينة المنصة" : "Platform preview"}</span>
+            <span className="flex items-center gap-1 text-brand-navy">
+              <span>{language === "ar" ? "الأصل" : "Original"}</span>
               <ExternalLink className="w-3 h-3" />
             </span>
           </div>

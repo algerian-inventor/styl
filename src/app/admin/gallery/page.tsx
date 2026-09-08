@@ -680,10 +680,10 @@ export default function AdminGalleryPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div
-                        className={`p-1.5 rounded-lg text-white ${
+                        className={`p-1.5 rounded-lg ${
                           previewResult.platform === "instagram"
-                            ? "bg-gradient-to-tr from-[#FD1D1D] to-[#833AB4]"
-                            : "bg-[#1877F2]"
+                            ? "bg-pink-50 text-pink-700 border border-pink-100"
+                            : "bg-blue-50 text-blue-700 border border-blue-100"
                         }`}
                       >
                         {previewResult.platform === "instagram" ? (
@@ -731,22 +731,31 @@ export default function AdminGalleryPage() {
                           </div>
                         </div>
                       )}
-                      <div className="absolute bottom-2 start-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white font-bold">
-                        {previewResult.authorName || (previewResult.platform === "instagram" ? "@stly.constantine" : "STLY Constantine")}
-                      </div>
+                      {previewResult.authorName && (
+                        <div className="absolute bottom-2 start-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white font-bold">
+                          {previewResult.authorName}
+                        </div>
+                      )}
                     </div>
                   ) : (
-                    <div
-                      className={`h-24 w-full rounded-xl p-3 flex flex-col justify-between text-white ${
-                        previewResult.platform === "instagram"
-                          ? "bg-gradient-to-tr from-[#FD1D1D] to-[#833AB4]"
-                          : "bg-[#1877F2]"
-                      }`}
-                    >
-                      <span className="text-[10px] font-extrabold uppercase">
-                        {previewResult.platform} {previewResult.type}
+                    <div className="h-24 w-full rounded-xl p-3 flex flex-col justify-between bg-white border border-slate-200 text-brand-dark">
+                      <span
+                        className={`text-[10px] font-extrabold uppercase ${
+                          previewResult.platform === "instagram" ? "text-pink-700" : "text-blue-700"
+                        }`}
+                      >
+                        {previewResult.platform === "instagram"
+                          ? previewResult.type === "video"
+                            ? "Instagram Reel"
+                            : "Instagram Post"
+                          : previewResult.type === "video"
+                          ? "Facebook Reel"
+                          : "Facebook Post"}
                       </span>
                       <p className="text-xs font-bold line-clamp-1">{previewResult.title?.ar || previewResult.title?.en}</p>
+                      <span className="text-[10px] font-bold text-brand-navy">
+                        {language === "ar" ? "رابط أصلي محفوظ" : "Original link saved"}
+                      </span>
                     </div>
                   )}
                 </div>

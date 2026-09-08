@@ -199,6 +199,22 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
       }
     }
 
+    // Facebook Story URLs: /story.php?story_fbid=...&id=...
+    if (pathname.includes("story.php")) {
+      const storyFbid = urlObj.searchParams.get("story_fbid");
+      const id = urlObj.searchParams.get("id");
+      if (storyFbid && id) {
+        return {
+          isValid: true,
+          platform: "facebook",
+          type: "image",
+          canonicalUrl: `https://www.facebook.com/story.php?story_fbid=${storyFbid}&id=${id}`,
+          originalUrl: trimmed,
+          externalId: `${id}_${storyFbid}`,
+        };
+      }
+    }
+
     // Facebook Reels: /reel/:id or /reels/:id
     const fbReelMatch = pathname.match(/^\/reels?\/([0-9a-zA-Z_-]+)/i);
     if (fbReelMatch) {
@@ -289,8 +305,23 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
       };
     }
 
+    // Generic Facebook Share URLs: /share/:id
+    const genericFbShareMatch = pathname.match(/^\/share\/([a-zA-Z0-9_-]+)/i);
+    if (genericFbShareMatch) {
+      const shareId = genericFbShareMatch[1];
+      return {
+        isValid: true,
+        platform: "facebook",
+        type: "image",
+        canonicalUrl: `https://www.facebook.com/share/${shareId}/`,
+        originalUrl: trimmed,
+        externalId: shareId,
+        isShareUrl: true,
+      };
+    }
+
     // Profile check
-    if (pathname.length > 1 && !pathname.includes("photo.php") && !pathname.includes("permalink.php") && !pathname.includes("/posts/") && !pathname.includes("/videos/") && !pathname.includes("/watch")) {
+    if (pathname.length > 1 && !pathname.includes("photo.php") && !pathname.includes("permalink.php") && !pathname.includes("story.php") && !pathname.includes("/posts/") && !pathname.includes("/videos/") && !pathname.includes("/watch")) {
       return {
         isValid: false,
         errorMessage: {

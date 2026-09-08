@@ -76,8 +76,8 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
         </div>
 
         {/* Metadata & Footer Action */}
-        <div className="pt-4 border-t border-[#DCE3EA]/60 flex items-center justify-between text-xs text-brand-muted">
-          <div className="flex items-center gap-3">
+        <div className="pt-4 border-t border-[#DCE3EA]/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-brand-muted">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-brand-green" />
               {program.duration[language]}

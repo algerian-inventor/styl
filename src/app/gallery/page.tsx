@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Image as ImageIcon, Video as VideoIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
@@ -30,19 +30,19 @@ export default function GalleryPage() {
     (item) => activeAlbum === "all" || item.album === activeAlbum
   );
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (selectedIdx === null) return;
     setSelectedIdx((prevIdx) =>
       prevIdx! === 0 ? filteredItems.length - 1 : prevIdx! - 1
     );
-  };
+  }, [filteredItems.length, selectedIdx]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (selectedIdx === null) return;
     setSelectedIdx((prevIdx) =>
       prevIdx! === filteredItems.length - 1 ? 0 : prevIdx! + 1
     );
-  };
+  }, [filteredItems.length, selectedIdx]);
 
   // Keyboard navigation for Lightbox
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function GalleryPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIdx, dir, filteredItems.length]);
+  }, [selectedIdx, dir, filteredItems.length, handleNext, handlePrev]);
 
   const selectedItem = selectedIdx !== null ? filteredItems[selectedIdx] : null;
   const isSocial =
@@ -141,14 +141,20 @@ export default function GalleryPage() {
                     }}
                     aria-label={item.title[language]}
                   >
+                    <MediaFallback
+                      title={item.title[language]}
+                      category={item.albumName[language]}
+                      aspectRatio="1/1"
+                      className="absolute inset-0"
+                    />
                     {item.url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={item.url}
                         alt={item.title[language]}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
-                          (e.target as HTMLElement).style.display = "none";
+                          (e.currentTarget as HTMLElement).style.display = "none";
                         }}
                       />
                     ) : (
@@ -156,6 +162,7 @@ export default function GalleryPage() {
                         title={item.title[language]}
                         category={item.albumName[language]}
                         aspectRatio="1/1"
+                        className="absolute inset-0"
                       />
                     )}
 

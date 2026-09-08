@@ -61,8 +61,8 @@ export const events: Event[] = [
       en: "A major scientific event gathering science enthusiasts, featuring exhibitions and engaging scientific activities.",
     },
     description: {
-      ar: "يعد صالون قسنطينة للعلوم الحدث الأكبر من نوعه في الولاية، حيث يجمع نوادي علمية من مختلف الجامعات والمدارس الثانوية لعرض ابتكاراتهم. يتخلل الصالون محاضرات تفاعلية يلقيها دكاترة وخبراء متميزون، بالإضافة لورشات حية وتحديات موجهة للزوار.",
-      en: "The Constantine Science Salon is the largest of its kind in the province, bringing together science clubs from various universities and schools to showcase innovations. The salon includes interactive lectures by academics and industry experts, alongside live workshops.",
+      ar: "يعد صالون قسنطينة للعلوم مناسبة لالتقاء النوادي العلمية والمهتمين بالعلوم لعرض التجارب وتبادل الأفكار. يتخلل الصالون محاضرات تفاعلية وورشات حية وتحديات موجهة للزوار.",
+      en: "The Constantine Science Salon brings together science clubs and science enthusiasts to share experiments and exchange ideas. The salon includes interactive talks, live workshops, and visitor challenges.",
     },
     date: "2026-07-15",
     time: "09:00 - 17:00",
@@ -145,8 +145,8 @@ export const events: Event[] = [
       en: "A 48-hour continuous hackathon to develop smart solutions for environmental and industrial challenges in Constantine.",
     },
     description: {
-      ar: "جمع هذا الهاكاثون أكثر من 60 مبرمجاً ومصمماً ومبتكراً في فرق تنافسية، وقاموا بابتكار مشاريع واعدة في مجالات تسيير النفايات الذكي، ترشيد استهلاك الطاقة، وتسهيل النقل الحضري، بدعم وتأطير من خبراء الرابطة وممثلي المؤسسات الاقتصادية الشريكة.",
-      en: "This hackathon brought together over 60 developers, designers, and innovators in competitive teams. They created projects in smart waste management, energy saving, and urban transit, coached by STLY experts.",
+      ar: "جمع هذا الهاكاثون مشاركين من مجالات البرمجة والتصميم والابتكار ضمن فرق تنافسية، واشتغلوا على أفكار في تسيير النفايات الذكي، ترشيد استهلاك الطاقة، وتسهيل النقل الحضري، بدعم من المؤطرين والشركاء.",
+      en: "This hackathon brought together participants from programming, design, and innovation backgrounds in competitive teams. They worked on ideas in smart waste management, energy saving, and urban transit with support from mentors and partners.",
     },
     date: "2026-05-10",
     time: "48 ساعة مستمرة",
@@ -169,7 +169,7 @@ export const events: Event[] = [
     program: [
       { time: "اليوم 1 - 09:00", activity: { ar: "انطلاق الهاكاثون وتشكيل الفرق وعرض المشاكل", en: "Hackathon Start, Team Formation & Briefing" } },
       { time: "اليوم 2 - 14:00", activity: { ar: "ورشات توجيهية ومتابعة تقنية مع المرشدين", en: "Mentorship Sessions & Technical Code Reviews" } },
-      { time: "اليوم 3 - 15:00", activity: { ar: "عرض المشاريع وتكريم الفرق الفائزة بالجوائز المادية", en: "Project Pitching & Award Ceremony" } },
+      { time: "اليوم 3 - 15:00", activity: { ar: "عرض المشاريع وتبادل الملاحظات الختامية", en: "Project Pitching & Closing Feedback" } },
     ],
   },
 ];

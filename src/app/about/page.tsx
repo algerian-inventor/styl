@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Compass, Heart, Users, Target, ShieldCheck, Atom } from "lucide-react";
+import { Compass, Heart, Users, Target, Handshake, Atom } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
 import { Container } from "@/components/ui/Container";
@@ -91,20 +91,20 @@ export default function AboutPage() {
               <div className="space-y-4 text-sm sm:text-base text-brand-muted leading-relaxed">
                 <p>
                   {language === "ar"
-                    ? `${siteSettings.leagueNameAr} هي منظمة شبابية علمية معتمدة غير ربحية، تأسست في ولاية قسنطينة لتكون حاضنة نشطة للشغف المعرفي والابتكار التكنولوجي. نعمل على إتاحة المخابر، المعدات، والتأطير الأكاديمي المتخصص أمام الشباب لتمكينهم من بناء نماذج أولية، والمشاركة في التحديات الوطنية والدولية.`
-                    : `${siteSettings.leagueNameEn} is an approved non-profit scientific youth league based in Constantine, established to serve as an active incubator for knowledge curiosity and tech innovation.`}
+                    ? `${siteSettings.leagueNameAr} هي منظمة شبابية علمية في ولاية قسنطينة، تعمل على تنمية الشغف المعرفي والابتكار التكنولوجي. نركز على الورشات، التأطير، والعمل الجماعي لمساعدة الشباب على اختبار أفكارهم وتطوير مهاراتهم.`
+                    : `${siteSettings.leagueNameEn} is a scientific youth organization based in Constantine, focused on knowledge curiosity and technology learning through workshops, mentorship, and collaborative practice.`}
                 </p>
                 <p>
                   {language === "ar"
-                    ? "يشرف على نوادينا وبرامجنا نخبة من الأساتذة الجامعيين، الباحثين، والمهندسين الميدانيين في تخصصات الروبوتيك، الإلكترونيات، الذكاء الاصطناعي، وهندسة البرمجيات، مما يمنح منتسبي الرابطة تجربة تطبيقية رائدة تفتح لهم آفاقاً واسعة في دراستهم ومستقبلهم المهني."
-                    : "Our clubs are mentored by experienced researchers, professors, and field engineers across robotics, electronics, artificial intelligence, and software systems."}
+                    ? "تستفيد نوادينا وبرامجنا من مساهمات أساتذة وباحثين ومهندسين ومختصين في الروبوتيك، الإلكترونيات، الذكاء الاصطناعي، وهندسة البرمجيات حسب طبيعة كل نشاط."
+                    : "Our clubs and programs benefit from contributions by professors, researchers, engineers, and specialists in robotics, electronics, artificial intelligence, and software systems depending on each activity."}
                 </p>
               </div>
 
               <div className="pt-2 flex flex-wrap items-center gap-6 text-sm font-bold text-brand-dark">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-brand-green" />
-                  <span>{language === "ar" ? "اعتماد رسمي وشفافية كاملة" : "Officially Accredited"}</span>
+                  <Handshake className="w-5 h-5 text-brand-green" />
+                  <span>{language === "ar" ? "تعاون مؤسساتي ومجتمعي" : "Institutional and Community Cooperation"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Atom className="w-5 h-5 text-brand-green" />

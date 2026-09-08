@@ -35,29 +35,29 @@ export const articles: Article[] = [
     id: "national-robotics-win",
     slug: "national-robotics-win",
     title: {
-      ar: "رابطة قسنطينة تتوج بالمرتبة الأولى في المسابقة الوطنية للروبوتيك",
-      en: "STLY Constantine Wins First Place in National Robotics Competition",
+      ar: "مشاركة فريق الرابطة في نشاط وطني للروبوتيك",
+      en: "STLY Constantine Team Participates in a National Robotics Activity",
     },
     summary: {
-      ar: "حقق فريق الروبوتات التابع للرابطة إنجازاً متميزاً بحصوله على المركز الأول في التحدي الوطني للابتكار التكنولوجي بالعاصمة.",
-      en: "STLY Constantine's robotics team achieved a major milestone by winning first place in the National Tech Innovation Challenge in Algiers.",
+      ar: "شارك فريق الروبوتات التابع للرابطة في نشاط وطني مخصص للابتكار التكنولوجي وتبادل التجارب بين النوادي العلمية.",
+      en: "STLY Constantine's robotics team joined a national technology activity focused on innovation and knowledge exchange between science clubs.",
     },
     content: {
-      ar: `توج فريق الرابطة العلمية والتقنية للشباب بقسنطينة بالمرتبة الأولى في المسابقة الوطنية للروبوتيك التي احتضنتها الجزائر العاصمة، بمشاركة أزيد من 30 نادياً علمياً من مختلف ربوع الوطن.
+      ar: `شارك فريق الرابطة العلمية والتقنية للشباب بقسنطينة في نشاط وطني للروبوتيك احتضنته الجزائر العاصمة، إلى جانب عدد من النوادي العلمية من مختلف الولايات.
 
-شارك الفريق بنموذج روبوت ذكي موجه للمساهمة في فرز النفايات الصناعية وإعادة تدويرها تلقائياً باستخدام تقنيات الذكاء الاصطناعي ورؤية الحاسوب. وقد أثنت لجنة التحكيم على كفاءة البرمجة، دقة التصميم الميكانيكي، والجدوى الاقتصادية للمشروع.
+قدّم الفريق نموذجاً تطبيقياً يوظف مبادئ البرمجة والتحكم والرؤية الحاسوبية لمعالجة إشكالية تقنية ذات صلة بالبيئة. وقد شكلت المشاركة فرصة لتبادل الخبرات وتحسين العمل الجماعي داخل النادي.
 
-يعتبر هذا التتويج ثمرة جهود دامت عدة أشهر من العمل المتواصل في مخابر الرابطة، وتحت إشراف وتوجيه المهندسين المؤطرين. وصرح رئيس الرابطة أن هذا الإنجاز يؤكد قدرة الشباب الجزائري على تقديم حلول واقعية وفعالة للمشاكل البيئية والصناعية إذا ما توفرت لهم البيئة المناسبة والدعم والتوجيه العلمي الممنهج.`,
-      en: `STLY Constantine's robotics team has been crowned first place in the National Robotics Competition held in Algiers, competing against more than 30 scientific clubs from all over the country.
+تعمل الرابطة على استثمار مثل هذه المشاركات في تطوير ورشاتها وبرامجها التطبيقية، وفتح المجال أمام الشباب لاختبار أفكارهم ضمن بيئة مؤطرة.`,
+      en: `STLY Constantine's robotics team participated in a national robotics activity held in Algiers alongside science clubs from several provinces.
 
-The team participated with an intelligent robot prototype designed for industrial waste sorting and automatic recycling using AI and computer vision. The evaluation committee praised the programming efficiency, mechanical precision, and feasibility of the design.
+The team presented a practical model using programming, control systems, and computer vision concepts to explore a technical problem related to the environment. The participation was an opportunity to exchange experience and strengthen teamwork inside the club.
 
-This achievement is the result of months of continuous work in the STLY laboratories, guided by our engineering mentors. The League President stated that this victory highlights the capability of Algerian youth to deliver viable solutions for environmental and industrial issues.`,
+STLY uses this kind of participation to improve its workshops and give young people a guided setting to test their ideas.`,
     },
     publishedDate: "2026-06-15",
     category: {
-      ar: "إنجازات",
-      en: "Achievements",
+      ar: "أنشطة",
+      en: "Activities",
     },
     author: {
       ar: "اللجنة الإعلامية",
@@ -66,8 +66,8 @@ This achievement is the result of months of continuous work in the STLY laborato
     coverImage: "/images/news/robotics-win.png",
     isFeatured: true,
     tags: {
-      ar: ["روبوتيك", "مسابقة وطنية", "ابتكار", "قسنطينة"],
-      en: ["Robotics", "National Competition", "Innovation", "Constantine"],
+      ar: ["روبوتيك", "نشاط وطني", "ابتكار", "قسنطينة"],
+      en: ["Robotics", "National Activity", "Innovation", "Constantine"],
     },
   },
   {
@@ -82,14 +82,14 @@ This achievement is the result of months of continuous work in the STLY laborato
       en: "The specialized training bootcamp in artificial intelligence algorithms kicked off at the STLY headquarters for university students and young engineers.",
     },
     content: {
-      ar: `انطلقت رسمياً فعاليات المعسكر التدريبي المكثف لرواد الذكاء الاصطناعي بمقر الرابطة العلمية والتقنية للشباب بقسنطينة. يستهدف المعسكر 40 طالباً وباحثاً شاباً تم اختيارهم من بين أزيد من 200 مترشح بناءً على معايير الكفاءة البرمجية والشغف العلمي.
+      ar: `انطلقت رسمياً فعاليات المعسكر التدريبي المكثف لرواد الذكاء الاصطناعي بمقر الرابطة العلمية والتقنية للشباب بقسنطينة. يستهدف المعسكر الطلبة والباحثين الشباب المهتمين بالبرمجة والعلوم التطبيقية.
 
-يمتد البرنامج على مدار شهرين كاملين، ويغطي أساسيات البرمجة بلغة بايثون، تحليل البيانات، خوارزميات تعلم الآلة والتعلم العميق، بالإضافة إلى إنجاز مشاريع تطبيقية حقيقية بالتعاون مع مؤسسات ناشئة محلية.
+يمتد البرنامج على مدار شهرين كاملين، ويغطي أساسيات البرمجة بلغة بايثون، تحليل البيانات، خوارزميات تعلم الآلة والتعلم العميق، بالإضافة إلى تطبيقات تدريبية تساعد المشاركين على فهم مراحل بناء النماذج الذكية.
 
 يهدف هذا المعسكر إلى تزويد الشباب بالمهارات الحديثة التي يتطلبها سوق العمل المعاصر، وتكوين نواة من المطورين القادرين على تصميم وتطبيق نماذج ذكية تساهم في التحول الرقمي وتطوير الخدمات التقنية بالمنطقة.`,
-      en: `The AI Pioneers Training Bootcamp has officially launched at the STLY headquarters. The intensive boot camp targets 40 students and young researchers chosen from over 200 applicants based on coding skills and scientific passion.
+      en: `The AI Pioneers Training Bootcamp has officially launched at the STLY headquarters. The intensive boot camp is designed for students and young researchers interested in coding and applied science.
 
-The program runs for two full months, covering Python programming, data analytics, machine learning, deep learning algorithms, and practical application modules in cooperation with local startups.
+The program runs for two full months, covering Python programming, data analytics, machine learning, deep learning algorithms, and practical training modules that help participants understand how intelligent models are built.
 
 This bootcamp aims to equip youth with modern skills demanded by today's job market, forming a nucleus of developers capable of designing intelligent models to drive digital transformation.`,
     },
@@ -113,24 +113,24 @@ This bootcamp aims to equip youth with modern skills demanded by today's job mar
     id: "univ-partnership-signing",
     slug: "univ-partnership-signing",
     title: {
-      ar: "توقيع اتفاقية تعاون وشراكة علمية مع جامعة الإخوة منتوري قسنطينة 1",
-      en: "Signing a Scientific Cooperation Agreement with Mentouri Constantine 1 University",
+      ar: "تعزيز التعاون العلمي مع جامعة الإخوة منتوري قسنطينة 1",
+      en: "Strengthening Scientific Cooperation with Mentouri Constantine 1 University",
     },
     summary: {
-      ar: "اتفاقية شراكة جديدة تهدف لتأطير مشاريع التخرج للطلبة وتنظيم تظاهرات علمية مشتركة وتبادل الخبرات الميدانية.",
-      en: "A new partnership agreement aiming to mentor students' graduation projects, organize joint scientific events, and exchange expertise.",
+      ar: "مبادرة تعاون تهدف إلى دعم التأطير العلمي وتنظيم أنشطة مشتركة وتبادل الخبرات الميدانية.",
+      en: "A cooperation initiative focused on scientific mentorship, joint activities, and practical knowledge exchange.",
     },
     content: {
-      ar: `في إطار تعزيز التعاون بين الفضاءات الجمعوية والوسط الأكاديمي، وقعت الرابطة العلمية والتقنية للشباب بقسنطينة اتفاقية شراكة علمية وثقافية مع رئاسة جامعة الإخوة منتوري قسنطينة 1.
+      ar: `في إطار تعزيز التعاون بين الفضاءات الجمعوية والوسط الأكاديمي، تعمل الرابطة العلمية والتقنية للشباب بقسنطينة على تطوير قنوات تعاون علمي وثقافي مع جامعة الإخوة منتوري قسنطينة 1.
 
-تهدف هذه الاتفاقية إلى فتح أبواب مخابر الجامعة أمام المبتكرين المنخرطين بالرابطة، ومرافقة الطلبة الجامعيين في إنجاز مشاريع تخرجهم التطبيقية وابتكاراتهم داخل حاضنات الرابطة، فضلاً عن تنظيم ندوات علمية، مسابقات تكنولوجية، وصالونات تخصصية مشتركة خلال المواسم الجامعية القادمة.
+تهدف هذه المبادرة إلى دعم التأطير العلمي، وتسهيل تبادل الخبرات بين الطلبة والنوادي العلمية، وتنظيم ندوات وورشات وصالونات تخصصية مشتركة خلال المواسم القادمة.
 
-أكد رئيس الرابطة أن هذه الاتفاقية تمثل خطوة هامة لبناء جسر حقيقي يربط المعارف النظرية بالجامعة مع التطبيقات والمهارات الميدانية التي تقدمها نوادي الرابطة، مما يعزز روح المقاولاتية العلمية لدى الخريجين ويحفزهم على تأسيس مؤسساتهم الناشئة الخاصة.`,
-      en: `To strengthen collaboration between youth associations and academic institutions, STLY Constantine signed a scientific partnership agreement with the presidency of Mentouri Constantine 1 University.
+تعتبر الرابطة هذا التعاون خطوة مهمة لربط المعارف النظرية بالتطبيقات الميدانية التي تقدمها النوادي والورشات العلمية.`,
+      en: `To strengthen collaboration between youth associations and academic institutions, STLY Constantine is developing scientific and cultural cooperation channels with Mentouri Constantine 1 University.
 
-This agreement aims to open university laboratory resources to STLY innovators, mentor students on graduation projects, support prototypes inside STLY incubators, and co-organize research seminars, tech competitions, and professional salons.
+This initiative aims to support scientific mentorship, encourage knowledge exchange between students and science clubs, and organize shared seminars, workshops, and specialized salons.
 
-The STLY President remarked that this protocol represents a key step towards bridging theoretical academic knowledge with hands-on applications, promoting scientific entrepreneurship, and driving startups.`,
+STLY sees this cooperation as a useful step toward connecting academic knowledge with the field practice offered through clubs and workshops.`,
     },
     publishedDate: "2026-05-28",
     category: {

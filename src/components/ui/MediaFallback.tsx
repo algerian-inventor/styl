@@ -1,5 +1,5 @@
 import React from "react";
-import { Atom, Cpu, Sparkles, Binary } from "lucide-react";
+import { Atom, ImageIcon } from "lucide-react";
 
 interface MediaFallbackProps {
   title?: string;
@@ -24,20 +24,12 @@ export const MediaFallback: React.FC<MediaFallbackProps> = ({
 
   return (
     <div
-      className={`relative w-full ${aspectClasses[aspectRatio]} bg-gradient-to-br from-[#062B55] via-[#08386E] to-[#041D38] overflow-hidden flex flex-col justify-between p-6 select-none ${className}`}
+      className={`relative w-full ${aspectClasses[aspectRatio]} bg-[#062B55] overflow-hidden flex flex-col justify-between p-6 select-none ${className}`}
     >
-      {/* Scientific Geometric Pattern Background */}
-      <div className="absolute inset-0 bg-sci-grid-dark opacity-40 pointer-events-none" />
-      
-      {/* Decorative abstract orbit circles */}
-      <div className="absolute -top-12 -right-12 w-48 h-48 border border-white/10 rounded-full pointer-events-none" />
-      <div className="absolute -bottom-16 -left-16 w-56 h-56 border border-brand-green/20 rounded-full pointer-events-none" />
-      
-      {/* Top Tag */}
       <div className="relative z-10 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-md bg-white/10 flex items-center justify-center text-brand-green-accent">
-            <Atom className="w-4 h-4 animate-spin-slow" />
+            <Atom className="w-4 h-4" />
           </div>
           <span className="text-xs font-bold text-slate-300 tracking-wider">
             STLY CONSTANTINE
@@ -50,10 +42,9 @@ export const MediaFallback: React.FC<MediaFallbackProps> = ({
         )}
       </div>
 
-      {/* Center Icon & Title */}
       <div className="relative z-10 my-auto text-center space-y-2">
         <div className="mx-auto w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/80 shadow-inner">
-          <Cpu className="w-6 h-6" />
+          <ImageIcon className="w-6 h-6" />
         </div>
         {title && (
           <p className="text-sm font-semibold text-white/90 line-clamp-2 px-4 max-w-xs mx-auto">
@@ -62,14 +53,9 @@ export const MediaFallback: React.FC<MediaFallbackProps> = ({
         )}
       </div>
 
-      {/* Bottom Subtle Scientific Branding */}
-      <div className="relative z-10 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-        <span className="flex items-center gap-1">
-          <Binary className="w-3 h-3 text-brand-green" /> SCI-TECH
-        </span>
-        <span className="flex items-center gap-1">
-          <Sparkles className="w-3 h-3 text-brand-green-accent" /> INNOVATION
-        </span>
+      <div className="relative z-10 flex items-center justify-between text-[11px] text-slate-300 font-bold">
+        <span>SCIENCE</span>
+        <span className="text-brand-green-accent">YOUTH</span>
       </div>
     </div>
   );

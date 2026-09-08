@@ -163,14 +163,14 @@ export const EventCard: React.FC<EventCardProps> = ({ event, variant = "card" })
 
         {/* Footer info */}
         <div className="pt-4 border-t border-[#DCE3EA]/60 space-y-3">
-          <div className="flex flex-wrap items-center justify-between text-xs text-brand-muted gap-2">
-            <span className="flex items-center gap-1.5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs text-brand-muted gap-2">
+            <span className="flex items-center gap-1.5 min-w-0">
               <Clock className="w-3.5 h-3.5 text-brand-navy" />
               {event.time}
             </span>
-            <span className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-brand-green" />
-              {event.location[language]}
+            <span className="flex items-start gap-1.5 min-w-0">
+              <MapPin className="w-3.5 h-3.5 text-brand-green flex-shrink-0 mt-0.5" />
+              <span className="line-clamp-2">{event.location[language]}</span>
             </span>
           </div>
 

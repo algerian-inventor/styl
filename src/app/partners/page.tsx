@@ -50,20 +50,19 @@ export default function PartnersPage() {
                       </h3>
                     </div>
 
-                    <div className="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0 p-2">
+                    <div className="relative w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0 p-2">
+                      <Building2 className="w-6 h-6 text-brand-navy" />
                       {partner.logo ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={partner.logo}
                           alt={partner.name[language]}
-                          className="max-h-full max-w-full object-contain"
+                          className="absolute inset-2 max-h-[calc(100%-1rem)] max-w-[calc(100%-1rem)] object-contain bg-slate-100"
                           onError={(e) => {
-                            (e.target as HTMLElement).style.display = "none";
+                            (e.currentTarget as HTMLElement).style.display = "none";
                           }}
                         />
-                      ) : (
-                        <Building2 className="w-6 h-6 text-brand-navy" />
-                      )}
+                      ) : null}
                     </div>
                   </div>
 

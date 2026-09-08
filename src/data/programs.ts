@@ -158,16 +158,16 @@ export const programs: Program[] = [
     id: "innovation-leadership",
     slug: "innovation-leadership",
     name: {
-      ar: "حاضنة الابتكار والقيادة العلمية",
-      en: "Scientific Innovation Incubator",
+      ar: "مسار الابتكار والقيادة العلمية",
+      en: "Scientific Innovation and Leadership Track",
     },
     summary: {
-      ar: "برنامج تدريبي يركز على تحويل الأفكار البحثية إلى نماذج أولية ومشاريع ريادية قابلة للتطبيق.",
-      en: "A program focused on translating research ideas into physical prototypes and viable entrepreneurial projects.",
+      ar: "برنامج تدريبي يركز على صياغة الأفكار البحثية وتجريب حلول تقنية قابلة للتطوير.",
+      en: "A training program focused on shaping research ideas and testing technical solutions that can evolve.",
     },
     description: {
-      ar: "نعمل على مرافقة المبتكرين الشباب في مسار تصميم المنتجات، وتطوير نماذج الأعمال، والتدريب على مهارات القيادة وعرض المشاريع أمام المستثمرين ولجان التقييم لمساعدتهم في تأسيس مشاريعهم الناشئة.",
-      en: "We guide young innovators through product design, business model formulation, leadership, and pitching techniques to present their projects to investors and evaluation panels.",
+      ar: "نعمل على مرافقة المبتكرين الشباب في مسار تصميم الحلول، تنظيم العمل الجماعي، والتدريب على مهارات القيادة وعرض الأفكار أمام لجان التأطير.",
+      en: "We guide young innovators through solution design, team organization, leadership skills, and presenting ideas to mentorship panels.",
     },
     category: {
       ar: "الابتكار والقيادة",

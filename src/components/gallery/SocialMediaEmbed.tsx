@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { GalleryItem } from "@/data/gallery";
 import { useLanguage } from "@/context/LanguageContext";
 import { InstagramIcon, FacebookIcon } from "./SocialGalleryCard";
-import { ExternalLink, RefreshCw, AlertCircle } from "lucide-react";
+import { ExternalLink, RefreshCw } from "lucide-react";
 import { getSocialEmbedUrl } from "@/lib/social-media";
 
 interface SocialMediaEmbedProps {
@@ -13,26 +13,38 @@ interface SocialMediaEmbedProps {
 
 export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
   const { language } = useLanguage();
-  const [loadedId, setLoadedId] = useState<string | null>(null);
-  const [loadError, setLoadError] = useState(false);
+  const [embedState, setEmbedState] = useState<{
+    itemId: string;
+    isLoaded: boolean;
+    hasError: boolean;
+  } | null>(null);
 
   const isInstagram = item.sourceType === "instagram" || item.socialPlatform === "instagram";
   const postUrl = item.socialUrl || item.url;
   const isVideo = item.type === "video";
-  const isLoaded = loadedId === item.id;
+  const isCurrentEmbed = embedState?.itemId === item.id;
+  const isLoaded = Boolean(isCurrentEmbed && embedState?.isLoaded);
+  const loadError = Boolean(isCurrentEmbed && embedState?.hasError);
+  const platformLabel = isInstagram
+    ? isVideo
+      ? "Instagram Reel"
+      : "Instagram Post"
+    : isVideo
+    ? "Facebook Reel"
+    : "Facebook Post";
 
   // Timeout effect to prevent infinite loading
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     if (!isLoaded && !loadError) {
       timeoutId = setTimeout(() => {
-        setLoadError(true);
+        setEmbedState({ itemId: item.id, isLoaded: false, hasError: true });
       }, 6000); // 6 seconds reasonable timeout
     }
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [isLoaded, loadError]);
+  }, [item.id, isLoaded, loadError]);
 
   useEffect(() => {
     let isMounted = true;
@@ -89,10 +101,10 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
           </div>
           <div>
             <span className="text-xs font-extrabold text-brand-dark block">
-              {isInstagram ? "Instagram" : "Facebook"}
+              {platformLabel}
             </span>
             <span className="text-[10px] text-brand-muted">
-              {item.title?.[language] ? item.title[language].substring(0, 30) + "..." : isInstagram ? "Instagram" : "Facebook"}
+              {item.title?.[language] ? item.title[language] : platformLabel}
             </span>
           </div>
         </div>
@@ -109,7 +121,7 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
       </div>
 
       {/* Embed Container Box */}
-      <div className="w-full min-h-[520px] bg-slate-50 rounded-xl border border-slate-200 flex flex-col items-center justify-center p-2 relative overflow-hidden">
+      <div className="w-full min-h-[280px] sm:min-h-[420px] bg-slate-50 rounded-xl border border-slate-200 flex flex-col items-center justify-center p-2 relative overflow-hidden">
         {/* Loading Spinner */}
         {!isLoaded && !loadError && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur-xs z-10 space-y-2">
@@ -124,23 +136,33 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
         {!loadError && (
           <iframe
             src={iframeSrc}
+            key={item.id}
             className={`w-full max-w-[500px] rounded-lg border-0 transition-opacity duration-300 ${
-              isVideo ? "min-h-[580px] sm:min-h-[640px]" : "min-h-[520px] sm:min-h-[580px]"
+              isVideo ? "min-h-[430px] sm:min-h-[620px]" : "min-h-[420px] sm:min-h-[560px]"
             } ${isLoaded ? "opacity-100" : "opacity-0"}`}
             scrolling="yes"
             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-            onLoad={() => setLoadedId(item.id)}
-            onError={() => setLoadError(true)}
+            onLoad={() => setEmbedState({ itemId: item.id, isLoaded: true, hasError: false })}
+            onError={() => setEmbedState({ itemId: item.id, isLoaded: false, hasError: true })}
             title={item.title[language]}
           />
         )}
 
         {/* Graceful Error / Blocked State */}
         {loadError && (
-          <div className="p-8 text-center space-y-3 max-w-sm">
-            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-brand-navy">
+          <div className="p-6 sm:p-8 text-center space-y-3 max-w-sm">
+            <div
+              className={`w-12 h-12 rounded-lg flex items-center justify-center mx-auto ${
+                isInstagram
+                  ? "bg-pink-50 text-pink-700 border border-pink-100"
+                  : "bg-blue-50 text-blue-700 border border-blue-100"
+              }`}
+            >
               {isInstagram ? <InstagramIcon className="w-6 h-6" /> : <FacebookIcon className="w-6 h-6" />}
             </div>
+            <p className="text-xs font-extrabold text-brand-green uppercase tracking-wider">
+              {platformLabel}
+            </p>
             <h4 className="text-sm font-extrabold text-brand-dark">
               {item.title[language]}
             </h4>

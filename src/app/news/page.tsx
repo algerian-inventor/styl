@@ -16,10 +16,10 @@ export default function NewsPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
 
-  const categories = ["all", "Achievements", "Training", "Partnership"];
+  const categories = ["all", "Activities", "Training", "Partnership"];
   const categoryTranslations: Record<string, { ar: string; en: string }> = {
     all: { ar: "كل الأخبار والمقالات", en: "All Articles" },
-    Achievements: { ar: "إنجازات وتتويجات", en: "Achievements" },
+    Activities: { ar: "أنشطة ومشاركات", en: "Activities" },
     Training: { ar: "تدريب وتكوين", en: "Training" },
     Partnership: { ar: "شراكات ومبادرات", en: "Partnerships" },
   };

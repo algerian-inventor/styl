@@ -43,8 +43,8 @@ export const partners: Partner[] = [
     logo: "/images/partners/univ-constantine3.png",
     website: "https://www.univ-constantine3.dz",
     description: {
-      ar: "شراكة متميزة مع حاضنة الأعمال الجامعية لتأطير ومرافقة المشاريع الابتكارية للشباب.",
-      en: "Collaboration with the university incubator to mentor and guide young people's startup projects.",
+      ar: "تعاون أكاديمي لتأطير الأنشطة العلمية وتبادل الخبرات مع الشباب.",
+      en: "Academic cooperation to support science activities and exchange experience with young participants.",
     },
     category: {
       ar: "شريك أكاديمي",
@@ -60,8 +60,8 @@ export const partners: Partner[] = [
     logo: "/images/partners/djs.png",
     website: "#",
     description: {
-      ar: "الجهة الوصية والداعمة رسمياً للأنشطة الشبانية والتنظيمات العلمية والرياضية في الولاية.",
-      en: "The state authority officially supporting youth initiatives and scientific clubs in the province.",
+      ar: "جهة مؤسساتية محلية مرتبطة بالأنشطة الشبانية والتنظيمات العلمية والرياضية في الولاية.",
+      en: "A local institutional body connected with youth, science, and sports activities in the province.",
     },
     category: {
       ar: "شريك مؤسساتي",
@@ -71,18 +71,18 @@ export const partners: Partner[] = [
   {
     id: "algeria-venture",
     name: {
-      ar: "مسرع المؤسسات الناشئة الجزائرية (A-Venture)",
-      en: "Algeria Venture (A-Venture)",
+      ar: "منظومة دعم الابتكار الجزائرية (A-Venture)",
+      en: "Algeria Innovation Support (A-Venture)",
     },
     logo: "/images/partners/aventures.png",
     website: "https://www.a-venture.dz",
     description: {
-      ar: "شراكة لتسهيل حصول أفكار ومشاريع منخرطي الرابطة على وسم مشروع مبتكر وبراءة الاختراع.",
-      en: "Partnership to facilitate STLY innovators in obtaining startup labels and patent registrations.",
+      ar: "تعاون للتعريف بمسارات دعم الابتكار ومرافقة الأفكار التقنية الواعدة.",
+      en: "Cooperation to introduce innovation support paths and guide promising technical ideas.",
     },
     category: {
-      ar: "مسرع أعمال",
-      en: "Business Accelerator",
+      ar: "دعم الابتكار",
+      en: "Innovation Support",
     },
   },
 ];

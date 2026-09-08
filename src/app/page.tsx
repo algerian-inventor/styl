@@ -11,10 +11,11 @@ import {
   Code,
   Microscope,
   Lightbulb,
-  CheckCircle2,
   Sparkles,
   Atom,
   Users,
+  CalendarDays,
+  ImageIcon,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
@@ -25,11 +26,13 @@ import { EventCard } from "@/components/ui/EventCard";
 import { NewsCard } from "@/components/ui/NewsCard";
 import { CTASection } from "@/components/ui/CTASection";
 import { Button } from "@/components/ui/Button";
+import { MediaFallback } from "@/components/ui/MediaFallback";
 import { getDisplayThumbnailUrl } from "@/lib/social-media";
 
 export default function HomePage() {
   const { t, language, dir } = useLanguage();
-  const { programs, events, articles, galleryItems, partners } = usePrototypeState();
+  const { programs, events, articles, galleryItems, partners, siteSettings } = usePrototypeState();
+  const [brokenHeroImage, setBrokenHeroImage] = React.useState<string | null>(null);
 
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
@@ -39,6 +42,8 @@ export default function HomePage() {
   const upcomingEvents = events.filter((e) => !e.isClosed).slice(0, 2);
   const latestNews = articles.slice(0, 3);
   const previewGallery = galleryItems.slice(0, 6);
+  const heroImage = siteSettings.heroBannerUrl || "/images/club-salon.jpg";
+  const canShowHeroImage = Boolean(heroImage && brokenHeroImage !== heroImage);
 
   // Scientific Fields Definition with Lucide Icons
   const scientificFields = [
@@ -86,18 +91,18 @@ export default function HomePage() {
       id: "research",
       title: { ar: "البحث العلمي والتجارب", en: "Scientific Research & Labs" },
       desc: {
-        ar: "إجراء التجارب المعملية ومشاريع البحث العلمي بتأطير نخبة من الأساتذة والخبراء.",
-        en: "Conducting laboratory experiments and scientific research mentored by university professors.",
+        ar: "تنظيم تجارب وأنشطة بحثية تطبيقية بتأطير من أساتذة ومختصين عند توفرهم.",
+        en: "Organizing applied experiments and research activities with guidance from available mentors and specialists.",
       },
       icon: Microscope,
       color: "text-teal-600 bg-teal-50 border-teal-100",
     },
     {
       id: "innovation",
-      title: { ar: "الابتكار وريادة المشاريع", en: "Innovation & Tech Leadership" },
+      title: { ar: "الابتكار والعمل الجماعي", en: "Innovation & Teamwork" },
       desc: {
-        ar: "احتضان النماذج الأولية وتحويل المشاريع العلمية إلى مبادرات واعدة ومؤسسات ناشئة.",
-        en: "Incubating prototypes and transforming scientific projects into promising technological ventures.",
+        ar: "مساعدة المشاركين على صياغة أفكارهم وتجريب حلول تقنية بسيطة ضمن فرق عمل.",
+        en: "Helping participants shape ideas and test practical technical solutions in teams.",
       },
       icon: Lightbulb,
       color: "text-amber-600 bg-amber-50 border-amber-100",
@@ -106,28 +111,18 @@ export default function HomePage() {
 
   return (
     <div className="w-full">
-      {/* ========================================================
-          1. HERO SECTION (Premium Two-Column Editorial Hero)
-      ======================================================== */}
-      <section className="relative bg-[#062B55] text-white py-16 sm:py-24 lg:py-28 overflow-hidden border-b border-[#041D38]">
-        {/* Subtle Scientific Geometry & Grids */}
-        <div className="absolute inset-0 bg-sci-grid-dark opacity-35 pointer-events-none" />
+      <section className="relative bg-[#062B55] text-white py-14 sm:py-20 lg:py-24 overflow-hidden border-b border-[#041D38]">
         <Container className="relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            {/* Left Column: Headline & Action Points (7 cols) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             <div className="lg:col-span-7 space-y-6 text-start">
-              {/* Eyebrow */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-white/10 border border-white/15 backdrop-blur-sm">
+              <div className="inline-flex max-w-full items-center gap-2 px-3.5 py-1.5 rounded-md bg-white/10 border border-white/15">
                 <Atom className="w-4 h-4 text-brand-green-accent" />
-                <span className="text-xs sm:text-sm font-bold text-slate-200 tracking-wider">
-                  {language === "ar"
-                    ? "الرابطة العلمية والتقنية للشباب — قسنطينة"
-                    : "Scientific and Technical Youth League — Constantine"}
+                <span className="text-xs sm:text-sm font-bold text-slate-100">
+                  {language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}
                 </span>
               </div>
 
-              {/* Main Headline */}
-              <h1 className="text-3xl sm:text-5xl lg:text-[54px] font-black text-white leading-[1.2] tracking-tight">
+              <h1 className="text-3xl sm:text-5xl lg:text-[54px] font-black text-white leading-[1.15] tracking-tight">
                 {language === "ar" ? (
                   <>
                     نصنع جيلاً يقود المستقبل <br />
@@ -141,143 +136,83 @@ export default function HomePage() {
                 )}
               </h1>
 
-              {/* Supporting Paragraph */}
               <p className="text-base sm:text-lg text-slate-200 leading-relaxed max-w-2xl">
                 {language === "ar"
-                  ? "تجمع الرابطة العلمية والتقنية للشباب بقسنطينة نخبة من الطاقات الشابة الشغوفة بالعلوم الدقيقة، التكنولوجيا، الروبوتيك، والذكاء الاصطناعي، لتوفير بيئة تكوينية وحاضنة للمشاريع الابتكارية."
-                  : "STLY Constantine brings together enthusiastic young minds across exact sciences, technology, robotics, and artificial intelligence, offering an incubator for hands-on learning and innovative projects."}
+                  ? "تفتح الرابطة العلمية والتقنية للشباب بقسنطينة مساحة عملية للشباب المهتم بالعلوم، التكنولوجيا، الروبوتيك، والذكاء الاصطناعي عبر ورشات وأنشطة مؤطرة."
+                  : "STLY Constantine creates a practical space for young people interested in science, technology, robotics, and artificial intelligence through guided workshops and activities."}
               </p>
 
-              {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Link href="/programs">
+                <Link href="/membership">
                   <Button variant="secondary" size="lg" className="gap-2 px-6">
-                    <span>{language === "ar" ? "اكتشف برامجنا" : "Explore Programs"}</span>
+                    <span>{t("nav.membership")}</span>
                     <ArrowIcon className="w-4 h-4" />
                   </Button>
                 </Link>
 
-                <Link href="/membership">
+                <Link href="/events">
                   <Button
                     variant="outline"
                     size="lg"
                     className="border-white/25 text-white bg-white/10 hover:bg-white/20 hover:border-white/40 gap-2 px-6"
                   >
-                    <span>{t("nav.membership")}</span>
+                    <span>{language === "ar" ? "الأنشطة القادمة" : "Activities"}</span>
                   </Button>
                 </Link>
               </div>
-
-              {/* Small Credibility Badges */}
-              <div className="pt-6 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-300 font-bold">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-green-accent flex-shrink-0" />
-                  <span>{language === "ar" ? "برامج علمية مؤطرة" : "Structured Programs"}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-green-accent flex-shrink-0" />
-                  <span>{language === "ar" ? "ورشات ومخابر تطبيقية" : "Hands-on Labs"}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-green-accent flex-shrink-0" />
-                  <span>{language === "ar" ? "مسابقات وتحديات وطنية" : "National Contests"}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-green-accent flex-shrink-0" />
-                  <span>{language === "ar" ? "مجتمع شبابي نشط" : "Active Community"}</span>
-                </div>
-              </div>
             </div>
 
-            {/* Right Column: Structured Scientific Visual Composition (5 cols) */}
             <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md lg:max-w-none">
-                {/* Main Card Graphic */}
-                <div className="relative rounded-2xl bg-gradient-to-br from-[#08386E] via-[#062B55] to-[#041D38] p-6 sm:p-8 border border-white/20 shadow-2xl overflow-hidden space-y-6">
-                  {/* Subtle Grid inside card */}
-                  <div className="absolute inset-0 bg-sci-grid-dark opacity-30 pointer-events-none" />
-
-                  {/* Card Header */}
-                  <div className="relative z-10 flex items-center justify-between border-b border-white/10 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-brand-green/20 border border-brand-green/30 flex items-center justify-center text-brand-green-accent">
-                        <Cpu className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-bold text-white">
-                          {language === "ar" ? "منظومة الابتكار العلمي" : "Scientific Innovation Lab"}
-                        </h3>
-                        <p className="text-xs text-slate-300">STLY Constantine • 2026</p>
-                      </div>
+              <div className="relative mx-auto max-w-md lg:max-w-none rounded-xl overflow-hidden border border-white/15 bg-white/8 shadow-xl">
+                {canShowHeroImage ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={heroImage}
+                      alt={language === "ar" ? "أنشطة الرابطة العلمية والتقنية للشباب" : "STLY science and youth activities"}
+                      onError={() => setBrokenHeroImage(heroImage)}
+                      className="h-[280px] sm:h-[360px] lg:h-[430px] w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#041D38]/85 via-[#062B55]/20 to-transparent" />
+                    <div className="absolute bottom-0 inset-x-0 p-5 sm:p-6">
+                      <p className="text-xs font-bold uppercase tracking-widest text-brand-green-accent">
+                        STLY Constantine
+                      </p>
+                      <p className="mt-2 text-sm sm:text-base font-bold leading-relaxed text-white">
+                        {language === "ar"
+                          ? "ورشات، نواد علمية، وأنشطة ميدانية للشباب."
+                          : "Workshops, science clubs, and youth activities."}
+                      </p>
                     </div>
-                    <span className="text-xs font-bold bg-brand-green/20 text-brand-green-accent border border-brand-green/30 px-2 py-0.5 rounded">
-                      ACTIVE
-                    </span>
-                  </div>
-
-                  {/* Scientific Highlights Stack */}
-                  <div className="relative z-10 space-y-3">
-                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between hover:bg-white/10 transition-colors">
+                  </>
+                ) : (
+                  <div className="p-6 sm:p-8 min-h-[320px] flex flex-col justify-between bg-[#08386E]">
+                    <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
-                        <Bot className="w-5 h-5 text-blue-400" />
-                        <span className="text-sm font-bold text-slate-100">
-                          {language === "ar" ? "مختبر الروبوتات الذكية" : "Robotics & Automation"}
-                        </span>
+                        <div className="w-12 h-12 rounded-lg bg-brand-green/20 border border-brand-green/30 flex items-center justify-center text-brand-green-accent">
+                          <ImageIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-widest text-brand-green-accent">STLY</p>
+                          <p className="text-sm font-bold text-white">
+                            {language === "ar" ? "قسنطينة، الجزائر" : "Constantine, Algeria"}
+                          </p>
+                        </div>
                       </div>
-                      <span className="text-xs font-mono text-slate-400">ROS / Arduino</span>
+                      <CalendarDays className="w-8 h-8 text-white/40" />
                     </div>
-
-                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between hover:bg-white/10 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <Brain className="w-5 h-5 text-purple-400" />
-                        <span className="text-sm font-bold text-slate-100">
-                          {language === "ar" ? "حاضنة الذكاء الاصطناعي" : "Artificial Intelligence Lab"}
-                        </span>
-                      </div>
-                      <span className="text-xs font-mono text-slate-400">ML / Vision</span>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between hover:bg-white/10 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <Lightbulb className="w-5 h-5 text-amber-400" />
-                        <span className="text-sm font-bold text-slate-100">
-                          {language === "ar" ? "مشاريع التخرج والابتكار" : "Incubated Prototypes"}
-                        </span>
-                      </div>
-                      <span className="text-xs font-mono text-slate-400">Patents / Startups</span>
+                    <div className="space-y-4">
+                      <p className="text-2xl sm:text-3xl font-black leading-tight">
+                        {language === "ar" ? siteSettings.sloganAr : siteSettings.sloganEn}
+                      </p>
+                      <p className="text-sm text-slate-200 leading-relaxed">
+                        {language === "ar"
+                          ? "واجهة بسيطة وواضحة تعكس هوية الرابطة وأنشطتها."
+                          : "A simple branded composition that reflects the league and its activities."}
+                      </p>
                     </div>
                   </div>
-
-                  {/* Visual Status Indicator */}
-                  <div className="relative z-10 pt-2 flex items-center justify-between text-xs text-slate-300 border-t border-white/10">
-                    <span className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-brand-green animate-pulse" />
-                      {language === "ar" ? "التسجيلات مفتوحة للموسم الحالي" : "Current Season Open"}
-                    </span>
-                    <Link
-                      href="/fields"
-                      className="font-bold text-brand-green-accent hover:underline flex items-center gap-1"
-                    >
-                      <span>{language === "ar" ? "استكشف" : "Details"}</span>
-                      <ArrowIcon className="w-3 h-3" />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Floating Decorative Scientific Badges */}
-                <div className="hidden sm:flex absolute -bottom-6 -right-6 bg-white text-brand-dark p-3.5 rounded-xl shadow-xl border border-[#DCE3EA] items-center gap-3 z-20">
-                  <div className="w-8 h-8 rounded-lg bg-brand-navy/10 flex items-center justify-center text-[#062B55]">
-                    <Users className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-black text-brand-dark">
-                      {language === "ar" ? "مجتمع شبابي تفاعلي" : "Interactive Youth Club"}
-                    </p>
-                    <p className="text-[11px] text-brand-muted">
-                      {language === "ar" ? "قسنطينة — الجزائر" : "Constantine, DZ"}
-                    </p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -312,8 +247,8 @@ export default function HomePage() {
 
               <p className="text-base text-brand-muted leading-relaxed">
                 {language === "ar"
-                  ? "تسعى الرابطة العلمية والتقنية للشباب بقسنطينة إلى إرساء نموذج رائد في التأطير الشبابي عبر دمج المعارف الأكاديمية مع الممارسة الميدانية، وتوفير المخابر والمعدات اللازمة لتحويل الأفكار إلى مشاريع واقعية تخدم المجتمع والاقتصاد الوطني."
-                  : "STLY Constantine aims to establish a leading model in youth mentorship by merging academic foundations with hands-on practice, providing lab facilities and equipment to translate ideas into real-world technological solutions."}
+                  ? "تسعى الرابطة العلمية والتقنية للشباب بقسنطينة إلى دعم التأطير الشبابي عبر دمج المعارف الأكاديمية مع الممارسة الميدانية، وتشجيع التعلم التطبيقي والعمل الجماعي."
+                  : "STLY Constantine supports youth mentorship by connecting academic foundations with hands-on practice, applied learning, and collaborative work."}
               </p>
 
               <div className="pt-2">
@@ -518,8 +453,8 @@ export default function HomePage() {
               title={language === "ar" ? "آخر الأخبار والمقالات العلمية" : "Latest News & Articles"}
               subtitle={
                 language === "ar"
-                  ? "متابعة شاملة لأحدث إنجازات الرابطة، مشاركات الشباب، والمقالات العلمية التثقيفية."
-                  : "Comprehensive coverage of our latest achievements, youth innovations, and tech articles."
+                  ? "متابعة لأحدث أنشطة الرابطة، مشاركات الشباب، والمقالات العلمية التثقيفية."
+                  : "Updates from STLY activities, youth participation, and educational science articles."
               }
               action={
                 <Link href="/news">
@@ -577,6 +512,7 @@ export default function HomePage() {
                 const isInstagram = item.sourceType === "instagram" || item.socialPlatform === "instagram";
                 const isFacebook = item.sourceType === "facebook" || item.socialPlatform === "facebook";
                 const isSocial = isInstagram || isFacebook;
+                const isVideo = item.type === "video";
                 const rawThumb = item.thumbnailUrl || (item.url && !item.url.startsWith("http") ? item.url : null);
                 const displayThumb = getDisplayThumbnailUrl(rawThumb);
                 const hasValidThumb = Boolean(displayThumb);
@@ -599,23 +535,36 @@ export default function HomePage() {
                         }}
                       />
                     ) : isSocial ? (
-                      <div
-                        className={`w-full h-full p-3 flex flex-col justify-between select-none ${
-                          isInstagram
-                            ? "bg-gradient-to-br from-[#405DE6] via-[#E1306C] to-[#FCAF45] text-white"
-                            : "bg-gradient-to-br from-[#1877F2] via-[#0D47A1] to-[#041D38] text-white"
-                        }`}
-                      >
+                      <div className="w-full h-full p-3 flex flex-col justify-between select-none bg-white text-brand-dark">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-extrabold uppercase opacity-90">
-                            {isInstagram ? "Instagram" : "Facebook"}
+                          <span
+                            className={`text-[10px] font-extrabold uppercase ${
+                              isInstagram ? "text-pink-700" : "text-blue-700"
+                            }`}
+                          >
+                            {isInstagram
+                              ? isVideo
+                                ? "Instagram Reel"
+                                : "Instagram Post"
+                              : isVideo
+                              ? "Facebook Reel"
+                              : "Facebook Post"}
                           </span>
                         </div>
-                        <p className="text-[11px] font-bold line-clamp-2 leading-tight text-white drop-shadow-xs">
+                        <p className="text-[11px] font-bold line-clamp-2 leading-tight text-brand-dark">
                           {item.title[language]}
                         </p>
+                        <span className="text-[10px] font-bold text-brand-navy">
+                          {language === "ar" ? "فتح المنشور الأصلي" : "View Original Post"}
+                        </span>
                       </div>
-                    ) : null}
+                    ) : (
+                      <MediaFallback
+                        title={item.title[language]}
+                        category={item.albumName[language]}
+                        aspectRatio="1/1"
+                      />
+                    )}
 
                     {/* Corner badge for social posts */}
                     {isSocial && (
