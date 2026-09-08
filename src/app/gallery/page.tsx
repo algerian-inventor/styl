@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { Suspense, useState, useEffect, useCallback, useMemo, useSyncExternalStore } from "react";
+import { useSearchParams } from "next/navigation";
 import { Image as ImageIcon, Video as VideoIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
@@ -12,22 +13,47 @@ import { CTASection } from "@/components/ui/CTASection";
 import { SocialGalleryCard } from "@/components/gallery/SocialGalleryCard";
 import { SocialMediaEmbed } from "@/components/gallery/SocialMediaEmbed";
 
-export default function GalleryPage() {
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+function GalleryContent() {
   const { language, dir, t } = useLanguage();
   const { galleryItems } = usePrototypeState();
+  const searchParams = useSearchParams();
+  const isClient = useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
 
-  const [activeAlbum, setActiveAlbum] = useState("all");
+  const [activeAlbum, setActiveAlbum] = useState<string | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
-  const albums = [
-    { id: "all", ar: "كل الألبومات", en: "All Albums" },
-    { id: "robotics", ar: "الروبوتيك", en: "Robotics" },
-    { id: "salon", ar: "صالون العلوم", en: "Science Salon" },
-    { id: "camp", ar: "معسكر الذكاء الاصطناعي", en: "AI Bootcamp" },
-  ];
+  const albums = useMemo(() => {
+    const albumMap = new Map<string, { id: string; ar: string; en: string }>();
+    galleryItems.forEach((item) => {
+      if (!albumMap.has(item.album)) {
+        albumMap.set(item.album, {
+          id: item.album,
+          ar: item.albumName.ar,
+          en: item.albumName.en,
+        });
+      }
+    });
+
+    return [
+      { id: "all", ar: "كل الألبومات", en: "All Albums" },
+      ...Array.from(albumMap.values()),
+    ];
+  }, [galleryItems]);
+
+  const requestedAlbum = searchParams.get("album");
+  const visibleActiveAlbum =
+    activeAlbum && (activeAlbum === "all" || albums.some((album) => album.id === activeAlbum))
+      ? activeAlbum
+      : requestedAlbum && albums.some((album) => album.id === requestedAlbum)
+      ? requestedAlbum
+      : "all";
 
   const filteredItems = galleryItems.filter(
-    (item) => activeAlbum === "all" || item.album === activeAlbum
+    (item) => visibleActiveAlbum === "all" || item.album === visibleActiveAlbum
   );
 
   const handlePrev = useCallback(() => {
@@ -70,6 +96,10 @@ export default function GalleryPage() {
     selectedItem?.sourceType === "facebook" ||
     Boolean(selectedItem?.socialUrl);
 
+  if (!isClient) {
+    return <div className="min-h-screen bg-[#F4F7FA]" />;
+  }
+
   return (
     <div className="w-full bg-[#F4F7FA]">
       {/* Page Hero */}
@@ -97,7 +127,7 @@ export default function GalleryPage() {
                 key={alb.id}
                 onClick={() => setActiveAlbum(alb.id)}
                 className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all cursor-pointer ${
-                  activeAlbum === alb.id
+                  visibleActiveAlbum === alb.id
                     ? "bg-[#062B55] border-[#062B55] text-white shadow-xs"
                     : "bg-white border-[#DCE3EA] text-slate-700 hover:bg-slate-50"
                 }`}
@@ -286,5 +316,13 @@ export default function GalleryPage() {
       {/* CTA Section */}
       <CTASection />
     </div>
+  );
+}
+
+export default function GalleryPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F4F7FA]" />}>
+      <GalleryContent />
+    </Suspense>
   );
 }

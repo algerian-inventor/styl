@@ -63,6 +63,7 @@ export const Navbar: React.FC = () => {
         { href: "/programs", label: t("nav.programs") },
         { href: "/fields", label: t("nav.fields") },
         { href: "/events", label: t("nav.events") },
+        { href: "/ansf", label: "ANSF" },
       ],
     },
     { href: "/news", label: t("nav.news") },

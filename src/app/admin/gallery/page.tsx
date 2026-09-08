@@ -7,7 +7,7 @@ import { DataTable, Column } from "@/components/ui/DataTable";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { FormField } from "@/components/ui/FormField";
-import { GalleryItem } from "@/data/gallery";
+import { GalleryItem, galleryAlbumNames } from "@/data/gallery";
 import {
   parseAndValidateSocialUrl,
   getCanonicalSocialUrl,
@@ -59,11 +59,8 @@ export default function AdminGalleryPage() {
   const [refreshingId, setRefreshingId] = useState<string | null>(null);
   const [isRefreshingAll, setIsRefreshingAll] = useState(false);
 
-  const albumNames: Record<string, { ar: string; en: string }> = {
-    robotics: { ar: "الروبوتيك", en: "Robotics" },
-    salon: { ar: "صالون العلوم", en: "Science Salon" },
-    camp: { ar: "معسكر الذكاء الاصطناعي", en: "AI Bootcamp" },
-  };
+  const albumNames = galleryAlbumNames;
+  const albumOptions = Object.entries(albumNames);
 
   const handleDeleteConfirm = () => {
     if (deleteId) {
@@ -151,7 +148,15 @@ export default function AdminGalleryPage() {
         setPreviewResult(null);
       }
     } catch {
-      // Fallback preview
+      const fallbackTitle =
+        parsed.platform === "facebook"
+          ? parsed.type === "video"
+            ? { ar: "فيديو Facebook", en: "Facebook Reel" }
+            : { ar: "منشور Facebook", en: "Facebook Post" }
+          : parsed.type === "video"
+          ? { ar: "Instagram Reel", en: "Instagram Reel" }
+          : { ar: "منشور Instagram", en: "Instagram Post" };
+
       setPreviewResult({
         success: true,
         platform: parsed.platform!,
@@ -159,44 +164,11 @@ export default function AdminGalleryPage() {
         canonicalUrl: parsed.canonicalUrl,
         originalUrl: parsed.originalUrl || trimmed,
         externalId: parsed.externalId!,
-        title: {
-          ar:
-            parsed.platform === "instagram"
-              ? parsed.type === "video"
-                ? "ريلز إنستغرام: أنشطة الرابطة"
-                : "منشور إنستغرام: توثيق الأنشطة"
-              : parsed.type === "video"
-              ? "فيديو فيسبوك: تغطية الرابطة"
-              : "منشور فيسبوك: تحديثات الرابطة",
-          en:
-            parsed.platform === "instagram"
-              ? parsed.type === "video"
-                ? "Instagram Reel: STLY Activity"
-                : "Instagram Post: STLY Highlight"
-              : parsed.type === "video"
-              ? "Facebook Video: STLY Event"
-              : "Facebook Post: STLY Update",
-        },
+        title: fallbackTitle,
         hasOfficialMetadata: false,
       });
-      if (!titleAr) {
-        setTitleAr(
-          parsed.platform === "instagram"
-            ? parsed.type === "video"
-              ? "ريلز إنستغرام: أنشطة الرابطة"
-              : "منشور إنستغرام: توثيق الأنشطة"
-            : "منشور فيسبوك: نشاطات الرابطة"
-        );
-      }
-      if (!titleEn) {
-        setTitleEn(
-          parsed.platform === "instagram"
-            ? parsed.type === "video"
-              ? "Instagram Reel: STLY Activity"
-              : "Instagram Post: STLY Highlight"
-            : "Facebook Post: STLY Activity"
-        );
-      }
+      if (!titleAr) setTitleAr(fallbackTitle.ar);
+      if (!titleEn) setTitleEn(fallbackTitle.en);
     } finally {
       setIsPreviewLoading(false);
     }
@@ -768,9 +740,11 @@ export default function AdminGalleryPage() {
                   onChange={(e) => setAlbum(e.target.value)}
                   className="w-full px-3.5 py-2 border border-brand-border rounded-lg text-xs bg-white text-brand-dark focus:ring-2 focus:ring-brand-navy/20 focus:border-brand-navy"
                 >
-                  <option value="robotics">{language === "ar" ? "الروبوتيك" : "Robotics"}</option>
-                  <option value="salon">{language === "ar" ? "صالون العلوم" : "Science Salon"}</option>
-                  <option value="camp">{language === "ar" ? "معسكر الذكاء الاصطناعي" : "AI Bootcamp"}</option>
+                  {albumOptions.map(([id, name]) => (
+                    <option key={id} value={id}>
+                      {language === "ar" ? name.ar : name.en}
+                    </option>
+                  ))}
                 </select>
               </FormField>
 
@@ -819,9 +793,11 @@ export default function AdminGalleryPage() {
                   onChange={(e) => setAlbum(e.target.value)}
                   className="w-full px-3.5 py-2 border border-brand-border rounded-lg text-xs bg-white text-brand-dark focus:ring-2 focus:ring-brand-navy/20 focus:border-brand-navy"
                 >
-                  <option value="robotics">{language === "ar" ? "الروبوتيك" : "Robotics"}</option>
-                  <option value="salon">{language === "ar" ? "صالون العلوم" : "Science Salon"}</option>
-                  <option value="camp">{language === "ar" ? "معسكر الذكاء الاصطناعي" : "AI Bootcamp"}</option>
+                  {albumOptions.map(([id, name]) => (
+                    <option key={id} value={id}>
+                      {language === "ar" ? name.ar : name.en}
+                    </option>
+                  ))}
                 </select>
               </FormField>
 

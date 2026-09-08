@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Compass, Heart, Users, Target, Handshake, Atom } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePrototypeState } from "@/context/PrototypeStateContext";
@@ -143,6 +144,38 @@ export default function AboutPage() {
                   {t("about.missionDesc")}
                 </p>
               </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Basma-Tech Section */}
+      <section className="py-16 sm:py-20 bg-[#F4F7FA] border-b border-[#DCE3EA]">
+        <Container>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div className="lg:col-span-8 space-y-4">
+              <span className="inline-flex items-center text-xs font-bold text-brand-navy tracking-wider uppercase bg-white border border-brand-navy/15 px-3 py-1 rounded-md">
+                Basma-Tech
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-dark leading-tight">
+                {language === "ar"
+                  ? "فريق بصمة تك داخل الرابطة"
+                  : "Basma-Tech Within STLY Constantine"}
+              </h2>
+              <p className="text-sm sm:text-base text-brand-muted leading-relaxed max-w-3xl">
+                {language === "ar"
+                  ? "فريق بصمة تك هو فريق علمي تابع لرابطة النشاطات العلمية والتقنية للشباب – قسنطينة، يشارك في الأنشطة والمبادرات والمسابقات العلمية والتكنولوجية."
+                  : "Basma-Tech is a scientific team within STLY Constantine, participating in scientific and technology activities, initiatives, and competitions."}
+              </p>
+            </div>
+
+            <div className="lg:col-span-4 flex lg:justify-end">
+              <Link
+                href="/gallery?album=basmaTech"
+                className="inline-flex items-center justify-center rounded-lg bg-[#062B55] px-5 py-3 text-sm font-extrabold text-white transition-colors hover:bg-[#041D38]"
+              >
+                {language === "ar" ? "شاهد أنشطة بصمة تك" : "Explore Basma-Tech Activities"}
+              </Link>
             </div>
           </div>
         </Container>

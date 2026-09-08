@@ -15,6 +15,7 @@ import {
   Atom,
   Users,
   CalendarDays,
+  ExternalLink,
   ImageIcon,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
@@ -314,7 +315,85 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================
-          3. SCIENTIFIC FIELDS SECTION (3-Column Clean Grid)
+          3. ANSF FEATURE SECTION
+      ======================================================== */}
+      <section className="py-16 sm:py-20 bg-[#F4F7FA] border-b border-[#DCE3EA]">
+        <Container>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div className="lg:col-span-7 space-y-5">
+              <span className="inline-flex items-center text-xs font-bold text-brand-navy tracking-wider uppercase bg-white border border-brand-navy/15 px-3 py-1 rounded-md">
+                ANSF 2026
+              </span>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-brand-dark leading-tight tracking-tight">
+                {language === "ar"
+                  ? "المعرض العلمي الوطني الجزائري"
+                  : "Algerian National Science Fair"}
+              </h2>
+              <p className="text-sm sm:text-base text-brand-muted leading-relaxed max-w-3xl">
+                {language === "ar"
+                  ? "مسابقة علمية لفئة 12–18 سنة، أقيمت من 17 إلى 19 جويلية 2026 ضمن الأنشطة العلمية لرابطة النشاطات العلمية والتقنية للشباب – قسنطينة."
+                  : "A science competition for ages 12–18, held from 17 to 19 July 2026 within STLY Constantine's scientific activities."}
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
+                {[
+                  {
+                    label: language === "ar" ? "التاريخ" : "Dates",
+                    value: language === "ar" ? "17–19 جويلية 2026" : "17–19 July 2026",
+                  },
+                  {
+                    label: language === "ar" ? "المجالات" : "Fields",
+                    value: language === "ar" ? "9 مجالات" : "9 fields",
+                  },
+                  {
+                    label: language === "ar" ? "الفئة العمرية" : "Ages",
+                    value: language === "ar" ? "12–18 سنة" : "12–18",
+                  },
+                ].map((fact) => (
+                  <div key={fact.label} className="rounded-xl border border-[#DCE3EA] bg-white p-4 shadow-xs">
+                    <p className="text-[11px] font-bold text-brand-muted">{fact.label}</p>
+                    <p className="mt-1 text-sm font-extrabold text-brand-dark">{fact.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 rounded-xl border border-[#DCE3EA] bg-white p-6 sm:p-7 shadow-xs space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#062B55] text-brand-green-accent">
+                  <Atom className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-brand-green">
+                    ANSF
+                  </p>
+                  <p className="text-sm font-extrabold text-brand-dark">
+                    {language === "ar" ? "نشاط علمي وطني" : "National Science Activity"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Link href="/ansf">
+                  <Button variant="secondary" size="md" className="gap-2">
+                    <span>{language === "ar" ? "تفاصيل ANSF" : "ANSF Details"}</span>
+                    <ArrowIcon className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <a href="https://ansf.tech/" target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="md" className="gap-2">
+                    <span>{language === "ar" ? "الموقع الرسمي" : "Official Website"}</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ========================================================
+          4. SCIENTIFIC FIELDS SECTION (3-Column Clean Grid)
       ======================================================== */}
       <section className="py-20 sm:py-24 bg-[#F4F7FA]">
         <Container>
@@ -377,7 +456,7 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================
-          4. FEATURED PROGRAMS SECTION
+          5. FEATURED PROGRAMS SECTION
       ======================================================== */}
       {featuredPrograms.length > 0 && (
         <section className="py-20 sm:py-24 bg-white border-y border-[#DCE3EA]">
@@ -410,7 +489,7 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          5. UPCOMING EVENTS SECTION
+          6. UPCOMING EVENTS SECTION
       ======================================================== */}
       {upcomingEvents.length > 0 && (
         <section className="py-20 sm:py-24 bg-[#F4F7FA]">
@@ -443,7 +522,7 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          6. LATEST NEWS & PUBLICATIONS SECTION
+          7. LATEST NEWS & PUBLICATIONS SECTION
       ======================================================== */}
       {latestNews.length > 0 && (
         <section className="py-20 sm:py-24 bg-white border-y border-[#DCE3EA]">
@@ -484,7 +563,7 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          7. GALLERY PREVIEW (Varied Mosaic Grid)
+          8. GALLERY PREVIEW (Varied Mosaic Grid)
       ======================================================== */}
       {previewGallery.length > 0 && (
         <section className="py-20 sm:py-24 bg-[#F4F7FA]">
@@ -520,7 +599,7 @@ export default function HomePage() {
                 return (
                   <Link
                     key={item.id}
-                    href="/gallery"
+                    href={`/gallery?album=${item.album}`}
                     className="group relative aspect-square rounded-xl overflow-hidden bg-slate-900 border border-[#DCE3EA] hover:border-brand-navy/30 transition-all duration-300 shadow-xs flex flex-col justify-between"
                   >
                     {/* Image if available */}
@@ -596,7 +675,7 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          8. PARTNERS & INSTITUTIONAL NETWORK
+          9. PARTNERS & INSTITUTIONAL NETWORK
       ======================================================== */}
       {partners.length > 0 && (
         <section className="py-16 sm:py-20 bg-white border-t border-[#DCE3EA]">
@@ -637,7 +716,7 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          9. MEMBERSHIP CALL TO ACTION SECTION (Navy)
+          10. MEMBERSHIP CALL TO ACTION SECTION (Navy)
       ======================================================== */}
       <CTASection />
     </div>

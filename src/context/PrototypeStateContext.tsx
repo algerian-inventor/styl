@@ -72,6 +72,8 @@ const defaultSettings: SiteSettings = {
   tiktokUrl: "",
 };
 
+const GALLERY_SEED_VERSION = "2026-09-08-real-basma-tech-ansf";
+
 interface PrototypeStateContextProps {
   articles: Article[];
   events: Event[];
@@ -160,13 +162,41 @@ export const PrototypeStateProvider: React.FC<{ children: React.ReactNode }> = (
       return defaults;
     };
 
+    const loadGalleryState = (): GalleryItem[] => {
+      const stored = localStorage.getItem("stly_gallery");
+      if (!stored) {
+        localStorage.setItem("stly_gallery_seed_version", GALLERY_SEED_VERSION);
+        return defaultGallery;
+      }
+
+      try {
+        const parsed = JSON.parse(stored) as GalleryItem[];
+        const storedSeedVersion = localStorage.getItem("stly_gallery_seed_version");
+        if (storedSeedVersion === GALLERY_SEED_VERSION) return parsed;
+
+        const knownKeys = new Set(
+          parsed.map((item) => (item.socialUrl || item.url || item.id).toLowerCase())
+        );
+        const missingDefaults = defaultGallery.filter(
+          (item) => !knownKeys.has((item.socialUrl || item.url || item.id).toLowerCase())
+        );
+
+        localStorage.setItem("stly_gallery_seed_version", GALLERY_SEED_VERSION);
+        return [...missingDefaults, ...parsed];
+      } catch (e) {
+        console.error("Error parsing stly_gallery from localStorage", e);
+        localStorage.setItem("stly_gallery_seed_version", GALLERY_SEED_VERSION);
+        return defaultGallery;
+      }
+    };
+
     setArticles(loadState("stly_articles", defaultArticles));
     setEvents(loadState("stly_events", defaultEvents));
     setPrograms(loadState("stly_programs", defaultPrograms));
     setRegistrations(loadState("stly_registrations", initialRegistrations));
     setApplications(loadState("stly_applications", initialApplications));
     setContactMessages(loadState("stly_contact_messages", initialContactMessages));
-    setGalleryItems(loadState("stly_gallery", defaultGallery));
+    setGalleryItems(loadGalleryState());
     setPartners(loadState("stly_partners", defaultPartners));
 
     // Load customizer settings
