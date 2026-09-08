@@ -32,6 +32,10 @@ export default function AdminSettingsPage() {
   const [addressEn, setAddressEn] = useState("");
   const [primaryColor, setPrimaryColor] = useState<"navy" | "teal" | "purple" | "orange">("navy");
   const [heroBannerUrl, setHeroBannerUrl] = useState("");
+  const [instagramUrl, setInstagramUrl] = useState("");
+  const [facebookUrl, setFacebookUrl] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [tiktokUrl, setTiktokUrl] = useState("");
 
   // Sync state with settings when context loads
   useEffect(() => {
@@ -46,6 +50,10 @@ export default function AdminSettingsPage() {
       setAddressEn(siteSettings.addressEn);
       setPrimaryColor(siteSettings.primaryColor);
       setHeroBannerUrl(siteSettings.heroBannerUrl || "");
+      setInstagramUrl(siteSettings.instagramUrl || "");
+      setFacebookUrl(siteSettings.facebookUrl || "");
+      setYoutubeUrl(siteSettings.youtubeUrl || "");
+      setTiktokUrl(siteSettings.tiktokUrl || "");
     }
   }, [siteSettings]);
 
@@ -80,6 +88,10 @@ export default function AdminSettingsPage() {
       addressEn,
       primaryColor,
       heroBannerUrl,
+      instagramUrl: instagramUrl.trim(),
+      facebookUrl: facebookUrl.trim(),
+      youtubeUrl: youtubeUrl.trim(),
+      tiktokUrl: tiktokUrl.trim(),
     });
   };
 
@@ -253,12 +265,53 @@ export default function AdminSettingsPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField label={language === "ar" ? "مظهر لون الموقع" : "Site Color Theme"} required>
                       <select value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value as "navy" | "teal" | "purple" | "orange")}>
-                        <option value="navy">{language === "ar" ? "الأزرق البحري (Navy)" : "Navy Blue (Default)"}</option>
-                        <option value="teal">{language === "ar" ? "الأخضر المائي (Teal)" : "Teal Green"}</option>
+                        <option value="navy">{language === "ar" ? "الأزرق الداكن (الافتراضي)" : "Navy Blue (Default)"}</option>
+                        <option value="teal">{language === "ar" ? "الأخضر المائل (Teal)" : "Teal Green"}</option>
                         <option value="purple">{language === "ar" ? "البنفسجي (Purple)" : "Deep Purple"}</option>
-                        <option value="orange">{language === "ar" ? "البرتقالي الذهبي (Orange)" : "Golden Amber"}</option>
+                        <option value="orange">{language === "ar" ? "البرتقالي (Orange)" : "Golden Amber"}</option>
                       </select>
                     </FormField>
+                  </div>
+
+                  {/* Social Media Links */}
+                  <div className="pt-4 border-t border-brand-border">
+                    <h5 className="text-xs font-bold text-brand-dark mb-4">
+                      {language === "ar" ? "روابط التواصل الاجتماعي" : "Social Media"}
+                    </h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField label="Instagram">
+                        <input
+                          type="url"
+                          placeholder="https://instagram.com/..."
+                          value={instagramUrl}
+                          onChange={(e) => setInstagramUrl(e.target.value)}
+                        />
+                      </FormField>
+                      <FormField label="Facebook">
+                        <input
+                          type="url"
+                          placeholder="https://facebook.com/..."
+                          value={facebookUrl}
+                          onChange={(e) => setFacebookUrl(e.target.value)}
+                        />
+                      </FormField>
+                      <FormField label="YouTube">
+                        <input
+                          type="url"
+                          placeholder="https://youtube.com/..."
+                          value={youtubeUrl}
+                          onChange={(e) => setYoutubeUrl(e.target.value)}
+                        />
+                      </FormField>
+                      <FormField label="TikTok">
+                        <input
+                          type="url"
+                          placeholder="https://tiktok.com/..."
+                          value={tiktokUrl}
+                          onChange={(e) => setTiktokUrl(e.target.value)}
+                        />
+                      </FormField>
+                    </div>
                   </div>
 
                   <div className="border-t border-brand-border pt-4 flex justify-end">

@@ -21,6 +21,19 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
   const isVideo = item.type === "video";
   const isLoaded = loadedId === item.id;
 
+  // Timeout effect to prevent infinite loading
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (!isLoaded && !loadError) {
+      timeoutId = setTimeout(() => {
+        setLoadError(true);
+      }, 6000); // 6 seconds reasonable timeout
+    }
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [isLoaded, loadError]);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -79,7 +92,7 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
               {isInstagram ? "Instagram" : "Facebook"}
             </span>
             <span className="text-[10px] text-brand-muted">
-              {isInstagram ? "@stly.constantine" : "STLY Constantine"}
+              {item.title?.[language] ? item.title[language].substring(0, 30) + "..." : isInstagram ? "Instagram" : "Facebook"}
             </span>
           </div>
         </div>
@@ -125,24 +138,24 @@ export const SocialMediaEmbed: React.FC<SocialMediaEmbedProps> = ({ item }) => {
         {/* Graceful Error / Blocked State */}
         {loadError && (
           <div className="p-8 text-center space-y-3 max-w-sm">
-            <div className="w-12 h-12 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600">
-              <AlertCircle className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-brand-navy">
+              {isInstagram ? <InstagramIcon className="w-6 h-6" /> : <FacebookIcon className="w-6 h-6" />}
             </div>
             <h4 className="text-sm font-extrabold text-brand-dark">
-              {language === "ar" ? "تعذر عرض المنشور المضمن مباشرة" : "Could not load embedded post"}
+              {item.title[language]}
             </h4>
             <p className="text-xs text-brand-muted">
               {language === "ar"
-                ? "قد يكون المنشور مقيداً أو تم حجبه بواسطة مانع الإعلانات. يمكنك مشاهدته مباشرة عبر الرابط الأصلي."
-                : "The post may be restricted or blocked by privacy extensions. You can view it directly on the platform."}
+                ? "يمكنك مشاهدة هذا المحتوى مباشرة على منصة التواصل الاجتماعي."
+                : "You can view this content directly on the social media platform."}
             </p>
             <a
               href={postUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#062B55] text-white text-xs font-bold hover:bg-[#041D38] transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#062B55] text-white text-xs font-bold hover:bg-[#041D38] transition-colors mt-2"
             >
-              <span>{language === "ar" ? "مشاهدة على المنصة الأصلية" : "View on Platform"}</span>
+              <span>{language === "ar" ? "فتح المنشور الأصلي" : "View Original Post"}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>

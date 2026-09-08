@@ -96,6 +96,8 @@ export async function POST(req: NextRequest) {
         ? `${process.env.META_APP_ID}|${process.env.META_APP_SECRET}`
         : null);
 
+    const metaGraphVersion = process.env.META_GRAPH_VERSION || "v26.0";
+
     let officialThumbnailUrl: string | undefined;
     let officialAuthorName: string | undefined;
     let officialTitle: string | undefined;
@@ -107,16 +109,16 @@ export async function POST(req: NextRequest) {
       try {
         let oembedEndpoint = "";
         if (platform === "instagram") {
-          oembedEndpoint = `https://graph.facebook.com/v19.0/instagram_oembed?url=${encodeURIComponent(
+          oembedEndpoint = `https://graph.facebook.com/${metaGraphVersion}/instagram_oembed?url=${encodeURIComponent(
             canonicalUrl
           )}&access_token=${metaToken}&fields=thumbnail_url,author_name,title,html`;
         } else if (platform === "facebook") {
           if (type === "video") {
-            oembedEndpoint = `https://graph.facebook.com/v19.0/oembed_video?url=${encodeURIComponent(
+            oembedEndpoint = `https://graph.facebook.com/${metaGraphVersion}/oembed_video?url=${encodeURIComponent(
               canonicalUrl
             )}&access_token=${metaToken}&fields=thumbnail_url,author_name,html`;
           } else {
-            oembedEndpoint = `https://graph.facebook.com/v19.0/oembed_post?url=${encodeURIComponent(
+            oembedEndpoint = `https://graph.facebook.com/${metaGraphVersion}/oembed_post?url=${encodeURIComponent(
               canonicalUrl
             )}&access_token=${metaToken}&fields=thumbnail_url,author_name,html`;
           }
@@ -163,21 +165,21 @@ export async function POST(req: NextRequest) {
       officialTitle ||
       (platform === "instagram"
         ? type === "video"
-          ? `ريلز إنستغرام: منشور تفاعلي للرابطة`
-          : `منشور إنستغرام: توثيق أنشطة الرابطة`
+          ? `Instagram Reel`
+          : `منشور Instagram`
         : type === "video"
-        ? `فيديو فيسبوك: تغطية فعاليات ونشاطات الرابطة`
-        : `منشور فيسبوك: توثيق أنشطة الرابطة`);
+        ? `فيديو Facebook`
+        : `منشور Facebook`);
 
     const defaultTitleEn =
       officialTitle ||
       (platform === "instagram"
         ? type === "video"
-          ? `Instagram Reel: Interactive STLY Activity`
-          : `Instagram Post: STLY Activity Highlight`
+          ? `Instagram Reel`
+          : `Instagram Post`
         : type === "video"
-        ? `Facebook Video: STLY Event Coverage`
-        : `Facebook Post: STLY Community Update`);
+        ? `Facebook Video`
+        : `Facebook Post`);
 
     const result: SocialPreviewResult = {
       success: true,
@@ -190,7 +192,7 @@ export async function POST(req: NextRequest) {
         ar: defaultTitleAr,
         en: defaultTitleEn,
       },
-      authorName: officialAuthorName || (platform === "instagram" ? "stly.constantine" : "STLY Constantine"),
+      authorName: officialAuthorName || undefined,
       thumbnailUrl: officialThumbnailUrl,
       embedHtml: officialEmbedHtml,
       hasOfficialMetadata,

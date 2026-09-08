@@ -38,6 +38,10 @@ export interface SiteSettings {
   addressEn: string;
   primaryColor: "navy" | "teal" | "purple" | "orange";
   heroBannerUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  youtubeUrl?: string;
+  tiktokUrl?: string;
 }
 
 const initialContactMessages: ContactMessage[] = [
@@ -62,6 +66,10 @@ const defaultSettings: SiteSettings = {
   addressEn: "Sidi Mabrouk El Sifli, Constantine, Algeria",
   primaryColor: "navy",
   heroBannerUrl: "",
+  instagramUrl: "",
+  facebookUrl: "",
+  youtubeUrl: "",
+  tiktokUrl: "",
 };
 
 interface PrototypeStateContextProps {

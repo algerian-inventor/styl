@@ -29,9 +29,6 @@ export const PageHero: React.FC<PageHeroProps> = ({
     <section className="relative bg-[#062B55] text-white py-14 sm:py-20 overflow-hidden border-b border-[#041D38]">
       {/* Background scientific grid and subtle gradients */}
       <div className="absolute inset-0 bg-sci-grid-dark opacity-30 pointer-events-none" />
-      <div className="absolute -top-24 -right-24 w-96 h-96 bg-brand-navy-light/40 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-green/15 rounded-full blur-3xl pointer-events-none" />
-
       <Container className="relative z-10">
         <div className="max-w-3xl space-y-4">
           {/* Breadcrumbs */}

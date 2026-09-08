@@ -112,9 +112,6 @@ export default function HomePage() {
       <section className="relative bg-[#062B55] text-white py-16 sm:py-24 lg:py-28 overflow-hidden border-b border-[#041D38]">
         {/* Subtle Scientific Geometry & Grids */}
         <div className="absolute inset-0 bg-sci-grid-dark opacity-35 pointer-events-none" />
-        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] bg-brand-navy-light/40 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] bg-brand-green/15 rounded-full blur-3xl pointer-events-none" />
-
         <Container className="relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             {/* Left Column: Headline & Action Points (7 cols) */}

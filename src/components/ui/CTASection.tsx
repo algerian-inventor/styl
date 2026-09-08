@@ -41,8 +41,6 @@ export const CTASection: React.FC<CTASectionProps> = ({
     <section className={`relative bg-gradient-to-br from-[#062B55] via-[#041D38] to-[#031528] text-white py-16 sm:py-20 overflow-hidden ${className}`}>
       {/* Background scientific grid pattern */}
       <div className="absolute inset-0 bg-sci-grid-dark opacity-35 pointer-events-none" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-green/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-brand-navy-light/30 rounded-full blur-3xl pointer-events-none" />
 
       <Container className="relative z-10 text-center">
         <div className="max-w-3xl mx-auto space-y-6">

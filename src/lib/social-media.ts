@@ -134,6 +134,17 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
       };
     }
 
+    // Profile check
+    if (pathname.length > 1 && !pathname.startsWith("/p/") && !pathname.startsWith("/reel") && !pathname.startsWith("/tv/")) {
+      return {
+        isValid: false,
+        errorMessage: {
+          ar: "هذا رابط حساب إنستغرام، وليس رابط منشور أو Reel.",
+          en: "This is an Instagram profile URL, not a post or Reel URL.",
+        },
+      };
+    }
+
     return {
       isValid: false,
       errorMessage: {
@@ -278,10 +289,21 @@ export function parseAndValidateSocialUrl(rawUrl: string): ParsedSocialUrl {
       };
     }
 
+    // Profile check
+    if (pathname.length > 1 && !pathname.includes("photo.php") && !pathname.includes("permalink.php") && !pathname.includes("/posts/") && !pathname.includes("/videos/") && !pathname.includes("/watch")) {
+      return {
+        isValid: false,
+        errorMessage: {
+          ar: "هذا رابط صفحة أو حساب فيسبوك، وليس رابط منشور أو فيديو.",
+          en: "This is a Facebook profile/page URL, not a post or video URL.",
+        },
+      };
+    }
+
     return {
       isValid: false,
       errorMessage: {
-        ar: "الرابط ليس منشوراً أو فيديو صالحاً على فيسبوك.",
+        ar: "الرابط ليس منشورا أو فيديو أو ريلز صالحا على فيسبوك.",
         en: "URL is not a recognized public Facebook post, video, or reel.",
       },
     };
