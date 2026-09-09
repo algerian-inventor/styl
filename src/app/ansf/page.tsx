@@ -127,17 +127,21 @@ export default function AnsfPage() {
     <div className="w-full bg-[#021426] text-white overflow-x-hidden">
       {/* ========================================================
           1 — CUSTOM BRANDED ANSF HERO
-          Surface: #021426 (Deep Navy)
+          Luminous vibrant science navy with cyan ambient illumination
       ======================================================== */}
-      <section className="relative pt-12 pb-16 sm:pt-16 sm:pb-24 border-b border-[#08345C] bg-[#021426] overflow-hidden">
+      <section className="relative pt-12 pb-16 sm:pt-16 sm:pb-24 border-b border-[#0E4A7D] bg-gradient-to-br from-[#0B2C54] via-[#083566] to-[#052445] overflow-hidden">
+        {/* Luminous Ambient Light Orbs */}
+        <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#00E5FF]/20 blur-[130px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-10 w-[450px] h-[450px] bg-blue-500/20 blur-[130px] rounded-full pointer-events-none" />
+
         {/* Subtle Science Grid Background */}
-        <div className="absolute inset-0 pointer-events-none opacity-15">
+        <div className="absolute inset-0 pointer-events-none opacity-20">
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
             <defs>
               <pattern id="ansf-grid" width="48" height="48" patternUnits="userSpaceOnUse">
-                <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#00E5FF" strokeWidth="0.5" strokeOpacity="0.35" />
-                <circle cx="48" cy="0" r="1.5" fill="#00E5FF" fillOpacity="0.3" />
-                <circle cx="0" cy="48" r="1.5" fill="#3B82F6" fillOpacity="0.3" />
+                <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#00E5FF" strokeWidth="0.5" strokeOpacity="0.4" />
+                <circle cx="48" cy="0" r="1.5" fill="#00E5FF" fillOpacity="0.4" />
+                <circle cx="0" cy="48" r="1.5" fill="#3B82F6" fillOpacity="0.4" />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#ansf-grid)" />
@@ -145,16 +149,16 @@ export default function AnsfPage() {
         </div>
 
         {/* Controlled Cyan Accent Top Border Line */}
-        <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-blue-700 via-[#00E5FF]/70 to-blue-700" />
+        <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-blue-600 via-[#00E5FF] to-blue-600 shadow-[0_0_12px_rgba(0,229,255,0.6)]" />
 
         <Container className="relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
             {/* Left Column: Text + Verified Facts + CTAs + Scientific Categories Strip */}
             <div className="lg:col-span-7 space-y-6 text-start">
               {/* Eyebrow Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 shadow-[0_0_15px_rgba(0,229,255,0.08)]">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#00E5FF]/20 border border-[#00E5FF]/40 shadow-[0_0_20px_rgba(0,229,255,0.18)]">
                 <span className="w-2 h-2 rounded-full bg-[#00E5FF] animate-pulse" />
-                <span className="text-xs sm:text-sm font-extrabold text-[#00E5FF] tracking-wide uppercase">
+                <span className="text-xs sm:text-sm font-extrabold text-white tracking-wide uppercase">
                   {language === "ar"
                     ? "مبادرة علمية وطنية داخل STLY"
                     : "A National Science Initiative within STLY"}
@@ -163,18 +167,18 @@ export default function AnsfPage() {
 
               {/* Title */}
               <div className="space-y-2">
-                <h1 className="text-3xl sm:text-5xl lg:text-[52px] font-black tracking-tight text-white leading-[1.15]">
+                <h1 className="text-3xl sm:text-5xl lg:text-[54px] font-black tracking-tight text-white leading-[1.15]">
                   {language === "ar"
                     ? "المعرض العلمي الوطني الجزائري 2026"
                     : "Algerian National Science Fair 2026"}
                 </h1>
-                <div className="text-xl sm:text-2xl font-bold text-cyan-300">
+                <div className="text-xl sm:text-2xl font-black text-[#00E5FF] tracking-wide">
                   ANSF 2026
                 </div>
               </div>
 
               {/* Short Intro */}
-              <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+              <p className="text-base sm:text-lg text-blue-100 leading-relaxed max-w-2xl font-medium">
                 {language === "ar"
                   ? "معرض علمي وطني موجه للشباب من 12 إلى 18 سنة، يضم 9 مجالات علمية، وأقيم من 17 إلى 19 جويلية 2026."
                   : "A national science fair for young people aged 12–18, covering 9 scientific fields and held from 17 to 19 July 2026."}
@@ -187,14 +191,14 @@ export default function AnsfPage() {
                   return (
                     <div
                       key={fact.label}
-                      className="rounded-xl border border-[#0A4373] bg-[#052647]/90 backdrop-blur-xs p-4 flex items-center gap-3 shadow-xs"
+                      className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-md p-4 flex items-center gap-3 shadow-md hover:bg-white/15 transition-colors"
                     >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/25">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#00E5FF] text-[#021426] font-black shadow-sm">
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{fact.label}</p>
-                        <p className="text-xs sm:text-sm font-extrabold text-white">{fact.value}</p>
+                        <p className="text-[11px] font-bold text-cyan-200 uppercase tracking-wider">{fact.label}</p>
+                        <p className="text-xs sm:text-sm font-black text-white">{fact.value}</p>
                       </div>
                     </div>
                   );
@@ -205,7 +209,7 @@ export default function AnsfPage() {
               <div className="flex flex-wrap items-center gap-4 pt-1">
                 <Link
                   href="/gallery?album=ansf"
-                  className="inline-flex items-center justify-center gap-2.5 px-6 h-12 rounded-lg font-bold bg-[#00E5FF] text-[#020D1A] hover:bg-[#00BCCC] transition-colors shadow-lg shadow-[#00E5FF]/25"
+                  className="inline-flex items-center justify-center gap-2.5 px-7 h-12 rounded-lg font-black bg-[#00E5FF] text-[#021426] hover:bg-cyan-300 transition-colors shadow-lg shadow-[#00E5FF]/35 hover:shadow-[0_0_25px_rgba(0,229,255,0.5)]"
                 >
                   <span>{language === "ar" ? "شاهد التغطية" : "View Coverage"}</span>
                   <ArrowIcon className="w-4 h-4" />
@@ -215,7 +219,7 @@ export default function AnsfPage() {
                   href="https://ansf.tech/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2.5 px-6 h-12 rounded-lg font-bold bg-[#062B55]/60 text-white border border-[#0A4373] hover:bg-[#0A4373]/60 hover:border-cyan-400 transition-colors"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 h-12 rounded-lg font-bold bg-white/15 text-white border border-white/30 backdrop-blur-md hover:bg-white/25 hover:border-white/50 transition-colors"
                 >
                   <span>{language === "ar" ? "زيارة الموقع الرسمي" : "Visit Official Website"}</span>
                   <ExternalLink className="w-4 h-4 text-[#00E5FF]" />
@@ -223,8 +227,8 @@ export default function AnsfPage() {
               </div>
 
               {/* 4. COMPACT SCIENCE CATEGORY CHIP SYSTEM */}
-              <div className="pt-4 border-t border-[#0A4373]/60 space-y-2.5">
-                <p className="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+              <div className="pt-4 border-t border-white/15 space-y-2.5">
+                <p className="text-xs font-bold text-cyan-200 uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[#00E5FF]" />
                   <span>
                     {language === "ar" ? "المجالات العلمية التسعة" : "9 Verified Scientific Categories"}
@@ -236,7 +240,7 @@ export default function AnsfPage() {
                     return (
                       <span
                         key={field.num}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#052647]/80 border border-cyan-500/25 text-xs font-semibold text-slate-200 hover:border-cyan-400 hover:text-white transition-colors"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-xs font-semibold text-white hover:border-cyan-300 hover:bg-white/20 transition-colors backdrop-blur-xs"
                       >
                         <Icon className="w-3.5 h-3.5 text-[#00E5FF] shrink-0" />
                         <span>{language === "ar" ? field.name.ar : field.name.en}</span>
@@ -250,22 +254,25 @@ export default function AnsfPage() {
             {/* Right Column: Prominent, Well-Lit ANSF Logo Container */}
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
               <div 
-                className="relative w-full max-w-[320px] sm:max-w-[380px] lg:max-w-[430px] aspect-square rounded-2xl border border-[#00E5FF]/30 p-6 sm:p-8 shadow-[0_0_40px_rgba(0,229,255,0.14)] flex items-center justify-center group overflow-hidden bg-[#052647]"
+                className="relative w-full max-w-[320px] sm:max-w-[380px] lg:max-w-[430px] aspect-square rounded-3xl border-2 border-cyan-400/40 p-6 sm:p-8 shadow-[0_0_50px_rgba(0,229,255,0.25)] flex items-center justify-center group overflow-hidden"
                 style={{
-                  background: "radial-gradient(circle at center, rgba(0,229,255,0.18) 0%, rgba(22,139,255,0.10) 50%, #052647 80%)"
+                  background: "radial-gradient(circle at center, rgba(0,229,255,0.32) 0%, rgba(37,99,235,0.22) 45%, #0B3158 85%)"
                 }}
               >
+                {/* Internal Luminous Halo behind artwork */}
+                <div className="absolute inset-6 rounded-2xl bg-cyan-400/10 blur-xl pointer-events-none" />
+
                 {/* Circuit corner accent markers */}
-                <div className="absolute top-3 start-3 w-3.5 h-3.5 border-t-2 border-s-2 border-[#00E5FF]" />
-                <div className="absolute top-3 end-3 w-3.5 h-3.5 border-t-2 border-e-2 border-cyan-400" />
-                <div className="absolute bottom-3 start-3 w-3.5 h-3.5 border-b-2 border-s-2 border-blue-400" />
-                <div className="absolute bottom-3 end-3 w-3.5 h-3.5 border-b-2 border-e-2 border-[#00E5FF]" />
+                <div className="absolute top-3 start-3 w-4 h-4 border-t-2 border-s-2 border-[#00E5FF]" />
+                <div className="absolute top-3 end-3 w-4 h-4 border-t-2 border-e-2 border-cyan-300" />
+                <div className="absolute bottom-3 start-3 w-4 h-4 border-b-2 border-s-2 border-blue-400" />
+                <div className="absolute bottom-3 end-3 w-4 h-4 border-b-2 border-e-2 border-[#00E5FF]" />
 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/images/brands/ansf-logo.jpg"
                   alt="ANSF 2026 Logo"
-                  className="relative z-10 w-full h-full object-contain rounded-xl transition-transform duration-300 group-hover:scale-[1.02]"
+                  className="relative z-10 w-full h-full object-contain rounded-xl transition-transform duration-300 group-hover:scale-[1.02] filter drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
                 />
               </div>
             </div>
