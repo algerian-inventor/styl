@@ -182,7 +182,7 @@ export default function HomePage() {
               <Link href="/ansf" className="inline-flex items-center px-3 py-1.5 rounded-md bg-[#041D38]/60 border border-white/10 hover:bg-[#062B55]/80 text-xs font-bold text-slate-300 hover:text-white transition-colors backdrop-blur-sm">
                 ANSF 2026
               </Link>
-              <Link href="/gallery?album=basmaTech" className="inline-flex items-center px-3 py-1.5 rounded-md bg-[#041D38]/60 border border-white/10 hover:bg-[#062B55]/80 text-xs font-bold text-slate-300 hover:text-white transition-colors backdrop-blur-sm">
+              <Link href="/basma-tech" className="inline-flex items-center px-3 py-1.5 rounded-md bg-[#041D38]/60 border border-white/10 hover:bg-[#062B55]/80 text-xs font-bold text-slate-300 hover:text-white transition-colors backdrop-blur-sm">
                 {language === "ar" ? "بصمة تك" : "Basma-Tech"}
               </Link>
               <Link href="/gallery" className="inline-flex items-center px-3 py-1.5 rounded-md bg-[#041D38]/60 border border-white/10 hover:bg-[#062B55]/80 text-xs font-bold text-slate-300 hover:text-white transition-colors backdrop-blur-sm">
@@ -390,7 +390,7 @@ export default function HomePage() {
               </p>
               <div className="flex justify-center md:justify-start">
                 <Link 
-                  href="/gallery?album=basmaTech"
+                  href="/basma-tech"
                   className="inline-flex items-center justify-center gap-2 px-6 h-11 rounded-lg font-bold bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-md"
                 >
                   <span>{language === "ar" ? "استكشف بصمة تك" : "Explore Basma-Tech"}</span>

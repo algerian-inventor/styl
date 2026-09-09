@@ -64,6 +64,7 @@ export const Navbar: React.FC = () => {
         { href: "/fields", label: t("nav.fields") },
         { href: "/events", label: t("nav.events") },
         { href: "/ansf", label: "ANSF" },
+        { href: "/basma-tech", label: language === "ar" ? "بصمة تك" : "Basma-Tech" },
       ],
     },
     { href: "/news", label: t("nav.news") },
@@ -75,9 +76,11 @@ export const Navbar: React.FC = () => {
     setLanguage(language === "ar" ? "en" : "ar");
   };
 
-  const isActive = (href: string) => {
+  const isActive = (href: string, dropdown?: Array<{ href: string }>) => {
     if (href === "/") return pathname === "/";
-    return pathname.startsWith(href);
+    if (pathname.startsWith(href)) return true;
+    if (dropdown?.some((sub) => pathname.startsWith(sub.href))) return true;
+    return false;
   };
 
   return (
@@ -111,7 +114,7 @@ export const Navbar: React.FC = () => {
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => {
-              const active = isActive(link.href);
+              const active = isActive(link.href, link.dropdown);
               
               if (link.dropdown) {
                 const isOpen = activeDropdown === link.href;
@@ -236,7 +239,7 @@ export const Navbar: React.FC = () => {
       >
         <nav className="px-4 py-4 space-y-1 bg-slate-50/50">
           {navLinks.map((link) => {
-            const active = isActive(link.href);
+            const active = isActive(link.href, link.dropdown);
             
             if (link.dropdown) {
               return (
