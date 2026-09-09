@@ -49,20 +49,32 @@ export default function AnsfPage() {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#00E5FF]/5 blur-[120px] rounded-full pointer-events-none" />
         
         <Container className="relative z-10">
-          <div className="max-w-3xl space-y-6">
-            <span className="inline-flex items-center text-xs font-bold text-[#00E5FF] tracking-wider uppercase bg-[#00E5FF]/10 border border-[#00E5FF]/20 px-3 py-1 rounded-md shadow-[0_0_15px_rgba(0,229,255,0.1)]">
-              ANSF 2026
-            </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
-              {language === "ar"
-                ? "المعرض الوطني للعلوم قسنطينة"
-                : "Algerian National Science Fair"}
-            </h1>
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              {language === "ar"
-                ? "مسابقة علمية وطنية للأعمار 12–18 سنة، نُظمت من 17 إلى 19 جويلية 2026 ضمن الأنشطة العلمية لرابطة النشاطات العلمية والتقنية للشباب قسنطينة."
-                : "A national science competition for ages 12–18, held from 17 to 19 July 2026 within STLY Constantine's scientific activities."}
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div className="lg:col-span-7 space-y-6">
+              <span className="inline-flex items-center text-xs font-bold text-[#00E5FF] tracking-wider uppercase bg-[#00E5FF]/10 border border-[#00E5FF]/20 px-3 py-1 rounded-md shadow-[0_0_15px_rgba(0,229,255,0.1)]">
+                ANSF 2026
+              </span>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
+                {language === "ar"
+                  ? "المعرض الوطني للعلوم قسنطينة"
+                  : "Algerian National Science Fair"}
+              </h1>
+              <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
+                {language === "ar"
+                  ? "مسابقة علمية وطنية للأعمار 12–18 سنة، نُظمت من 17 إلى 19 جويلية 2026 ضمن الأنشطة العلمية لرابطة النشاطات العلمية والتقنية للشباب قسنطينة."
+                  : "A national science competition for ages 12–18, held from 17 to 19 July 2026 within STLY Constantine's scientific activities."}
+              </p>
+            </div>
+
+            <div className="lg:col-span-5 flex justify-center lg:justify-end relative">
+              <div className="absolute inset-0 bg-[#00E5FF]/5 blur-3xl rounded-full" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/brands/ansf-logo.jpg"
+                alt="ANSF 2026"
+                className="relative z-10 w-48 sm:w-60 md:w-72 lg:w-80 h-auto object-contain rounded-xl shadow-2xl"
+              />
+            </div>
           </div>
         </Container>
       </section>
