@@ -112,109 +112,82 @@ export default function HomePage() {
 
   return (
     <div className="w-full">
-      <section className="relative bg-[#062B55] text-white py-14 sm:py-20 lg:py-24 overflow-hidden border-b border-[#041D38]">
-        <Container className="relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-            <div className="lg:col-span-7 space-y-6 text-start">
-              <div className="inline-flex max-w-full items-center gap-2 px-3.5 py-1.5 rounded-md bg-white/10 border border-white/15">
-                <Atom className="w-4 h-4 text-brand-green-accent" />
-                <span className="text-xs sm:text-sm font-bold text-slate-100">
-                  {language === "ar" ? siteSettings.leagueNameAr : siteSettings.leagueNameEn}
-                </span>
-              </div>
+      {/* ========================================================
+          1. HERO SECTION (Full-width Background)
+      ======================================================== */}
+      <section 
+        className="relative text-white flex items-center border-b border-[#041D38] overflow-hidden"
+        style={{ minHeight: "clamp(620px, 80vh, 680px)" }}
+      >
+        <div className="absolute inset-0 w-full h-full">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/hero-stly-constantine.png"
+            alt={language === "ar" ? "رابطة النشاطات العلمية والتقنية للشباب قسنطينة" : "STLY Constantine"}
+            className="w-full h-full object-cover object-[70%_center] sm:object-[80%_center]"
+          />
+        </div>
 
-              <h1 className="text-3xl sm:text-5xl lg:text-[54px] font-black text-white leading-[1.15] tracking-tight">
-                {language === "ar" ? (
-                  <>
-                    نصنع جيلاً يقود المستقبل <br />
-                    <span className="text-brand-green-accent">بالعلم والابتكار</span>
-                  </>
-                ) : (
-                  <>
-                    Empowering Youth to Lead the Future Through{" "}
-                    <span className="text-brand-green-accent">Science & Innovation</span>
-                  </>
-                )}
-              </h1>
+        {/* Overlay: navy left→right overlay, preserve city image on right */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#031B38] via-[#062B55]/80 to-transparent" />
 
-              <p className="text-base sm:text-lg text-slate-200 leading-relaxed max-w-2xl">
-                {language === "ar"
-                  ? "تفتح الرابطة العلمية والتقنية للشباب بقسنطينة مساحة عملية للشباب المهتم بالعلوم، التكنولوجيا، الروبوتيك، والذكاء الاصطناعي عبر ورشات وأنشطة مؤطرة."
-                  : "STLY Constantine creates a practical space for young people interested in science, technology, robotics, and artificial intelligence through guided workshops and activities."}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Link href="/membership">
-                  <Button variant="secondary" size="lg" className="gap-2 px-6">
-                    <span>{t("nav.membership")}</span>
-                    <ArrowIcon className="w-4 h-4" />
-                  </Button>
-                </Link>
-
-                <Link href="/events">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="border-white/25 text-white bg-white/10 hover:bg-white/20 hover:border-white/40 gap-2 px-6"
-                  >
-                    <span>{language === "ar" ? "الأنشطة القادمة" : "Activities"}</span>
-                  </Button>
-                </Link>
-              </div>
+        <Container className="relative z-10 w-full h-full flex flex-col justify-center" style={{ direction: 'ltr' }}>
+          <div className="max-w-[600px] py-14 sm:py-20 lg:py-24" dir={language === "ar" ? "rtl" : "ltr"}>
+            <div className="inline-flex max-w-full items-center gap-2 px-3.5 py-1.5 rounded-md bg-[#062B55]/50 border border-white/10 backdrop-blur-md mb-6 shadow-sm">
+              <Atom className="w-4 h-4 text-brand-green-accent" />
+              <span className="text-xs sm:text-sm font-bold text-slate-100">
+                {language === "ar" ? "رابطة النشاطات العلمية والتقنية للشباب قسنطينة" : "STLY Constantine"}
+              </span>
             </div>
 
-            <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md lg:max-w-none rounded-xl overflow-hidden border border-white/15 bg-white/8 shadow-xl">
-                {canShowHeroImage ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={heroImage}
-                      alt={language === "ar" ? "أنشطة الرابطة العلمية والتقنية للشباب" : "STLY science and youth activities"}
-                      onError={() => setBrokenHeroImage(heroImage)}
-                      className="h-[280px] sm:h-[360px] lg:h-[430px] w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#041D38]/85 via-[#062B55]/20 to-transparent" />
-                    <div className="absolute bottom-0 inset-x-0 p-5 sm:p-6">
-                      <p className="text-xs font-bold uppercase tracking-widest text-brand-green-accent">
-                        STLY Constantine
-                      </p>
-                      <p className="mt-2 text-sm sm:text-base font-bold leading-relaxed text-white">
-                        {language === "ar"
-                          ? "ورشات، نواد علمية، وأنشطة ميدانية للشباب."
-                          : "Workshops, science clubs, and youth activities."}
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="p-6 sm:p-8 min-h-[320px] flex flex-col justify-between bg-[#08386E]">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-lg bg-brand-green/20 border border-brand-green/30 flex items-center justify-center text-brand-green-accent">
-                          <ImageIcon className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold uppercase tracking-widest text-brand-green-accent">STLY</p>
-                          <p className="text-sm font-bold text-white">
-                            {language === "ar" ? "قسنطينة، الجزائر" : "Constantine, Algeria"}
-                          </p>
-                        </div>
-                      </div>
-                      <CalendarDays className="w-8 h-8 text-white/40" />
-                    </div>
-                    <div className="space-y-4">
-                      <p className="text-2xl sm:text-3xl font-black leading-tight">
-                        {language === "ar" ? siteSettings.sloganAr : siteSettings.sloganEn}
-                      </p>
-                      <p className="text-sm text-slate-200 leading-relaxed">
-                        {language === "ar"
-                          ? "واجهة بسيطة وواضحة تعكس هوية الرابطة وأنشطتها."
-                          : "A simple branded composition that reflects the league and its activities."}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.15] tracking-tight mb-6">
+              {language === "ar" ? (
+                <>
+                  نصنع جيلاً يبتكر<br />
+                  <span className="text-brand-green-accent">المستقبل</span>
+                </>
+              ) : (
+                <>
+                  Building a Generation<br />
+                  to Innovate the <span className="text-brand-green-accent">Future</span>
+                </>
+              )}
+            </h1>
+
+            <p className="text-base sm:text-lg text-slate-200 leading-relaxed mb-8 font-medium drop-shadow-sm">
+              {language === "ar"
+                ? "بيئة شبابية تجمع العلوم والتكنولوجيا والابتكار من خلال الأنشطة التطبيقية، الورشات، المبادرات والتحديات العلمية."
+                : "A youth environment bringing together science, technology and innovation through hands-on activities, workshops, initiatives and scientific challenges."}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4 mb-10">
+              <Link 
+                href="/membership" 
+                className="inline-flex items-center justify-center gap-2 px-6 h-12 rounded-lg font-bold bg-brand-green text-brand-dark hover:bg-brand-green-accent transition-colors shadow-lg shadow-brand-green/20"
+              >
+                <span>{language === "ar" ? "انضم إلينا" : "Join Us"}</span>
+                <ArrowIcon className="w-4 h-4" />
+              </Link>
+
+              <Link 
+                href="/gallery"
+                className="inline-flex items-center justify-center gap-2 px-6 h-12 rounded-lg font-bold bg-white/5 text-white border border-white/25 hover:bg-white/10 backdrop-blur-sm transition-colors"
+              >
+                <span>{language === "ar" ? "اكتشف نشاطاتنا" : "Explore Activities"}</span>
+              </Link>
+            </div>
+
+            {/* Compact Quick Links */}
+            <div className="flex flex-wrap gap-3">
+              <Link href="/ansf" className="inline-flex items-center px-3 py-1.5 rounded-md bg-[#041D38]/60 border border-white/10 hover:bg-[#062B55]/80 text-xs font-bold text-slate-300 hover:text-white transition-colors backdrop-blur-sm">
+                ANSF 2026
+              </Link>
+              <Link href="/gallery?album=basmaTech" className="inline-flex items-center px-3 py-1.5 rounded-md bg-[#041D38]/60 border border-white/10 hover:bg-[#062B55]/80 text-xs font-bold text-slate-300 hover:text-white transition-colors backdrop-blur-sm">
+                {language === "ar" ? "بصمة تك" : "Basma-Tech"}
+              </Link>
+              <Link href="/gallery" className="inline-flex items-center px-3 py-1.5 rounded-md bg-[#041D38]/60 border border-white/10 hover:bg-[#062B55]/80 text-xs font-bold text-slate-300 hover:text-white transition-colors backdrop-blur-sm">
+                {language === "ar" ? "معرض الأنشطة" : "Gallery"}
+              </Link>
             </div>
           </div>
         </Container>
@@ -317,76 +290,71 @@ export default function HomePage() {
       {/* ========================================================
           3. ANSF FEATURE SECTION
       ======================================================== */}
-      <section className="py-16 sm:py-20 bg-[#F4F7FA] border-b border-[#DCE3EA]">
-        <Container>
+      <section className="py-16 sm:py-20 bg-[#04162B] border-y border-[#062B55] text-white overflow-hidden relative">
+        <Container className="relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            <div className="lg:col-span-7 space-y-5">
-              <span className="inline-flex items-center text-xs font-bold text-brand-navy tracking-wider uppercase bg-white border border-brand-navy/15 px-3 py-1 rounded-md">
+            <div className="lg:col-span-7 space-y-6">
+              <span className="inline-flex items-center text-xs font-bold text-[#00E5FF] tracking-wider uppercase bg-[#00E5FF]/10 border border-[#00E5FF]/20 px-3 py-1 rounded-md shadow-[0_0_15px_rgba(0,229,255,0.1)]">
                 ANSF 2026
               </span>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-brand-dark leading-tight tracking-tight">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white leading-tight tracking-tight">
                 {language === "ar"
-                  ? "المعرض العلمي الوطني الجزائري"
+                  ? "المعرض العلمي الوطني الجزائري 2026"
                   : "Algerian National Science Fair"}
               </h2>
-              <p className="text-sm sm:text-base text-brand-muted leading-relaxed max-w-3xl">
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-3xl">
                 {language === "ar"
-                  ? "مسابقة علمية لفئة 12–18 سنة، أقيمت من 17 إلى 19 جويلية 2026 ضمن الأنشطة العلمية لرابطة النشاطات العلمية والتقنية للشباب – قسنطينة."
-                  : "A science competition for ages 12–18, held from 17 to 19 July 2026 within STLY Constantine's scientific activities."}
+                  ? "مسابقة علمية وطنية للأعمار 12–18 سنة، نُظمت من 17 إلى 19 جويلية 2026 ضمن الأنشطة العلمية للرابطة."
+                  : "A national science competition for ages 12–18, held from 17 to 19 July 2026 within STLY Constantine's scientific activities."}
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mb-6">
                 {[
                   {
-                    label: language === "ar" ? "التاريخ" : "Dates",
+                    label: language === "ar" ? "التواريخ" : "Dates",
                     value: language === "ar" ? "17–19 جويلية 2026" : "17–19 July 2026",
                   },
                   {
                     label: language === "ar" ? "المجالات" : "Fields",
-                    value: language === "ar" ? "9 مجالات" : "9 fields",
+                    value: language === "ar" ? "9 مجالات علمية" : "9 scientific fields",
                   },
                   {
-                    label: language === "ar" ? "الفئة العمرية" : "Ages",
+                    label: language === "ar" ? "فئة الأعمار" : "Ages",
                     value: language === "ar" ? "12–18 سنة" : "12–18",
                   },
                 ].map((fact) => (
-                  <div key={fact.label} className="rounded-xl border border-[#DCE3EA] bg-white p-4 shadow-xs">
-                    <p className="text-[11px] font-bold text-brand-muted">{fact.label}</p>
-                    <p className="mt-1 text-sm font-extrabold text-brand-dark">{fact.value}</p>
+                  <div key={fact.label} className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-4">
+                    <p className="text-[11px] font-bold text-slate-400">{fact.label}</p>
+                    <p className="mt-1 text-sm font-extrabold text-[#00E5FF]">{fact.value}</p>
                   </div>
                 ))}
               </div>
-            </div>
 
-            <div className="lg:col-span-5 rounded-xl border border-[#DCE3EA] bg-white p-6 sm:p-7 shadow-xs space-y-5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#062B55] text-brand-green-accent">
-                  <Atom className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-brand-green">
-                    ANSF
-                  </p>
-                  <p className="text-sm font-extrabold text-brand-dark">
-                    {language === "ar" ? "نشاط علمي وطني" : "National Science Activity"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Link href="/ansf">
-                  <Button variant="secondary" size="md" className="gap-2">
-                    <span>{language === "ar" ? "تفاصيل ANSF" : "ANSF Details"}</span>
-                    <ArrowIcon className="w-4 h-4" />
-                  </Button>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link href="/ansf" className="inline-flex items-center justify-center gap-2 px-5 h-11 rounded-lg font-bold bg-[#00E5FF] text-[#04162B] hover:bg-[#00BCCC] transition-colors shadow-lg shadow-[#00E5FF]/20">
+                  <span>{language === "ar" ? "اكتشف ANSF 2026" : "Explore ANSF 2026"}</span>
+                  <ArrowIcon className="w-4 h-4" />
                 </Link>
-                <a href="https://ansf.tech/" target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" size="md" className="gap-2">
-                    <span>{language === "ar" ? "الموقع الرسمي" : "Official Website"}</span>
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
+                
+                <Link href="/gallery?album=ansf" className="inline-flex items-center justify-center gap-2 px-5 h-11 rounded-lg font-bold bg-white/5 text-white border border-white/20 hover:bg-white/10 transition-colors">
+                  <span>{language === "ar" ? "شاهد التغطية" : "View Coverage"}</span>
+                </Link>
+
+                <a href="https://ansf.tech/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 h-11 rounded-lg font-bold text-slate-400 hover:text-white transition-colors text-sm">
+                  <span>{language === "ar" ? "زيارة الموقع الرسمي" : "Visit Official Website"}</span>
+                  <ExternalLink className="w-4 h-4" />
                 </a>
               </div>
+            </div>
+
+            <div className="lg:col-span-5 flex justify-center lg:justify-end relative">
+              <div className="absolute inset-0 bg-[#00E5FF]/5 blur-3xl rounded-full" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/brands/ansf-logo.jpg"
+                alt="ANSF 2026"
+                className="relative z-10 w-48 sm:w-60 md:w-72 lg:w-80 h-auto object-contain rounded-xl shadow-2xl"
+              />
             </div>
           </div>
         </Container>
@@ -395,32 +363,40 @@ export default function HomePage() {
       {/* ========================================================
           4. BASMA-TECH FEATURE SECTION
       ======================================================== */}
-      <section className="py-16 sm:py-20 bg-white border-b border-[#DCE3EA]">
-        <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            <div className="lg:col-span-8 space-y-4">
-              <span className="inline-flex items-center text-xs font-bold text-brand-navy tracking-wider uppercase bg-brand-navy/5 border border-brand-navy/15 px-3 py-1 rounded-md">
+      <section className="py-16 sm:py-20 bg-white border-b border-[#DCE3EA] relative overflow-hidden">
+        {/* Purple/Cyan accents */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/5 rounded-full pointer-events-none" />
+
+        <Container className="relative z-10">
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+            <div className="w-full md:w-1/3 flex justify-center lg:justify-end">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/brands/basma-tech.png"
+                alt="Basma-Tech"
+                className="w-32 sm:w-40 md:w-48 lg:w-56 h-auto object-contain"
+              />
+            </div>
+            
+            <div className="w-full md:w-2/3 space-y-5 text-center md:text-start" dir={language === "ar" ? "rtl" : "ltr"}>
+              <span className="inline-flex items-center text-xs font-bold text-purple-700 tracking-wider uppercase bg-purple-50 border border-purple-200 px-3 py-1 rounded-md">
                 Basma-Tech
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-dark leading-tight">
+              <p className="text-lg sm:text-xl font-bold text-slate-800 leading-relaxed">
                 {language === "ar"
-                  ? "فريق بصمة تك التابع للرابطة"
-                  : "Basma-Tech, a Scientific Team Within STLY Constantine"}
-              </h2>
-              <p className="text-sm sm:text-base text-brand-muted leading-relaxed max-w-3xl">
-                {language === "ar"
-                  ? "فريق بصمة تك هو فريق علمي تابع لرابطة النشاطات العلمية والتقنية للشباب – قسنطينة، يشارك في الأنشطة والمبادرات والمسابقات العلمية والتكنولوجية."
-                  : "Basma-Tech is a scientific team within STLY Constantine, participating in scientific and technology activities, initiatives, and competitions."}
+                  ? "فريق بصمة تك هو فريق علمي تابع لرابطة النشاطات العلمية والتقنية للشباب – قسنطينة."
+                  : "Basma-Tech is a scientific team within STLY Constantine."}
               </p>
-            </div>
-
-            <div className="lg:col-span-4 flex lg:justify-end">
-              <Link href="/gallery?album=basmaTech">
-                <Button variant="outline" size="md" className="gap-2">
-                  <span>{language === "ar" ? "شاهد أنشطة بصمة تك" : "Explore Basma-Tech Activities"}</span>
+              <div className="flex justify-center md:justify-start">
+                <Link 
+                  href="/gallery?album=basmaTech"
+                  className="inline-flex items-center justify-center gap-2 px-6 h-11 rounded-lg font-bold bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-md"
+                >
+                  <span>{language === "ar" ? "استكشف بصمة تك" : "Explore Basma-Tech"}</span>
                   <ArrowIcon className="w-4 h-4" />
-                </Button>
-              </Link>
+                </Link>
+              </div>
             </div>
           </div>
         </Container>
